@@ -1,0 +1,46 @@
+# This task file requires the following vars be set:
+#
+#   mysql_db: <database_name>
+#   mysql_user: <database_user>
+#   mysql_host: <hostname>          The host which the mysql user is allowed to connect from
+#
+#   (optional) mysql_privs: <mysql_privs>   When set will be used instead of the "database.*:ALL" default value
+#   (optional) mysql_append_privs: <yes|no>    If yes, privileges will be appended instead of overwritten
+#
+---
+- name: Install python-mysqldb
+  package:
+    name: MySQL-python
+
+- name: Generate password for {{ mysql_user }}
+  command: uuidgen
+  register: pw_result
+  changed_when: false
+  check_mode: no
+
+- name: Create database {{ mysql_db }}
+  mysql_db:
+    config_file: /root/.my.cnf
+    name: "{{ mysql_db }}"
+
+- name: Create database user {{ mysql_user }}
+  mysql_user:
+    host: "{{ mysql_host }}"
+    name: "{{ mysql_user }}"
+    password: "{{ pw_result.stdout }}"
+    update_password: on_create
+    append_privs: "{{ mysql_append_privs|default(False) }}"
+    priv: "{{ mysql_privs|default(mysql_db + '.*:ALL') }}"
+  when: ('stdout' in pw_result) and mysql_host is defined
+
+# store info in mysql_user_info as dict member so commanding playbook can lookup any run's values
+- name: Append {{ mysql_user }} credentials to mysql_user_info
+  set_fact:
+    mysql_user_info: "{{ (mysql_user_info|default({})) | combine({
+      mysql_user: {
+        'user': mysql_user,
+        'database': mysql_db,
+        'password': pw_result.stdout
+      }
+    }) }}"
+  when: ('stdout' in pw_result)

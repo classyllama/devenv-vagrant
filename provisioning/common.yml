@@ -1,0 +1,33 @@
+---
+- name: Common
+  hosts: all
+  connection: local
+  become: true
+
+  tasks:
+    - name: Set local timezone to {{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}
+      file:
+        src: "{{ host_zoneinfo }}"
+        dest: /etc/localtime
+        state: link
+        force: yes
+
+    - package:
+        name: "{{ item }}"
+      with_items:
+        - wget
+        - bc
+        - rsync
+        - lsof
+        - ack
+        - perl
+        - man
+        - bash-completion
+        - pv
+        - git
+        - tree
+        - ack
+        - ps_mem
+        - yara
+        - patch
+        - jq

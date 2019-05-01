@@ -1,0 +1,21 @@
+---
+- name: Common
+  hosts: all
+  connection: local
+  become: true
+  tasks:
+    - parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+
+    - filesystem:
+        fstype: xfs
+        dev: /dev/sdb1
+
+    - mount:
+        path: /data
+        src: /dev/sdb1
+        fstype: xfs
+        opts: defaults,nofail,discard
+        state: mounted

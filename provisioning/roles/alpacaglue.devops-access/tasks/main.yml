@@ -1,0 +1,45 @@
+---
+- name: create devops groups
+  group:
+    name: "{{ item }}"
+  with_items: "{{ devops_access_groups }}"
+
+- name: create devops users
+  user:
+    name: "{{ item.username }}"
+    groups: "{{ devops_access_groups | join(',') }}"
+    append: yes
+    shell: /bin/bash
+  with_items: "{{ devops_access_users }}"
+
+- name: import user ssh-keys
+  authorized_key:
+    user: "{{ item.username }}"
+    key: "{{ lookup('file', '{{ item.pubkey }}') }}"
+    exclusive: yes
+  with_items: "{{ devops_access_users }}"
+
+# Confirm include directory exists with the proper permissions
+- name: create /etc/sudoers.d dir
+  file:
+    path: /etc/sudoers.d
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: configure cladmin sudo rights
+  template:
+    src: sudoers.d/classyllama
+    dest: /etc/sudoers.d/classyllama
+    owner: root
+    group: root
+    mode: 0400
+
+# Confirm include directory exists in /etc/sudoers
+- name: configure sudoers include directory
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^#includedir \/etc\/sudoers.d'
+    line: '#includedir /etc/sudoers.d'

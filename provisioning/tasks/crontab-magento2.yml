@@ -1,0 +1,47 @@
+# This task file requires the following vars be set:
+#
+#   crontab_mailto: "<email_address>,<email_address>"    This is an optional var and will default
+#                                                        to sysadmin@classyllama.com if not specified.
+#   crontab_user: <user>
+#   crontab_path: <path>             This should be set to the webroot dir of the Magento 2 deployment
+#
+---
+- set_fact:
+    crontab_mailto: "{{ crontab_mailto | default('sysadmin@classyllama.com') }}"
+
+- name: setup crontab mailto
+  tags: crontab
+  cron:
+    name: MAILTO
+    value: "{{ crontab_mailto }}"
+    env: yes
+    user: "{{ crontab_user }}"
+
+- name: configure magento cron worker
+  tags: crontab
+  cron:
+    name: cron_m2_{{ item.name }}
+    job: >
+      test -f {{ crontab_path }}/{{ item.test }} &&
+      cd {{ crontab_path }} && {{ item.cron }} | tee -a var/log/{{ item.name }}.cron.log
+    disabled: "{{ item.disabled }}"
+    user: "{{ crontab_user }}"
+  loop_control:
+    label:
+      name: "{{ item.name }}"
+      disabled: "{{ item.disabled }}"
+  with_items:
+    - name: application
+      cron: bin/magento cron:run | grep -v "Ran jobs by schedule"
+      test: bin/magento
+      disabled: no
+
+    - name: setup
+      cron: bin/magento setup:cron:run
+      test: bin/magento
+      disabled: yes
+
+    - name: update
+      cron: /usr/bin/php -f update/cron.php
+      test: update/cron.php
+      disabled: yes

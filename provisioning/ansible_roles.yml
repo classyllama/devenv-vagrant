@@ -1,0 +1,56 @@
+---
+- src: davidalger.composer
+
+- src: davidalger.php_cachetool
+
+- src: davidalger.repo_ius
+
+- src: davidalger.n98_magerun
+
+- src: davidalger.repo_ius
+
+- src: davidalger.varnish
+
+- src: davidalger.php_fpm
+
+- src: geerlingguy.repo-epel
+
+
+
+
+- src: git@github.com:classyllama/ansible-role-nginx.git
+  name: classyllama.nginx
+  scm: git
+
+- src: git@github.com:classyllama/ansible-role-multi-redis.git
+  name: classyllama.redis
+  scm: git
+
+
+
+
+
+
+- src: git@github.com:alpacaglue/ansible-role-devops-access.git
+  name: alpacaglue.devops-access
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-boilerplate.git
+  name: alpacaglue.boilerplate
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-www-user.git
+  name: alpacaglue.www-user
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-hostsfile.git
+  name: alpacaglue.hostsfile
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-repo-percona.git
+  name: alpacaglue.repo-percona
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-percona.git
+  name: alpacaglue.percona
+  scm: git

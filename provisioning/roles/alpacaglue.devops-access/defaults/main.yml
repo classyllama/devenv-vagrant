@@ -1,0 +1,10 @@
+---
+devops_access_users:
+  - { username: chuffman, pubkey: files/devops-access/ssh-keys/chuffman }
+  - { username: ewiese, pubkey: files/devops-access/ssh-keys/ewiese }
+  - { username: mjohnson, pubkey: files/devops-access/ssh-keys/mjohnson }
+  - { username: pchoate, pubkey: files/devops-access/ssh-keys/pchoate }
+devops_access_groups:
+  - users
+  - cladmin
+  - sshusers

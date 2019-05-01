@@ -1,0 +1,8 @@
+---
+- name: Set timezone to {{ timezone_name }}
+  file:
+    src: /usr/share/zoneinfo/{{ timezone_name }}
+    dest: /etc/localtime
+    state: link
+    force: yes
+  notify: restart crond

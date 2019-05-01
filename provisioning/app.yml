@@ -1,0 +1,110 @@
+---
+- hosts: all
+  name: Application Server Setup
+  connection: local
+  become: yes
+  
+  vars:
+    app_domain: dev-m2demo.dev
+    
+    php_fpm_pm: ondemand
+    php_fpm_pm_max_children: 10
+    php_version: 72
+    
+    redis_version: 32
+    mysqld_memory_percentage: 50
+    
+    cachetool_config:
+      - path: /home/www-data
+        adapter: fastcgi
+        fastcgi: /var/run/php-fpm/www-data.sock
+        temp_dir: /dev/shm/cachetool
+        extensions: [ opcache ]
+    
+    nginx_vhosts:
+      - name: "{{ app_domain }}"
+        pool: data
+        params:
+          server_name: "{{ app_domain }}"
+          webroot: /var/www/html/current/pub
+          proxy_port: 6081
+        includes:
+          - available.d/magento2-static.conf
+
+    nginx_backends:
+      - name: www-data
+        pool: data
+        listen: 8080
+        webroot: /var/www/html/current/pub
+        includes:
+          - default.d/nginx-status.conf
+          - available.d/realip.conf
+          - available.d/magento2-app.conf
+
+    nginx_extras:
+      - conf.d/map.conf
+      - available.d/realip.conf
+      - available.d/magento2-static.conf
+      - available.d/magento2-app.conf
+
+    nginx_groups: [ www-data ]
+    nginx_conf_auth_allow: []
+
+    # The backend servers are not hanlding SSL termination; optimize this for build speed
+    nginx_diffie_hellman_bits: 1024
+    nginx_config_hsts: no
+
+  pre_tasks:
+    - name: change hostname to myserver
+      hostname:
+        name: "{{ inventory_hostname }}"
+  
+  roles:
+    - { role: alpacaglue.devops-access }
+    - { role: alpacaglue.percona }
+    - { role: alpacaglue.boilerplate }
+    - { role: local.timezone }
+    - { role: alpacaglue.hostsfile }
+    - { role: alpacaglue.www-user }
+
+    - { role: davidalger.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
+    - { role: davidalger.php_fpm, tags: php-fpm }
+
+    - { role: classyllama.redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
+    - { role: classyllama.redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+
+    - { role: davidalger.n98_magerun, tags: toolchain }
+    - { role: davidalger.composer, tags: toolchain }
+    - { role: davidalger.php_cachetool, tags: toolchain }
+
+    - { role: classyllama.nginx, tags: nginx }
+
+  tasks:
+    - package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - yum-plugin-replace
+        - pwgen
+        - jq
+        - unzip
+
+    # Install ImageMagick
+    # verify tool exists: mogrify -version
+    # For access from PHP code it requires the pecl-imagick extension
+    - name: Install ImageMagick
+      tags: toolchain
+      package: 
+        name: ImageMagick
+        state: present
+
+    - name: Install Mail Tools
+      package:
+        name: mailx
+        state: present
+
+    - name: Link cachetool config into /var/www/html
+      file:
+        src: /home/www-data/.cachetool.yml
+        dest: /var/www/html/.cachetool.yml
+        state: link

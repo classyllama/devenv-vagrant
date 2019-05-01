@@ -1,0 +1,11 @@
+server-id                  = {{ mysqld_server_id | ternary(mysqld_server_id, 1) }}
+#log-bin                   = {{ mysqld_log_bin }}
+#relay-log                 = {{ mysqld_relay_log }}
+relay-log-space-limit      = {{ mysqld_relay_log_space_limit }}
+expire-logs-days           = {{ mysqld_expire_logs_days }}
+#read-only                 = {{ mysqld_read_only }}
+#sync-binlog               = {{ mysqld_sync_binlog }}
+#log-slave-updates         = {{ mysqld_log_slave_updates }}
+#binlog-format             = {{ mysqld_binlog_format }}
+#auto-increment-offset     = {{ mysqld_auto_increment_offset }}
+#auto-increment-increment  = {{ mysqld_auto_increment_increment }}

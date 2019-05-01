@@ -1,0 +1,52 @@
+- package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - perl
+    - man
+    - bash-completion
+    - pv
+    - git
+    - tree
+    - lsof
+    - mailx
+    - patch
+
+- name: yara package
+  package:
+    name: yara
+    state: present
+  failed_when: false    # ignore errors on this one since it might not exist everywhere
+
+- name: rhel packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ack
+    - ps_mem
+  when: ansible_os_family == 'RedHat'
+
+- name: debian packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ack-grep
+  when: ansible_os_family == 'Debian'
+
+- name: installing ntp
+  package:
+    name: ntp
+    state: present
+  notify:
+    - ntpd started (rhel)
+    - ntp started (debian)
+
+- name: installing classyllama bash profile
+  template:
+    src: profile.d/classyllama.sh
+    dest: /etc/profile.d/classyllama.sh
+    owner: root
+    group: root
+    mode: 0755

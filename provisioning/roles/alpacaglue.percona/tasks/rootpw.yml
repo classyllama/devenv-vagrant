@@ -1,0 +1,70 @@
+---
+- name: generate password
+  command: uuidgen
+  args:
+    creates: ~root/.my.cnf
+  register: result
+
+- set_fact:
+    mycnf_root_opts:
+      user: root
+      password: "{{ result.stdout }}"
+  when: result.changed
+
+- name: set mysql root localhost user password (socket connections)
+  command: mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('{{ mycnf_root_opts.password }}');"
+  when: result.changed
+
+- name: update ~root/.my.cnf
+  ini_file:
+    dest: ~root/.my.cnf
+    section: client
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: "{{ mycnf_root_opts }}"
+  when: result.changed
+
+- name: set mysql root 127.0.0.1 user password (tcp connections)
+  command: mysql -e "SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('{{ mycnf_root_opts.password }}');"
+  when: result.changed
+
+- name: set mysql root ::1 user password (tcp connections)
+  command: mysql -e "SET PASSWORD FOR 'root'@'::1' = PASSWORD('{{ mycnf_root_opts.password }}');"
+  when: result.changed
+
+- name: drop mysql anonymous localhost user
+  command: mysql -e "DROP USER ''@'localhost';"
+  when: result.changed
+
+- name: get system hostname
+  command: hostname
+  register: local_hostname
+  when: result.changed
+
+- name: drop mysql anonymous {{ local_hostname.stdout }} user
+  command: mysql -e "DROP USER ''@'{{ local_hostname.stdout }}';"
+  when: result.changed
+
+- name: drop mysql root {{ local_hostname.stdout }} user
+  command: mysql -e "DROP USER 'root'@'{{ local_hostname.stdout }}';"
+  when: result.changed
+
+- name: get count of mysql users with no password
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_count
+  changed_when: False
+
+- debug: var=mysql_users_with_no_password_count
+  when: ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- name: list mysql user account without passwords
+  command: mysql -e "select user, host, password from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_list
+  when: ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- debug: var=mysql_users_with_no_password_list
+  when: ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- fail: 
+    msg: Mysql users exist that have no password
+  when: ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)

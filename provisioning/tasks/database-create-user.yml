@@ -1,0 +1,31 @@
+---
+- name: Install python-mysqldb
+  package:
+    name: MySQL-python
+    
+- name: "Generate password for {{ mysql_user }}"
+  command: uuidgen
+  register: pw_result
+  changed_when: false
+  check_mode: no
+  
+- name: "Create database user {{ mysql_user }}"
+  mysql_user:
+    host: "{{ mysql_from_host|default('%') }}"
+    name: "{{ mysql_user }}"
+    password: "{{ pw_result.stdout }}"
+    update_password: on_create
+    append_privs: "{{ mysql_append_privs|default(false) }}"
+    priv: "{{ mysql_privileges }}"
+
+# store info in mysql_user_info as dict member so commanding playbook can lookup any run's values
+- name: "Append {{ mysql_user }} credentials to mysql_user_info"
+  set_fact:
+    mysql_user_info: "{{ (mysql_user_info|default({})) | combine({
+      mysql_user: {
+        'user': mysql_user,
+        'host': mysql_host|default('127.0.0.1'),
+        'database': mysql_database,
+        'password': pw_result.stdout
+      }
+    }) }}"

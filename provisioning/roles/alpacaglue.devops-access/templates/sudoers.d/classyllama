@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+
+# Administrative access for Classy Llama admins
+%cladmin ALL=(ALL) NOPASSWD:ALL

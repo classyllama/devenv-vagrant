@@ -1,0 +1,50 @@
+# This task file requires the following vars be set:
+#
+#   mycnf_opts: <options>  Should contain one dictionary member as defined by database-create.yml in database_user_info
+#   mycnf_file: <path>     Path to the .my.cnf file to store the given options in
+#
+# When a file already exists at the location specified by mycnf_file, the password option will be removed from the
+# options dictionary prior to updating the file unless mycnf_update_password is set to true
+#
+---
+- name: checking {{ mycnf_file }} for password
+  command: grep -q "^password" "{{ mycnf_file }}"
+  register: mysql_cnf_password_check
+  failed_when: false
+  changed_when: false
+
+- set_fact:
+    mycnf_client_opts: "{{ (mycnf_client_opts|default({})) | combine({'host': mycnf_opts.host}) }}"
+  when: ('host' in mycnf_opts)
+
+- set_fact:
+    mycnf_client_opts: "{{ (mycnf_client_opts|default({})) | combine({'host': 'localhost'}) }}"
+  when: ('host' not in mycnf_opts)
+
+- set_fact:
+    mycnf_client_opts: "{{ (mycnf_client_opts|default({})) | combine({'user': mycnf_opts.user}) }}"
+  when: ('user' in mycnf_opts)
+
+- set_fact:
+    mycnf_client_opts: "{{ (mycnf_client_opts|default({})) | combine({'password': mycnf_opts.password}) }}"
+  when: ('password' in mycnf_opts) and ('rc' in mysql_cnf_password_check) and (mysql_cnf_password_check.rc != 0)
+
+- name: update {{ mycnf_file }} [client]
+  ini_file:
+    dest: "{{ mycnf_file }}"
+    section: client
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: "{{ mycnf_client_opts|default({}) }}"
+
+- set_fact:
+    mycnf_mysql_opts: "{{ (mycnf_mysql_opts|default({})) | combine({'database': mycnf_opts.database}) }}"
+  when: ('database' in mycnf_opts)
+
+- name: update {{ mycnf_file }} [mysql]
+  ini_file:
+    dest: "{{ mycnf_file }}"
+    section: mysql
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  with_dict: "{{ mycnf_mysql_opts|default({}) }}"
