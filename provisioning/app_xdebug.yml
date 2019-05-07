@@ -1,0 +1,47 @@
+---
+- hosts: app
+  name: Application Debug Setup
+  connection: local
+  become: yes
+  
+  vars:
+    php_fpm_pm: ondemand
+    php_fpm_pm_max_children: 10
+    php_version: 72
+    php_additional_modules:
+      - xdebug
+    
+    php_fpm_global_additional_ini:
+      display_errors: "on"
+      html_errors: "on"
+      error_reporting: E_ALL ^ E_DEPRECATED
+      max_execution_time: 600
+      date.timezone: UTC
+      session.gc_maxlifetime: 7200
+      openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
+
+    php_extension_xdebug_ini:
+      xdebug.remote_enable: "on"
+      xdebug.remote_host: 10.19.89.1
+      xdebug.idekey: PHPSTORM
+      xdebug.show_local_vars: "on"
+      xdebug.var_display_max_depth: 3
+      xdebug.max_nesting_level: 250
+      xdebug.file_link_format :  '"phpstorm://open?file=%f&line=%l"'
+      xdebug.profiler_enable: 0
+      xdebug.profiler_output_dir: "/tmp"
+      xdebug.profiler_output_name: cachegrind.out.%s.%t
+    php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
+  
+  roles:
+    - { role: davidalger.php_fpm, tags: php-fpm }
+    
+  tasks:
+    - name: configure xdebug.ini
+      ini_file:
+        dest: "{{ php_xdebug_ini_path }}"
+        section: xdebug
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_extension_xdebug_ini }}"
+      notify: restart php-fpm

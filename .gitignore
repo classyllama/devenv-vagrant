@@ -1,2 +1,3 @@
 /*.vmdk
 /.vagrant/*
+/persistent

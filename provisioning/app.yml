@@ -5,7 +5,7 @@
   become: yes
   
   vars:
-    app_domain: dev-m2demo.dev
+    app_domain: dev-m2demo.demo
     
     php_fpm_pm: ondemand
     php_fpm_pm_max_children: 10
@@ -27,7 +27,8 @@
         params:
           server_name: "{{ app_domain }}"
           webroot: /var/www/html/current/pub
-          proxy_port: 6081
+          #proxy_port: 6081
+          proxy_port: 8080
         includes:
           - available.d/magento2-static.conf
 
@@ -39,13 +40,14 @@
         includes:
           - default.d/nginx-status.conf
           - available.d/realip.conf
-          - available.d/magento2-app.conf
+          - available.d/magento2.conf
 
     nginx_extras:
       - conf.d/map.conf
       - available.d/realip.conf
       - available.d/magento2-static.conf
       - available.d/magento2-app.conf
+      - available.d/magento2.conf
 
     nginx_groups: [ www-data ]
     nginx_conf_auth_allow: []
@@ -72,6 +74,7 @@
 
     - { role: classyllama.redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
     - { role: classyllama.redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+    - { role: classyllama.redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
 
     - { role: davidalger.n98_magerun, tags: toolchain }
     - { role: davidalger.composer, tags: toolchain }

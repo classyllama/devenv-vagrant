@@ -5,7 +5,7 @@
   become: yes
   
   vars:
-    url_domain: dev-m2demo.dev
+    url_domain: dev-m2demo.demo
     magent_rel_ver: "2.3.1"
     env_root_dir: "/var/www/html"
     magento_composer_project: "magento/project-community-edition"

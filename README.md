@@ -2,18 +2,71 @@
 
     vagrant provision
 
+[ ] Get composer configs on VM (shared?/copied?)
+
+    composer config --list -g
+
+    composer config -g github-oauth.github.com xxxxx
+    composer config -g http-basic.repo.magento.com xxxxx xxxxx
+
+[ ] manual rsync for debugging
+[ ] rsync auto files to Mac
+[ ] install bypassing varnish and using built-in full page cache
+
+[ ] Get the ability to customize what user (vagrant?) the application is deployed under. 
 
     vagrant ssh
     sudo -iu www-data
     /home/www-data/initialize-magento.sh
-  
+
+[ ] Ability to SSH directly to internal network IP of VM, avoiding 'vagrant ssh'
+
     echo "
     PATH=$PATH:/usr/local/bin/
     export PATH
     " >> ~/.bash_profile
-    
-    composer global config
-    
+
+[ ] portable dev environment for any project
+
+# Performance Characteristics
+
+    # exp-vagrant-m2 (2vCPU 4GB RAM)
+    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
+
+
+    rm -rf ./var/cache
+    rm -rf ./var/page_cache
+    rm -rf ./var/tmp
+    rm -rf ./var/view_preprocessed
+    rm -rf ./pub/static/adminhtml
+    rm -rf ./pub/static/frontend
+    rm -rf ./pub/media/catalog/product/cache
+    redis-cli -p 6379 flushall
+    redis-cli -p 6381 flushall
+
+    Finish Time (TTFB Document Time) in seconds
+
+
+    # Only enabled config cache
+    bin/magento cache:disable
+    bin/magento cache:enable config
+
+    Home Page (/) [224 requests]
+      25 (6), 10 (0.7), 3 (0.7)
+
+    Admin Configuration (/backend/admin/system_config/index) [ requests]
+      21 (8), 3 (0.7)
+
+
+    # Enable All Caches
+    bin/magento cache:enable
+
+    Home [221]: 22 (6), 1.73 (0.1)
+    Admin Configuration 1.8 (0.3)
+
+
+    # Disable All Caches
+    Home [221]: 550 (6) 11 (6)
 
 # Install ansible dependencies with ansible-galaxy
 

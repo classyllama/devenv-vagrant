@@ -67,7 +67,7 @@ bin/magento setup:install \
   --db-user="${DB_USER}" \
   --db-password="${DB_PASS}" \
   --db-name="${DB_NAME}" \
-  --magento-init-params="MAGE_MODE=production" \
+  --magento-init-params="MAGE_MODE=developer" \
   --use-secure=1 \
   --use-secure-admin=1 \
   --http-cache-hosts=127.0.0.1:6081 \
@@ -82,17 +82,23 @@ bin/magento setup:install \
 ;
 
 # Configure Magento
-bin/magento config:set web/unsecure/base_url ${BASE_URL}/
-bin/magento config:set web/secure/base_url ${BASE_URL}/
-bin/magento config:set web/unsecure/base_static_url ${BASE_URL}/static/
-bin/magento config:set web/secure/base_static_url ${BASE_URL}/static/
-bin/magento config:set web/unsecure/base_media_url ${BASE_URL}/media/
-bin/magento config:set web/secure/base_media_url ${BASE_URL}/media/
+# bin/magento config:set web/unsecure/base_url ${BASE_URL}/
+# bin/magento config:set web/secure/base_url ${BASE_URL}/
+# bin/magento config:set web/unsecure/base_static_url ${BASE_URL}/static/
+# bin/magento config:set web/secure/base_static_url ${BASE_URL}/static/
+# bin/magento config:set web/unsecure/base_media_url ${BASE_URL}/media/
+# bin/magento config:set web/secure/base_media_url ${BASE_URL}/media/
 
-bin/magento config:set dev/static/sign 1
+# bin/magento config:set dev/static/sign 1
 
-bin/magento config:set system/full_page_cache/caching_application 2
-bin/magento config:set system/full_page_cache/ttl 604800
+bin/magento setup:config:set \
+  --page-cache=redis \
+  --page-cache-redis-server=127.0.0.1 \
+  --page-cache-redis-db=0 \
+  --page-cache-redis-port=6381
+
+# bin/magento config:set system/full_page_cache/caching_application 2
+# bin/magento config:set system/full_page_cache/ttl 604800
 
 # php -r '
 #   echo "<?php\nreturn " . var_export(array_merge(
@@ -103,7 +109,7 @@ bin/magento config:set system/full_page_cache/ttl 604800
 
 bin/magento app:config:import
 bin/magento cache:flush
-bin/magento deploy:mode:set production
+bin/magento deploy:mode:set developer
 bin/magento cache:flush
 
 # bin/magento catalog:images:resize
