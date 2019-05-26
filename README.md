@@ -68,6 +68,25 @@
     # Disable All Caches
     Home [221]: 550 (6) 11 (6)
 
+    # classyllama/devenv (2vCPU 4GB RAM)
+    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
+
+
+
+    # classyllama/devenv (2vCPU 4GB RAM) NFS code/mysql
+    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
+
+    # Only enabled config cache
+    Home Page (/) [214 requests]
+      78 (17), 6 (4)
+
+    # Enable All Caches
+    Home [214]: 66 (13), 1.7 (0.4)
+
+    # Disable All Caches
+    Home [213]: 492 (14) 22 (13)
+
+
 # Install ansible dependencies with ansible-galaxy
 
     ansible-galaxy -r ansible_roles.yml install
