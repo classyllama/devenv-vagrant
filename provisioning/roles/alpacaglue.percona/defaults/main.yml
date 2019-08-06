@@ -19,6 +19,8 @@ mysqld_memory_percentage: 100
 mysqld_memory_divisor: "{{ (ansible_memtotal_mb > 7680) | ternary('1024', '1') }}"
 mysqld_memory_unit: "{{ (ansible_memtotal_mb > 7680) | ternary('G', 'M') }}"
 
+percona_version: 56
+
 # Create the tmpdir if it doesn't exist; should be set to "no" when tmpdir path is a symlink (for example)
 mysqld_create_tmpdir: yes
 
@@ -110,6 +112,9 @@ mysqld_auto_increment_increment: 2
 # like `%.catalog%_tmp` to cause the slave to filter data written to these tables to avoid replcation failure as
 # a result of a slave restart while there is data in one of the MEMORY tables on the master mysql server
 mysqld_replicate_wild_ignore_table: false
+
+# Extra MySQL Configs
+mysqld_my_cnf_extras: {}
 
 ## Logging
 mysqld_log_output: FILE

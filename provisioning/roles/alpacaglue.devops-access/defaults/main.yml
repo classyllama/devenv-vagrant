@@ -1,9 +1,8 @@
 ---
-devops_access_users:
-  - { username: chuffman, pubkey: files/devops-access/ssh-keys/chuffman }
-  - { username: ewiese, pubkey: files/devops-access/ssh-keys/ewiese }
-  - { username: mjohnson, pubkey: files/devops-access/ssh-keys/mjohnson }
-  - { username: pchoate, pubkey: files/devops-access/ssh-keys/pchoate }
+devops_access_users: []
+# Set the devops_access_users array when using this role to create and authorize a user
+# devops_access_users:
+#   - { username: mjohnson, pubkey: files/ssh-keys/mjohnson }
 devops_access_groups:
   - users
   - cladmin

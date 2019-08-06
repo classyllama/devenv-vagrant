@@ -5,6 +5,12 @@
   become: yes
   
   vars:
+    
+    devops_access_users:
+      - { username: mjohnson, pubkey: files/ssh-keys/mjohnson }
+    www_user_ssh_keys:
+      - files/ssh-keys/mjohnson
+    
     app_domain: dev-m2demo.demo
     
     php_fpm_pm: ondemand
@@ -70,11 +76,11 @@
     - { role: alpacaglue.www-user }
 
     - { role: davidalger.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: davidalger.php_fpm, tags: php-fpm }
+    - { role: classyllama.php_fpm, tags: php-fpm }
 
-    - { role: classyllama.redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
-    - { role: classyllama.redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    - { role: classyllama.redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
 
     - { role: davidalger.n98_magerun, tags: toolchain }
     - { role: davidalger.composer, tags: toolchain }

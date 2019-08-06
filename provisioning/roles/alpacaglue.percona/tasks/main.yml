@@ -1,8 +1,11 @@
 ---
-- name: install percona server
-  yum:
-    name: Percona-Server-server-56
+- name: Install Percona Client/Server
+  package:
+    name: "{{ item }}"
     state: present
+  with_items:
+    - "Percona-Server-server-{{ percona_version }}"
+    - "Percona-Server-client-{{ percona_version }}"
 
 - name: create mysqld tmpdir
   file:
