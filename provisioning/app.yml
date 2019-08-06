@@ -53,7 +53,7 @@
       - available.d/realip.conf
       - available.d/magento2-static.conf
       - available.d/magento2-app.conf
-      - available.d/magento2.conf
+      - { src: nginx/magento2.conf, dest: available.d/magento2.conf }
 
     nginx_groups: [ www-data ]
     nginx_conf_auth_allow: []
@@ -97,6 +97,7 @@
         - pwgen
         - jq
         - unzip
+        - words
 
     # Install ImageMagick
     # verify tool exists: mogrify -version
