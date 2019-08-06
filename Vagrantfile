@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
       
       # Persistent Disk Configuration
       unless File.exist?(persistDiskPath)
-        vb.customize ['createmedium', 'disk', '--filename', persistDiskPath, '--size', persistDiskSizeGb * 1024, '--format', 'VMDK']
+        vb.customize ['createmedium', 'disk', '--filename', persistDiskPath, '--size', (persistDiskSizeGb * 1024).to_s, '--format', 'VMDK']
       end
       vb.customize ['storagectl', :id, '--name', "#{diskControllerName}", '--portcount', 2]
       vb.customize ['storageattach', :id, '--storagectl', "#{diskControllerName}", '--port', persistContPort, '--device', persistContDev, '--type', 'hdd', '--medium', persistDiskPath]
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
       if File.exist?(".vagrant/machines/#{machineName}/virtualbox/id")
         machineId = File.read(".vagrant/machines/#{machineName}/virtualbox/id")
         vmInfoExtraction = %x( vboxmanage showvminfo #{machineId} --machinereadable | grep '"#{diskControllerName}-#{persistContPort}-#{persistContDev}"' )
-        contPortDevValue = vmInfoExtraction.split("=")[1].gsub('"','').chomp()
+        contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
         trigger.info = "Persistent Disk: #{contPortDevValue}"
         if contPortDevValue == 'none'
           trigger.warn = "Attaching Persistent Disk"
@@ -68,7 +68,7 @@ Vagrant.configure("2") do |config|
       if File.exist?(".vagrant/machines/#{machineName}/virtualbox/id")
         machineId = File.read(".vagrant/machines/#{machineName}/virtualbox/id")
         vmInfoExtraction = %x( vboxmanage showvminfo #{machineId} --machinereadable | grep '"#{diskControllerName}-#{persistContPort}-#{persistContDev}"' )
-        contPortDevValue = vmInfoExtraction.split("=")[1].gsub('"','').chomp()
+        contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
         trigger.info = "Persistent Disk: #{contPortDevValue}"
         if contPortDevValue != 'none'
           trigger.warn = "Detatching Persistent Disk"
@@ -80,10 +80,10 @@ Vagrant.configure("2") do |config|
     node.trigger.before :destroy do |trigger|
       trigger.name = "Persistent Disk"
       if File.exist?(".vagrant/machines/#{machineName}/virtualbox/id")
-        machineId = File.read(".vagrant/machines/#{machineName}/virtualbox/id")        
+        machineId = File.read(".vagrant/machines/#{machineName}/virtualbox/id")
         vmInfoExtraction = %x( vboxmanage showvminfo #{machineId} --machinereadable | grep '"#{diskControllerName}-#{persistContPort}-#{persistContDev}"' )
-        contPortDevValue = vmInfoExtraction.split("=")[1].gsub('"','').chomp()
-        trigger.info = "Persistent Disk: #{contPortDevValue}"        
+        contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
+        trigger.info = "Persistent Disk: #{contPortDevValue}"
         if contPortDevValue != 'none'
           trigger.warn = "Drive still attached (#{contPortDevValue}) - machine cannot be destroyed! - Please halt the machine first."
           trigger.run = {inline: "exit 'drive attached - cannot be destroyed'"}
