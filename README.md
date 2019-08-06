@@ -2,12 +2,27 @@
 
     vagrant provision
 
+[ ] composer in /usr/local/bin not in path for www-data
+
+    echo '
+    PATH=$PATH:/usr/local/bin/
+    export PATH
+    ' >> ~/.bash_profile
+
 [ ] Get composer configs on VM (shared?/copied?)
 
     composer config --list -g
+    
+    GITHUB_OAUTH=$(composer config -g github-oauth.github.com)
+    COMPOSER_USER=$(composer config -g http-basic.repo.magento.com | jq -r '.username')
+    COMPOSER_PASS=$(composer config -g http-basic.repo.magento.com | jq -r '.password')
+    echo "
+    composer config -g github-oauth.github.com ${GITHUB_OAUTH}
+    composer config -g http-basic.repo.magento.com ${COMPOSER_USER} ${COMPOSER_PASS}
+    "
 
-    composer config -g github-oauth.github.com xxxxx
-    composer config -g http-basic.repo.magento.com xxxxx xxxxx
+    composer config -g github-oauth.github.com xxxxxxx
+    composer config -g http-basic.repo.magento.com xxxxxxx xxxxxxx
 
 [ ] manual rsync for debugging
 [ ] rsync auto files to Mac
@@ -21,10 +36,6 @@
 
 [ ] Ability to SSH directly to internal network IP of VM, avoiding 'vagrant ssh'
 
-    echo "
-    PATH=$PATH:/usr/local/bin/
-    export PATH
-    " >> ~/.bash_profile
 
 [ ] portable dev environment for any project
 
@@ -130,3 +141,19 @@
     sudo umount /media/VBoxGuestAdditions
     sudo rmdir /media/VBoxGuestAdditions
 
+# Troubleshooting vagrant/virtualbox
+
+    vboxmanage list
+    VM_ID="exp-vagrant-m2_dev-m2demo_1564793526855_3776"
+    vboxmanage showvminfo ${VM_ID} --machinereadable | grep '"SATA Controller-1-0"' 
+
+    vagrant up --debug
+    vboxmanage list hdds
+    vboxmanage showmediuminfo disk /opt/alpacaglue/lab-example/gitman_sources/exp-vagrant-m2/persistent_data_disk.vmdk
+    vboxmanage closemedium disk /opt/alpacaglue/lab-example/gitman_sources/exp-vagrant-m2/persistent_data_disk.vmdk --delete
+
+    vboxmanage closemedium disk persistent_data_disk.vmdk --delete
+
+# File Sync with Mutagen
+
+    brew install mutagen-io/mutagen/mutagen

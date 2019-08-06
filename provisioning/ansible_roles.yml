@@ -3,15 +3,9 @@
 
 - src: davidalger.php_cachetool
 
-- src: davidalger.repo_ius
-
 - src: davidalger.n98_magerun
 
-- src: davidalger.repo_ius
-
 - src: davidalger.varnish
-
-- src: davidalger.php_fpm
 
 - src: geerlingguy.repo-epel
 
@@ -23,7 +17,19 @@
   scm: git
 
 - src: git@github.com:classyllama/ansible-role-multi-redis.git
-  name: classyllama.redis
+  name: classyllama.multi_redis
+  scm: git
+
+- src: git@github.com:classyllama/ansible-role-repo-ius.git
+  name: classyllama.repo_ius
+  scm: git
+
+- src: git@github.com:classyllama/ansible-role-php-fpm.git  
+  name: classyllama.php_fpm
+  scm: git
+
+- src: git@github.com:classyllama/ansible-role-nginx.git
+  name: classyllama.nginx
   scm: git
 
 
