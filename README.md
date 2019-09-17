@@ -29,6 +29,8 @@ https://dev-m2demo.demo/
     [ ] Ansible
     [ ] Mutagen
 
+[ ] Actually store something and utilize the attached persistent disk /data/ for DB and site files.
+
 [ ] install bypassing varnish and using built-in full page cache
 [ ] Get the ability to customize what user is logged into via `vagrant ssh`
 
