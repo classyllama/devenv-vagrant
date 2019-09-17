@@ -47,12 +47,12 @@ Vagrant.configure("2") do |config|
     
     # Triggers
     PluginPersistDisk.vmUp(node, machineName, diskControllerName, persistContPort, persistContDev, persistDiskPath)
-    PluginMutagen.vmUp(node)
+    # PluginMutagen.vmUp(node)
     
-    PluginMutagen.vmHalt(node)
+    # PluginMutagen.vmHalt(node)
     PluginPersistDisk.vmHalt(node, machineName, diskControllerName, persistContPort, persistContDev)
     
-    PluginMutagen.vmDestroy(node)
+    # PluginMutagen.vmDestroy(node)
     PluginPersistDisk.vmDestroy(node, machineName, diskControllerName, persistContPort, persistContDev)
     
   end
