@@ -1,147 +1,54 @@
+# Starting
+
+    vagrant up
+    ssh www-data@dev-m2demo
+
+NOTE:
+We are working inside the VM as the `www-data` user NOT the `vagrant` user. Vagrant just helps us provision the resources, otherwise the VM is treated like any other remote machine.
+
+    # From within VM
+    ~/initialize-magento.sh
+
+Magento installation will be at `/var/www/html/magento`
+Site Root will be at `/var/www/html/project/sitecode/pub` and `/var/www/html/project/sitecode` will be symlinked to `/var/www/html/magento`.
+
+There is a `mutagen.yml` file that can be updated to sync files between the local host and the VM. The initial `mutagen.yml` was setup to work from a repo on the host and sync things into the VM for execution, and running a demo install on the VM where it creates all the files is the oposite of that, so I currently have the mutagen sync disabled to work with the demo install.
+
+Create host entries in `/etc/hosts` file
+
+    10.19.89.32 dev-m2demo
+    10.19.89.32 dev-m2demo.demo
+
+https://dev-m2demo.demo/
+
 # TODO
+[ ] Finish building `app_ssl.yml` for setting up shared root CA from host into VM for issuing SSL certs.
+[ ] Determine what changes are needed to run this form Windows
+    [ ] VirtualBox
+    [ ] Vagrant
+    [ ] Ansible
+    [ ] Mutagen
 
-    vagrant provision
-
-[ ] composer in /usr/local/bin not in path for www-data
-
-    echo '
-    PATH=$PATH:/usr/local/bin/
-    export PATH
-    ' >> ~/.bash_profile
-
-[ ] Get composer configs on VM (shared?/copied?)
-
-    composer config --list -g
-    
-    GITHUB_OAUTH=$(composer config -g github-oauth.github.com)
-    COMPOSER_USER=$(composer config -g http-basic.repo.magento.com | jq -r '.username')
-    COMPOSER_PASS=$(composer config -g http-basic.repo.magento.com | jq -r '.password')
-    echo "
-    composer config -g github-oauth.github.com ${GITHUB_OAUTH}
-    composer config -g http-basic.repo.magento.com ${COMPOSER_USER} ${COMPOSER_PASS}
-    "
-
-    composer config -g github-oauth.github.com xxxxxxx
-    composer config -g http-basic.repo.magento.com xxxxxxx xxxxxxx
-
-[ ] manual rsync for debugging
-[ ] rsync auto files to Mac
 [ ] install bypassing varnish and using built-in full page cache
+[ ] Get the ability to customize what user is logged into via `vagrant ssh`
 
-[ ] Get the ability to customize what user (vagrant?) the application is deployed under. 
-
-    vagrant ssh
-    sudo -iu www-data
-    /home/www-data/initialize-magento.sh
-
-[ ] Ability to SSH directly to internal network IP of VM, avoiding 'vagrant ssh'
-
+  You can change what user is logged in with via the `vagrant ssh` command and it would be ideal to use that instead of `ssh www-data@dev-m2demo`
 
 [ ] portable dev environment for any project
 
-# Performance Characteristics
+  Need to better define directory structure both in the VM and where these DevEnv files reside in relation to a project's repo and such. I may need to rethink how a demo install would work, and invole syncing up files with Mutagen between the host and VM, that way a demo install is compatible with the expectation of a repo residing on the host and syncing files over into the VM. There may need to be some kind of post install step to get things where they need to be or something, and a place holder on the host where once the demo files are installed the files are synced up to. Maybe we don't symlink after a demo install, and instead perform a copy to the project sitecode directory.
 
-    # exp-vagrant-m2 (2vCPU 4GB RAM)
-    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
-
-
-    rm -rf ./var/cache
-    rm -rf ./var/page_cache
-    rm -rf ./var/tmp
-    rm -rf ./var/view_preprocessed
-    rm -rf ./pub/static/adminhtml
-    rm -rf ./pub/static/frontend
-    rm -rf ./pub/media/catalog/product/cache
-    redis-cli -p 6379 flushall
-    redis-cli -p 6381 flushall
-
-    Finish Time (TTFB Document Time) in seconds
-
-
-    # Only enabled config cache
-    bin/magento cache:disable
-    bin/magento cache:enable config
-
-    Home Page (/) [224 requests]
-      25 (6), 10 (0.7), 3 (0.7)
-
-    Admin Configuration (/backend/admin/system_config/index) [ requests]
-      21 (8), 3 (0.7)
-
-
-    # Enable All Caches
-    bin/magento cache:enable
-
-    Home [221]: 22 (6), 1.73 (0.1)
-    Admin Configuration 1.8 (0.3)
-
-
-    # Disable All Caches
-    Home [221]: 550 (6) 11 (6)
-
-    # classyllama/devenv (2vCPU 4GB RAM)
-    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
+[ ] Look into using DNSMasq
+[ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
+    [ ] Mailtrap
+    [ ] MailSlurper
+    [ ] MailCatcher
+    [ ] MailHog
 
 
 
-    # classyllama/devenv (2vCPU 4GB RAM) NFS code/mysql
-    # PHP 7.2 xDebug - Magento 2.3.1 - Sample Data - Redis - No Varnish - Built-In Full Page Cache - Debug Cookie Set
 
-    # Only enabled config cache
-    Home Page (/) [214 requests]
-      78 (17), 6 (4)
-
-    # Enable All Caches
-    Home [214]: 66 (13), 1.7 (0.4)
-
-    # Disable All Caches
-    Home [213]: 492 (14) 22 (13)
-
-
-# Install ansible dependencies with ansible-galaxy
-
-    ansible-galaxy -r ansible_roles.yml install
-
-# Initialize /data disk
-
-    parted /dev/sdb mklabel gpt
-    parted -a opt /dev/sdb mkpart primary xfs 0% 100%
-    mkfs.xfs -L data /dev/sdb1
-    mkdir -p /data
-    echo "/dev/sdb1           /data                       xfs     defaults        0 0" >> /etc/fstab
-    mount -a
-
-# Initialize Guest Additions
-    yum -y --enablerepo=extras install epel-release
-    yum -y update kernel*
-    yum -y install dkms
-    yum -y groupinstall "Development Tools"
-    yum -y install kernel-devel
-    
-    # https://download.virtualbox.org/virtualbox/
-    # yum -y install https://download.virtualbox.org/virtualbox/5.2.12/VirtualBox-5.2-5.2.12_122591_el7-1.x86_64.rpm
-
-    vboxmanage list vms
-    vboxmanage storageattach vagrant-elastic_dev-elastic_1527716197882_44241 --storagectl IDE --port 0 --device 1 --type dvddrive --medium /Applications/VirtualBox.app/Contents/MacOS/VBoxGuestAdditions.iso
-    vboxmanage showvminfo vagrant-elastic_dev-elastic_1527716197882_44241
-    
-    mkdir /mnt/dvd
-    mount -t iso9660 -o ro /dev/cdrom /mnt/dvd
-    cd /mnt/dvd
-    ./VBoxLinuxAdditions.run
-    umount /dev/cdrom
-    
-    vboxmanage storageattach vagrant-elastic_dev-elastic_1527716197882_44241 --storagectl IDE --port 0 --device 1 --type dvddrive --medium emptydrive --forceunmount
-
-    wget https://download.virtualbox.org/virtualbox/5.2.12/VBoxGuestAdditions_5.2.12.iso
-    sudo mkdir /media/VBoxGuestAdditions
-    sudo mount -o loop,ro VBoxGuestAdditions_5.2.12.iso /media/VBoxGuestAdditions
-    sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run
-    rm VBoxGuestAdditions_5.2.12.iso
-    sudo umount /media/VBoxGuestAdditions
-    sudo rmdir /media/VBoxGuestAdditions
-
-# Troubleshooting vagrant/virtualbox
+# Notes on troubleshooting vagrant/virtualbox
 
     vboxmanage list
     VM_ID="exp-vagrant-m2_dev-m2demo_1564793526855_3776"
@@ -154,6 +61,29 @@
 
     vboxmanage closemedium disk persistent_data_disk.vmdk --delete
 
-# File Sync with Mutagen
+# Notes on file sync with Mutagen
 
     brew install mutagen-io/mutagen/mutagen
+    mutagen daemon start
+    
+    mutagen sync terminate devm2demo
+    mutagen sync create \
+      --name=devm2demo \
+      --sync-mode=two-way-resolved \
+      --symlink-mode=ignore \
+      www-data@10.19.89.32:/var/www/html/magento \
+      /opt/alpacaglue/lab-example/gitman_sources/exp-vagrant-m2/appcode
+    mutagen sync list
+    mutagen sync monitor
+    
+    
+    
+    https://mutagen.io/documentation/synchronization/permissions/
+    
+    mutagen sync list
+    mutagen sync monitor projectCode
+    mutagen sync pause projectCode
+    mutagen sync resume projectCode
+    
+    mutagen sync <command> --help
+    

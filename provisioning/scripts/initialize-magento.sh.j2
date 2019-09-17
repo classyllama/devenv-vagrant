@@ -11,7 +11,8 @@ ENV_ROOT_DIR="{{ env_root_dir }}"
 MAGENTO_COMPOSER_PROJECT="{{ magento_composer_project }}"
 
 MAGENTO_ROOT_DIR="${ENV_ROOT_DIR}/magento"
-SITE_ROOT_DIR="${ENV_ROOT_DIR}/current"
+PROJECT_DIR="${ENV_ROOT_DIR}/project"
+SITE_ROOT_DIR="${ENV_ROOT_DIR}/project/sitecode"
 
 DB_HOST=$(echo $(grep "^host " ~/.my.cnf | cut -d= -f2 | perl -p -e 's/^\s*(.*?)\s*$/$1/'))
 DB_USER=$(echo $(grep "^user " ~/.my.cnf | cut -d= -f2 | perl -p -e 's/^\s*(.*?)\s*$/$1/'))
@@ -123,7 +124,9 @@ bin/magento cache:flush
 
 
 # Create SymLink for site root
+mkdir -p ${PROJECT_DIR}
 ln -s ${MAGENTO_ROOT_DIR} ${SITE_ROOT_DIR}
+
 
 LOADTEST_USER="load_test"
 LOADTEST_EMAIL=loadtest@example.com

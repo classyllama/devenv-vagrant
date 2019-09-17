@@ -1,9 +1,11 @@
 ---
 - name: Common
   hosts: all
-  connection: local
   become: true
-
+  
+  roles:
+    - { role: geerlingguy.repo-epel }
+  
   tasks:
     - name: Set local timezone to {{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}
       file:

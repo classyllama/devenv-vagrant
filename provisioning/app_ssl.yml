@@ -1,0 +1,97 @@
+---
+- hosts: all
+  name: Application SSL Setup
+  become: yes
+  
+  vars:
+    ssl_root_ca_dir: /server/.shared/ssl/
+  
+  roles:
+    
+  tasks:
+    
+    # Copy rootca.conf template file to server
+    
+    - name: Check for existing rootca directory
+      stat:
+        path: "{{ ssl_root_ca_dir }}/rootca"
+      register: ssl_rootca_dir
+      
+    - name: Setup RootCA
+      block: 
+      - name: Creates ssl directory
+        file:
+          path: "{{ ssl_root_ca_dir }}/rootca/{{ item }}"
+          state: directory
+        with_items:
+          - certs
+          - crl
+          - newcerts
+          - private
+      - name: Create index
+        file:
+          path: "{{ ssl_root_ca_dir }}/rootca/index.txt"
+          state: touch
+      - name: Create serial
+          copy:
+            dest: "{{ ssl_root_ca_dir }}/rootca/serial"
+            content: 1000
+      when: not ssl_rootca_dir.stat.exists
+    
+    
+    
+    
+    
+    - name: Check for existing root ca key
+      stat:
+        path: "{{ ssl_root_ca_dir }}/rootca/private/ca.key.pem"
+      register: ssl_root_ca
+      
+    - name: Setup RootCA
+      block: 
+      - name: Creates ssl directory
+        shell: openssl genrsa -out {{ ssl_root_ca_dir }}/rootca/private/ca.key.pem 4096
+      
+      - name: Creates ssl directory
+        shell: |
+          openssl req -config /etc/openssl/rootca.conf -new -x509 -days 7300 -sha256 -extensions v3_ca \
+              -key {{ ssl_root_ca_dir }}/rootca/private/ca.key.pem \
+              -out {{ ssl_root_ca_dir }}/rootca/certs/ca.cert.pem \
+              -subj "/C=US/O=Vagrant DevEnv"
+      
+      - name: example copying file with owner and permissions
+        copy:
+          src: "{{ ssl_root_ca_dir }}/rootca/certs/ca.cert.pem"
+          dest: /etc/pki/ca-trust/source/anchors/local-ca.key.pem
+      
+      - shell: update-ca-trust
+      - shell: update-ca-trust enable
+      
+      when: not ssl_root_ca.stat.exists
+    
+    
+    - name: Check for existing nginx ssl directory
+      stat:
+        path: /etc/nginx/ssl
+      register: nginx_ssl_dir
+    
+    - name: Creates nginx ssl directory
+      file:
+        path: /etc/nginx/ssl
+        state: directory
+      when: not nginx_ssl_dir.stat.exists
+    
+    - name: Check for existing nginx private key
+      stat:
+        path: /etc/nginx/ssl/local.key.pem
+      register: nginx_private_key
+    
+    - name: create local ssl private key
+      shell: openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
+      when: not nginx_private_key.stat.exists
+    
+
+
+
+
+

@@ -1,3 +1,4 @@
 /*.vmdk
 /.vagrant/*
 /persistent
+/mutagen.yml.lock

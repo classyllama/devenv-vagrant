@@ -1,7 +1,6 @@
 ---
-- hosts: app
+- hosts: all
   name: Application Debug Setup
-  connection: local
   become: yes
   
   vars:

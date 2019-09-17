@@ -1,7 +1,6 @@
 ---
 - name: Common
   hosts: all
-  connection: local
   become: true
   tasks:
     - parted:

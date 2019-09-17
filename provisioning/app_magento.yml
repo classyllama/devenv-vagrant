@@ -1,7 +1,6 @@
 ---
 - hosts: all
   name: Magento Initialization Scripts
-  connection: local
   become: yes
   
   vars:

@@ -6,7 +6,7 @@ set -eu
 
 # Variables
 MAGENTO_ROOT_DIR="/var/www/html/magento"
-SITE_ROOT_DIR="/var/www/html/current"
+SITE_ROOT_DIR="/var/www/html/project/sitecode"
 ENV_ROOT_DIR="/var/www/html"
 
 DB_NAME=$(echo $(grep "^database " ~/.my.cnf | cut -d= -f2 | perl -p -e 's/^\s*(.*?)\s*$/$1/'))

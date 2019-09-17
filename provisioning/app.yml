@@ -1,7 +1,6 @@
 ---
 - hosts: all
   name: Application Server Setup
-  connection: local
   become: yes
   
   vars:
@@ -10,6 +9,8 @@
       - { username: mjohnson, pubkey: files/ssh-keys/mjohnson }
     www_user_ssh_keys:
       - files/ssh-keys/mjohnson
+    
+    
     
     app_domain: dev-m2demo.demo
     
@@ -32,7 +33,7 @@
         pool: data
         params:
           server_name: "{{ app_domain }}"
-          webroot: /var/www/html/current/pub
+          webroot: /var/www/html/project/sitecode/pub
           #proxy_port: 6081
           proxy_port: 8080
         includes:
@@ -42,7 +43,7 @@
       - name: www-data
         pool: data
         listen: 8080
-        webroot: /var/www/html/current/pub
+        webroot: /var/www/html/project/sitecode/pub
         includes:
           - default.d/nginx-status.conf
           - available.d/realip.conf
@@ -51,8 +52,7 @@
     nginx_extras:
       - conf.d/map.conf
       - available.d/realip.conf
-      - available.d/magento2-static.conf
-      - available.d/magento2-app.conf
+      - { src: nginx/magento2-static.conf, dest: available.d/magento2-static.conf }
       - { src: nginx/magento2.conf, dest: available.d/magento2.conf }
 
     nginx_groups: [ www-data ]
@@ -105,8 +105,12 @@
     - name: Install ImageMagick
       tags: toolchain
       package: 
-        name: ImageMagick
+        name: "{{ item }}"
         state: present
+      with_items:
+        - ImageMagick
+        - ImageMagick-devel
+        - php72u-pecl-imagick
 
     - name: Install Mail Tools
       package:
