@@ -40,6 +40,7 @@ https://dev-m2demo.demo/
 
   Need to better define directory structure both in the VM and where these DevEnv files reside in relation to a project's repo and such. I may need to rethink how a demo install would work, and invole syncing up files with Mutagen between the host and VM, that way a demo install is compatible with the expectation of a repo residing on the host and syncing files over into the VM. There may need to be some kind of post install step to get things where they need to be or something, and a place holder on the host where once the demo files are installed the files are synced up to. Maybe we don't symlink after a demo install, and instead perform a copy to the project sitecode directory.
 
+[ ] Look into utilizing Traefik
 [ ] Look into using DNSMasq
 [ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
     [ ] Mailtrap
@@ -49,6 +50,9 @@ https://dev-m2demo.demo/
 
 
 
+# Notes on Windows Support
+
+https://www.vagrantup.com/docs/other/wsl.html
 
 # Notes on troubleshooting vagrant/virtualbox
 
