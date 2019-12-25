@@ -19,4 +19,4 @@
     - /etc/nginx/ssl/{{ common_name }}.crt
   loop_control:
       loop_var: inner_item
-  when: result|changed
+  when: result,changed

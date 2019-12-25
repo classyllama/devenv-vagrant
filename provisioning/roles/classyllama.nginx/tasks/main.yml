@@ -44,4 +44,4 @@
   service:
     name: nginx
     state: restarted
-  when: nginx_conf_result|default(false) and nginx_conf_result|changed
+  when: nginx_conf_result|default(false) and nginx_conf_result,changed
