@@ -2,3 +2,4 @@
 /.vagrant/*
 /persistent
 /mutagen.yml.lock
+/local
