@@ -145,3 +145,7 @@
         src: /home/www-data/.cachetool.yml
         dest: /var/www/html/.cachetool.yml
         state: link
+
+    - name: Disable SELinux enforcement
+      selinux:
+        state: disabled
