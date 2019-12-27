@@ -1,0 +1,11 @@
+---
+- hosts: all
+  name: Dev Env Setup
+  become: yes
+  
+  tasks:
+    - name: Add www-data to cladmin group
+      user:
+        name: www-data
+        groups: cladmin
+        append: yes

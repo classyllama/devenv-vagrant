@@ -5,3 +5,4 @@
 #- import_playbook: app_magento.yml
 - import_playbook: app_xdebug.yml
 - import_playbook: app_ssl.yml
+- import_playbook: devenv.yml
