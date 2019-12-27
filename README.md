@@ -22,7 +22,7 @@ Create host entries in `/etc/hosts` file
 https://dev-m2demo.demo/
 
 # TODO
-[ ] Finish building `app_ssl.yml` for setting up shared root CA from host into VM for issuing SSL certs.
+[X] Finish building `app_ssl.yml` for setting up shared root CA from host into VM for issuing SSL certs.
 [ ] Determine what changes are needed to run this form Windows
     [ ] VirtualBox
     [ ] Vagrant
