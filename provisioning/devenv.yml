@@ -3,12 +3,11 @@
   name: Dev Env Setup
   become: yes
   
+  vars:
+
   tasks:
     - name: Add www-data to cladmin group
       user:
         name: www-data
         groups: cladmin
         append: yes
-
-  # kick off initial vhosts provisioning
-  import_playbook: devenv_vhosts.yml
