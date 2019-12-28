@@ -41,11 +41,11 @@
     
     - name: Check for existing nginx private key
       stat:
-        path: "{{ ssl_cert_dir }}/local.key.pem"
+        path: "{{ ssl_cert_dir }}/local.key"
       register: nginx_private_key
     
     - name: create local ssl private key
-      shell: openssl genrsa -out {{ ssl_cert_dir }}/local.key.pem 2048
+      shell: openssl genrsa -out {{ ssl_cert_dir }}/local.key 2048
       when: not nginx_private_key.stat.exists
 
     - name: Check for existing rootca directory
@@ -88,31 +88,31 @@
     
     - name: Check for existing root CA key
       stat:
-        path: "{{ ssl_cert_dir }}/rootca/private/ca.key.pem"
+        path: "{{ ssl_cert_dir }}/rootca/private/ca.key"
       register: ssl_root_ca
       
     - name: Generate root CA cert/key pair
       block: 
       - name: Generate root CA private key
-        shell: openssl genrsa -out {{ ssl_cert_dir }}/rootca/private/ca.key.pem 4096
+        shell: openssl genrsa -out {{ ssl_cert_dir }}/rootca/private/ca.key 4096
       
       - name: Generate root CA certificate
         shell: |
           openssl req -config {{ root_ca_conf_path }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
-              -key {{ ssl_cert_dir }}/rootca/private/ca.key.pem \
-              -out {{ ssl_cert_dir }}/rootca/certs/ca.cert.pem \
+              -key {{ ssl_cert_dir }}/rootca/private/ca.key \
+              -out {{ ssl_cert_dir }}/rootca/certs/ca.cert \
               -subj "/C=US/O=Vagrant DevEnv"
       - debug:
           msg: 
-          - "Generated new root CA at {{ ssl_cert_dir }}/rootca/certs/ca.cert.pem."
+          - "Generated new root CA at {{ ssl_cert_dir }}/rootca/certs/ca.cert."
           - "To avoid unnecessary root CA generation in the future, please sync {{ ssl_cert_dir }}/rootca{certs,private} to local/etc/rootca/ on your host machine."
       when: not ssl_root_ca.stat.exists
 
     - name: Copy root CA cert to VM local trust store
       copy:
         remote_src: yes
-        src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert.pem"
-        dest: /etc/pki/ca-trust/source/anchors/local-ca.key.pem
+        src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert"
+        dest: /etc/pki/ca-trust/source/anchors/local-ca.key
     
     - shell: update-ca-trust
     - shell: update-ca-trust enable
