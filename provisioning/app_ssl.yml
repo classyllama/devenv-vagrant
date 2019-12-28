@@ -101,7 +101,7 @@
           openssl req -config {{ root_ca_conf_path }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
               -key {{ ssl_cert_dir }}/rootca/private/ca.key \
               -out {{ ssl_cert_dir }}/rootca/certs/ca.cert \
-              -subj "/C=US/O=Vagrant DevEnv"
+              -subj "/C=US/O=Vagrant DevEnv 2.0"
       - debug:
           msg: 
           - "Generated new root CA at {{ ssl_cert_dir }}/rootca/certs/ca.cert."

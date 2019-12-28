@@ -31,6 +31,9 @@ https://dev-m2demo.demo/
 
 [ ] Actually store something and utilize the attached persistent disk /data/ for DB and site files.
 
+[ ] Allow `magento_data` mysql user to create databases
+[ ] Either use the same password for magento_data mysql user each time or somehow update env.php files with new password on rebuild
+
 [ ] install bypassing varnish and using built-in full page cache
 [ ] Get the ability to customize what user is logged into via `vagrant ssh`
 
@@ -92,4 +95,46 @@ https://www.vagrantup.com/docs/other/wsl.html
     mutagen sync resume projectCode
     
     mutagen sync <command> --help
-    
+
+# Installation
+
+TODO: general installation instructions
+
+## Digital Ocean
+
+The [Digital Ocean Vagrant Provider] must be installed prior to running VMs in the cloud.
+
+TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loading.
+
+# Usage
+
+## Starting Vagrant
+
+* VirtualBox: `vagrant up <node>`
+* Digital Ocean: `vagrant up <node> --provider=digital_ocean`
+
+## Updating VM Virtual Host Configuration
+
+When adding new site-specific codebases, run the following to update the VM's nginx SSL and vhost configuration to support the new site.
+
+```
+PLAYBOOK=provisioning/devenv_vhosts.yml vagrant provision <node>
+```
+
+TOOD: add instructions to create alias for above command.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Digital Ocean Vagrant Provider: https://github.com/devopsgroup-io/vagrant-digitalocean
