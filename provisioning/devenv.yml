@@ -11,3 +11,11 @@
         name: www-data
         groups: cladmin
         append: yes
+
+    - name: Create projects directory for codebase roots
+      file:
+        path: /var/www/html/projects
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '775'
