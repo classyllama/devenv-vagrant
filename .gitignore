@@ -3,3 +3,7 @@
 /persistent
 /mutagen.yml.lock
 /local
+
+/*.dev
+
+!/.keep

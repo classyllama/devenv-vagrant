@@ -1,0 +1,51 @@
+---
+- set_fact: 
+    vhost_name: "{{ item.path | basename }}"
+    vhost_backend_port: "{{ 8080 + idx }}"
+
+- debug:
+    verbosity: 1
+    msg: 
+      - "About to invoke nginx role"
+      - "vhost_name: {{ vhost_name }}"
+      - "vhost_backend_port: {{ vhost_backend_port }}"
+
+- name: "Configure dev env nginx vhost"
+  include_role: 
+    name: classyllama.nginx
+    tasks_from: nginx-vhost.yml
+  vars:
+    vhost_pool: data
+    vhost_params:
+      server_name: "{{ vhost_name }}"
+      webroot: /var/www/html/projects/{{ vhost_name }}/pub
+      proxy_port: "{{ vhost_backend_port }}"
+    vhost_template: vhost.conf
+    vhost_includes:
+      - available.d/magento2-static.conf
+      - default.d/*.conf
+
+- name: Configure dev env nginx vhost backends
+  block:
+  - name: Create PHP-FPM socket symlink
+    file:
+        src: /var/run/php-fpm/www-data.sock
+        dest: /var/run/php-fpm/{{ vhost_name }}.sock
+        state: link
+  - name: Create nginx vhost backend configuration
+    include_role:
+      name: classyllama.nginx
+      tasks_from: nginx-backend.yml
+    vars:
+      backend_template: backend.conf
+      backend_name: "{{ vhost_name }}"
+      backend_listen: "{{ vhost_backend_port }}"
+      backend_webroot: /var/www/html/projects/{{ vhost_name }}/pub
+      backend_pool: data
+      backend_includes:
+        - default.d/nginx-status.conf
+        - available.d/realip.conf
+        - available.d/magento2.conf
+        - default.d/settings.conf
+        - available.d/php-status.conf
+      

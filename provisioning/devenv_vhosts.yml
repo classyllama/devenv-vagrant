@@ -45,3 +45,9 @@
     - name: Generate SSL certs for all vhosts
       include_tasks: devenv_vhost_ssl.yml
       loop: "{{ vhost_dirs.files }}"
+
+    - name: Generate vhost / backend nginx config pairs for all vhosts
+      include_tasks: devenv_vhost_nginx.yml
+      loop: "{{ vhost_dirs.files }}"
+      loop_control:
+        index_var: idx
