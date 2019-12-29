@@ -1,0 +1,52 @@
+---
+- hosts: all
+  name: Digital Ocean Server Setup
+  become: yes
+
+  vars:
+
+  tasks:
+
+    - debug:
+        verbosity: 1
+        msg: "The following storage block volume ID was provided: {{ block_id }}"
+
+    - name: "Mount attached block storage (if applicable)"
+      block:
+
+      - name: Check for attached block storage
+        stat:
+          path: "/dev/disk/by-uuid/{{ block_id }}"
+        register: block_volume_device
+      - name: Mount attached block storage
+        mount:
+          path: /var/www
+          src: "/dev/disk/by-uuid/{{ block_id }}"
+          fstype: xfs
+          opts: discard,defaults,noatime
+          state: mounted
+        when: block_volume_device.stat.exists
+      - name: Create mysql bind data directory
+        file:
+          path: /var/www/mysql
+          state: directory
+      - name: Create mysql bind temp directory
+        file:
+          path: /var/www/mysqltmp
+          state: directory
+      - name: Bind mount mysql data directory
+        mount:
+          path: /var/lib/mysql
+          src: /var/www/mysql
+          opts: bind
+          state: mounted
+          fstype: none
+      - name: Bind mount mysql temp directory
+        mount:
+          path: /var/lib/mysqltmp
+          src: /var/www/mysqltmp
+          opts: bind
+          state: mounted
+          fstype: none
+
+      when: block_id is defined and block_id | length > 0
