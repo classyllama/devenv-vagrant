@@ -33,6 +33,8 @@ https://dev-m2demo.demo/
 
 [ ] Allow `magento_data` mysql user to create databases
 [ ] Either use the same password for magento_data mysql user each time or somehow update env.php files with new password on rebuild
+    [ ] Restrict access to mysql to localhost to require SSH tunnel, at least for DO dev envs -- to avoid dev env possibly leaking client data
+[ ] Either modify nginx backend template to allow all vhosts to use the same PHP-FPM socket, or ensure that the vhost-specific socket symlinks are recreated on reboot.
 
 [ ] install bypassing varnish and using built-in full page cache
 [ ] Get the ability to customize what user is logged into via `vagrant ssh`
@@ -111,7 +113,11 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
 ## Starting Vagrant
 
 * VirtualBox: `vagrant up <node>`
-* Digital Ocean: `vagrant up <node> --provider=digital_ocean`
+* Digital Ocean (older versions of vagrant)
+    * `vagrant up <node> --provider=digital_ocean --no-provision`
+    * Manually attach digital ocean block storage to VM
+    * `vagrant provision <node>`
+
 
 ## Updating VM Virtual Host Configuration
 
