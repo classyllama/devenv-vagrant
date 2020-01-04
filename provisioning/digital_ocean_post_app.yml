@@ -8,13 +8,16 @@
     root_my_cnf_path: ~root/.my.cnf
 
   tasks:
+
+    - name: Detect block storage mount status
+      set_fact:
+        block_storage_mounted: yes
+      loop: "{{ ansible_mounts }}"
+      when: block_id is defined and block_id | length > 0 and item.uuid == block_id
+
     - debug:
-        verbosity: 0
-        msg: 
-          - "The following storage block volume ID was provided: {{ block_id }}"
-          - "{{ ansible_mounts }}"
-          # TODO: register when block storage is actually mounted
-          # TODO: look at ansible_mounts[?].uuid?
+        verbosity: 1
+        msg: "The following storage block volume ID was provided: {{ block_id }}"
 
     - name: Sync root my.cnf to block storage (if applicable)
       block:
@@ -31,4 +34,4 @@
           dest: "{{ block_storage_mount_root }}/.shared/root-my.cnf"
         when: root_my_cnf_file.stat.exists
 
-      when: block_id is defined and block_id | length > 0
+      when: block_id is defined and block_id | length > 0 and block_storage_mounted is defined and block_storage_mounted
