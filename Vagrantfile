@@ -39,8 +39,20 @@ Vagrant.configure('2') do |config|
         # then, provider-agnostic app playbook
         config.vm.provision "app", type:'ansible' do |ansible|
           ansible.playbook = ENV['PLAYBOOK'] || "provisioning/build.yml"
-          ansible.extra_vars = { host_zoneinfo: File.readlink('/etc/localtime') }
           ansible.compatibility_mode = "2.0"
+          ansible.extra_vars = {
+            host_zoneinfo: File.readlink('/etc/localtime'),
+            mysql_root_pw: DIGITAL_OCEAN_MYSQL_PW
+          }
+        end
+
+        # penultamently, run DO-specific post-app playbook
+        config.vm.provision "digital_ocean_post_app", type:'ansible' do |ansible|
+          ansible.playbook = "provisioning/digital_ocean_post_app.yml"
+          ansible.compatibility_mode = "2.0"
+          ansible.extra_vars = {
+            block_id: DIGITAL_OCEAN_BLOCK_VOLUME_ID
+          }
         end
 
         # finally, always run vhost playbook on all "ups"

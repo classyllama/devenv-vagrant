@@ -19,3 +19,35 @@
         owner: www-data
         group: www-data
         mode: '775'
+
+    - name: Reset root mysql PW to fixed value
+      block:
+
+      - name: Install python-mysqldb
+        package:
+          name: MySQL-python
+          state: present
+
+      - debug:
+          msg: "Resetting mysql root password to {{ mysql_root_pw }} ."
+
+      - name: Reset root mysql password
+        mysql_user:
+          user: root
+          password: "{{ mysql_root_pw }}"
+          host_all: yes
+
+      - name: Update root ~/.my.cnf with new root password
+        ini_file:
+          path: ~root/.my.cnf
+          section: client
+          option: password
+          value: "{{ mysql_root_pw }}"
+
+      - name: Update www-data ~/.my.cnf with root credentials
+        copy:
+          remote_src: yes
+          src: ~root/.my.cnf
+          dest: ~www-data/.my.cnf
+
+      when: mysql_root_pw is defined and mysql_root_pw|length > 0
