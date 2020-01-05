@@ -3,6 +3,10 @@
 ## Instructions: generate a secure password that will be used as fixed mysql PW
 # FIXED_MYSQL_PW = 'CHANGEME'
 
+## OPTIONAL: public keys to authorized for www-data user
+## Instructions: change if using non-standard SSH public key
+SSH_PUBLIC_KEY_PATHS = ['~/.ssh/id_rsa.pub']
+
 
 ##### Digital Ocean provider settings
 ## REQUIRED: DO API token

@@ -108,6 +108,10 @@ The [Digital Ocean Vagrant Provider] must be installed prior to running VMs in t
 
 TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loading.
 
+### Tips
+
+* Add `export VAGRANT_DEFAULT_PROVIDER="digital_ocean"` to `~/.bash_profile` if using DO provider as default.
+
 # Usage
 
 ## Starting Vagrant

@@ -12,6 +12,22 @@
         groups: cladmin
         append: yes
 
+    - name: Authorize host SSH public keys
+      block:
+        - name: Authorize key for www-data
+          authorized_key:
+            user: www-data
+            state: present
+            key: "{{ lookup('file', item) }}"
+          loop: "{{ ssh_public_key_paths }}"
+        - name: Authorize key for root
+          authorized_key:
+            user: root
+            state: present
+            key: "{{ lookup('file', item) }}"
+          loop: "{{ ssh_public_key_paths }}"
+      when: ssh_public_key_paths is defined and ssh_public_key_paths|length > 0
+
     - name: Create projects directory for codebase roots
       file:
         path: /var/www/html/projects

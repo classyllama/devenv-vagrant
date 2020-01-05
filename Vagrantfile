@@ -47,7 +47,8 @@ Vagrant.configure('2') do |config|
           ansible.compatibility_mode = "2.0"
           ansible.extra_vars = {
             host_zoneinfo: File.readlink('/etc/localtime'),
-            mysql_root_pw: FIXED_MYSQL_PW
+            mysql_root_pw: FIXED_MYSQL_PW,
+            ssh_public_key_paths: SSH_PUBLIC_KEY_PATHS
           }
         end
 
