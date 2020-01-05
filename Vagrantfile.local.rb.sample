@@ -10,5 +10,15 @@
 # DIGITAL_OCEAN_API_TOKEN = 'CHANGEME'
 
 ## OPTIONAL: UUID of block storage volume which should be used for persistent storage
+## Default: empty string
 ## Instructions: @TODO
 # DIGITAL_OCEAN_BLOCK_VOLUME_ID = 'eric-is-great-and-awesome'
+
+## REQUIRED: SSH key name for use in DO
+## Instructions: Provide a meaningful name for the SSH key which will be uploaded to DO
+DIGITAL_OCEAN_SSH_KEY_NAME = ''
+
+## OPTIONAL: SSH private key for use in DO
+## Default: empty string
+## Instructions: If using more than one key, specify path to private SSH key that DO should use
+DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH = ''

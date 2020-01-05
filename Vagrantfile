@@ -10,23 +10,27 @@ require './Vagrantfile.local.rb' if File.file?('./Vagrantfile.local.rb')
 
 Vagrant.configure('2') do |config|
 
-  config.vm.define "web72" do |config|
+  config.vm.define "v72" do |config|
       # for all providers, perform basic rysnc sync
       config.vm.synced_folder ".", "/vagrant", type: "rsync",
         rsync__exclude: [".git/", ".vagrant/", "*.dev/"]
 
       # Digital Ocean provider scenario
       config.vm.provider :digital_ocean do |provider, override|
-        override.ssh.private_key_path = '~/.ssh/id_rsa'
+        override.ssh.private_key_path = !DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH.empty? ? DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH : '~/.ssh/id_rsa'
         override.vm.box = 'digital_ocean'
         override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
         override.nfs.functional = false
+
+        unless DIGITAL_OCEAN_SSH_KEY_NAME.empty?
+          provider.ssh_key_name = DIGITAL_OCEAN_SSH_KEY_NAME
+        end
 
         provider.token = DIGITAL_OCEAN_API_TOKEN
         provider.image = 'centos-7-x64'
         provider.region = 'nyc1'
         provider.size = 'c-2' # s-2vcpu-4gb
-        provider.volumes = [DIGITAL_OCEAN_BLOCK_VOLUME_ID]
+        #provider.volumes = [DIGITAL_OCEAN_BLOCK_VOLUME_ID] # @TODO: figure out proper value for this
 
         # first, run DO-specific playbook
         config.vm.provision "digital_ocean", type:'ansible' do |ansible|
