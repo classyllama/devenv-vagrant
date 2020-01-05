@@ -4,8 +4,9 @@
 #require './plugin/PluginPersistDisk.rb'
 #require './plugin/PluginMutagen.rb'
 
-DIGITAL_OCEAN_BLOCK_VOLUME_ID = 'a6716aad-8424-4bcf-adb8-aedba4fa53b2'
-DIGITAL_OCEAN_API_TOKEN = 'ef787ce8523f507fada1da911b09acd169e02418830a8156c1c5b0996bd50fef'
+
+# include local variables, if present
+require './Vagrantfile.local.rb' if File.file?('./Vagrantfile.local.rb')
 
 Vagrant.configure('2') do |config|
 
@@ -42,7 +43,7 @@ Vagrant.configure('2') do |config|
           ansible.compatibility_mode = "2.0"
           ansible.extra_vars = {
             host_zoneinfo: File.readlink('/etc/localtime'),
-            mysql_root_pw: DIGITAL_OCEAN_MYSQL_PW
+            mysql_root_pw: FIXED_MYSQL_PW
           }
         end
 

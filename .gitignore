@@ -2,6 +2,7 @@
 /.vagrant/*
 /persistent
 /mutagen.yml.lock
+/Vagrantfile.local.rb
 /local
 
 /*.dev

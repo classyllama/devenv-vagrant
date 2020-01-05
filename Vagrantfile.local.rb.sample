@@ -1,0 +1,14 @@
+##### Provider-agnostic settings
+## REQUIRED: fixed mysql password
+## Instructions: generate a secure password that will be used as fixed mysql PW
+# FIXED_MYSQL_PW = 'CHANGEME'
+
+
+##### Digital Ocean provider settings
+## REQUIRED: DO API token
+## Instructions: visit API -> Tokens/Keys in DO account interface
+# DIGITAL_OCEAN_API_TOKEN = 'CHANGEME'
+
+## OPTIONAL: UUID of block storage volume which should be used for persistent storage
+## Instructions: @TODO
+# DIGITAL_OCEAN_BLOCK_VOLUME_ID = 'eric-is-great-and-awesome'
