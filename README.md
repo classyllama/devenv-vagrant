@@ -98,6 +98,35 @@ https://www.vagrantup.com/docs/other/wsl.html
     
     mutagen sync <command> --help
 
+# Host Assumptions
+
+A goal of this dev env is to avoid as many host assumptions as possible in order to make the environment portable. Documented below are the actual assumptions and implications if the assumption is not correct for a given host.
+
+## Hard Requirements
+
+1. [Ansible] installed on host.
+    * Requirement: critical
+    * Implications: without Ansible on the host, the dev env cannot be provisioned.
+2. [Mutagen] installed on host.
+    * Requirement: important for standard operation
+    * Implications: without mutagen on the host, the user will need to manage file syncronziation themselves.
+3. [Digital Ocean Vagrant Provider] installed on host.
+    * Requirement: critical if using DO provider
+    * Implications: without this plugin, cloud VMs cannot be used.
+
+## Soft Requirements
+
+1. Ability to sync root CA to local filesystem and trust it
+    * Requirement: convenient
+    * Implications: without trusting root CA, SSL certs will not be valid. Without syncing generated root CA to local filesystem, a new one will be generated on each VM (re)creation.
+2. Ability to create predefined hosts entries for dev VMs.
+    * Requirement: convenient
+    * Implications: without using predefined hosts entries on host, copy-paste commands may not work as expected.
+
+## Ansible
+
+It is assumed that Ansible is installed on the host.
+
 # Installation
 
 TODO: general installation instructions
@@ -157,5 +186,6 @@ rsync -avz root@dev-v72:/etc/nginx/ssl/rootca/private local/rootca/
 
 
 
-
+Ansible: https://www.ansible.com/
+Mutagen: https://www.ansible.com/
 Digital Ocean Vagrant Provider: https://github.com/devopsgroup-io/vagrant-digitalocean
