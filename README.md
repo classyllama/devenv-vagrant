@@ -133,6 +133,17 @@ PLAYBOOK=provisioning/devenv_vhosts.yml vagrant provision <node>
 
 TOOD: add instructions to create alias for above command.
 
+# SSL
+
+TODO: describe root CA cert signing mechanism.
+
+To use a persistent root CA, after the first VM is provisioned, run a command such as the following to sync to your host machine.
+
+```
+mkdir -p local/rootca
+rsync -avz root@dev-v72:/etc/nginx/ssl/rootca/certs local/rootca/
+rsync -avz root@dev-v72:/etc/nginx/ssl/rootca/private local/rootca/
+```
 
 
 
