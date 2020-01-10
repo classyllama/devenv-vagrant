@@ -5,6 +5,6 @@
 /Vagrantfile.local.rb
 /local
 
-/*.dev
+/projects/*
 
 !/.keep

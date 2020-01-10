@@ -1,21 +1,22 @@
 # https://github.com/mutagen-io/mutagen/blob/master/pkg/configuration/synchronization/configuration_test.go
 sync:
   magento:
-    alpha: "./superbrightleds.dev"
-    beta: "www-data@dev-web72:/var/www/html/projects/superbrightleds.dev"
+    alpha: "./projects/"
+    beta: "www-data@dev-v72:/var/www/html/projects/"
     mode: "two-way-resolved"
     symlink:
       mode: "ignore"
     ignore:
       vcs: true
       paths:
-        - var/
-        - generated/
-        - dev/
-        - phpserver/
-        - update/
-        - pub/media/
-        - pub/static/
+        - "*/.idea/*"
+        - "*.dev/var/"
+        - "*.dev/generated/"
+        - "*.dev/dev/"
+        - "*.dev/phpserver/"
+        - "*.dev/update/"
+        - "*.dev/pub/media/"
+        - "*.dev/pub/static/"
         
     permissions:
       defaultFileMode: 664

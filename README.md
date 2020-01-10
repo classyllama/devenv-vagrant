@@ -28,13 +28,9 @@ https://dev-m2demo.demo/
     [ ] Vagrant
     [ ] Ansible
     [ ] Mutagen
+[ ] Store composer cache on persistent storage to improve setup time between VM rebuilds
 
 [ ] Actually store something and utilize the attached persistent disk /data/ for DB and site files.
-
-[ ] Allow `magento_data` mysql user to create databases
-[ ] Either use the same password for magento_data mysql user each time or somehow update env.php files with new password on rebuild
-    [ ] Restrict access to mysql to localhost to require SSH tunnel, at least for DO dev envs -- to avoid dev env possibly leaking client data
-[ ] Either modify nginx backend template to allow all vhosts to use the same PHP-FPM socket, or ensure that the vhost-specific socket symlinks are recreated on reboot.
 
 [ ] install bypassing varnish and using built-in full page cache
 [ ] Get the ability to customize what user is logged into via `vagrant ssh`
