@@ -153,7 +153,7 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
 When adding new site-specific codebases, run the following to update the VM's nginx SSL and vhost configuration to support the new site.
 
 ```
-PLAYBOOK=provisioning/devenv_vhosts.yml vagrant provision <node>
+vagrant provision --provision-with vhost <node>
 ```
 
 TOOD: add instructions to create alias for above command.
