@@ -62,8 +62,9 @@ class PluginPersistDisk
         contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
         trigger.info = "Persistent Disk: #{contPortDevValue}"
         if contPortDevValue != 'none'
-          trigger.warn = "Drive still attached (#{contPortDevValue}) - machine cannot be destroyed! - Please halt the machine first."
-          trigger.run = {inline: "exit 'drive attached - cannot be destroyed'"}
+          # Colorize text red ("\e[31m"+"text here"+"\e[0m")
+          trigger.warn = "\e[31m"+"Drive still attached "+"\e[33m"+"(#{contPortDevValue}) - machine cannot be destroyed! - "+"\e[31m"+"Please halt the machine first."+"\e[0m"
+          trigger.abort = true
         end
       end
     end

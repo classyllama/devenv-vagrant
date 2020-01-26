@@ -57,16 +57,16 @@ https://www.vagrantup.com/docs/other/wsl.html
 
 # Notes on troubleshooting vagrant/virtualbox
 
+If you see a VERR_ALREADY_EXISTS error, you might need to purge an old value out of VirtualBox disk management inventory.
+
     vboxmanage list
     VM_ID="exp-vagrant-m2_dev-m2demo_1564793526855_3776"
     vboxmanage showvminfo ${VM_ID} --machinereadable | grep '"SATA Controller-1-0"' 
 
     vagrant up --debug
     vboxmanage list hdds
-    vboxmanage showmediuminfo disk /opt/alpacaglue/lab-example/gitman_sources/exp-vagrant-m2/persistent_data_disk.vmdk
-    vboxmanage closemedium disk /opt/alpacaglue/lab-example/gitman_sources/exp-vagrant-m2/persistent_data_disk.vmdk --delete
-
-    vboxmanage closemedium disk persistent_data_disk.vmdk --delete
+    vboxmanage showmediuminfo disk data_disk.vmdk
+    vboxmanage closemedium disk data_disk.vmdk --delete
 
 # Notes on file sync with Mutagen
 
@@ -100,15 +100,26 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 
 ## Hard Requirements
 
-1. [Ansible] installed on host.
-    * Requirement: critical
-    * Implications: without Ansible on the host, the dev env cannot be provisioned.
-2. [Mutagen] installed on host.
+1. [Vagrant] installed on host.
+    * Requirement: critical to start VMs
+    * Implications: without Vagrant, VMs cannot be started.
+2. [Vagrant-Hostmanager] installed on host.
     * Requirement: important for standard operation
-    * Implications: without mutagen on the host, the user will need to manage file syncronziation themselves.
+    * Implications: without this plugin, hosts files will not be updated when VM IP changes
+    * https://github.com/devopsgroup-io/vagrant-hostmanager
+3. [VirtualBox] installed on host.
+    * Requirement: critical if using local provider
+    * Implications: without this plugin, local VMs cannot be used.
 3. [Digital Ocean Vagrant Provider] installed on host.
     * Requirement: critical if using DO provider
     * Implications: without this plugin, cloud VMs cannot be used.
+    * https://github.com/devopsgroup-io/vagrant-digitalocean
+5. [Ansible] installed on host.
+    * Requirement: critical
+    * Implications: without Ansible on the host, the dev env cannot be provisioned.
+6. [Mutagen] installed on host.
+    * Requirement: important for standard operation
+    * Implications: without mutagen on the host, the user will need to manage file syncronziation themselves.
 
 ## Soft Requirements
 
@@ -125,6 +136,32 @@ It is assumed that Ansible is installed on the host.
 
 # Installation
 
+MacOS
+  
+    brew install virtualbox
+    brew install vagrant
+    vagrant plugin install vagrant-hostmanager
+    vagrant plugin install vagrant-digitalocean
+    brew install ansible
+    brew install mutagen
+    
+    # Allow vagrant-hostmanager to update hosts file without requiring password
+```
+HOME_DIR="${HOME}"
+USER_GROUP_NAME="$(id -gn $(whoami))"
+echo "
+HOME_DIR: ${HOME_DIR}
+USER_GROUP_NAME: ${USER_GROUP_NAME}
+VAGRANT_HOME: ${VAGRANT_HOME}
+"
+echo "
+Cmnd_Alias VAGRANT_HOSTMANAGER_UPDATE = /bin/cp ${VAGRANT_HOME}/tmp/hosts.local /etc/hosts
+%${USER_GROUP_NAME} ALL=(root) NOPASSWD: VAGRANT_HOSTMANAGER_UPDATE
+" | sudo tee /etc/sudoers.d/vagrant_hostmanager
+```
+
+Windows
+
 TODO: general installation instructions
 
 ## Digital Ocean
@@ -136,6 +173,8 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
 ### Tips
 
 * Add `export VAGRANT_DEFAULT_PROVIDER="digital_ocean"` to `~/.bash_profile` if using DO provider as default.
+* To debug vagrant execution run `VAGRANT_LOG=debug` to get verbos debug output during execution of `vagrant` commands.
+* Remove keys from your system's known hosts file `ssh-keygen -R hostname`
 
 # Usage
 
