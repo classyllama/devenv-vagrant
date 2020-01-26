@@ -19,14 +19,14 @@
             user: www-data
             state: present
             key: "{{ lookup('file', item) }}"
-          loop: "{{ ssh_public_key_paths }}"
+          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
         - name: Authorize key for root
           authorized_key:
             user: root
             state: present
             key: "{{ lookup('file', item) }}"
-          loop: "{{ ssh_public_key_paths }}"
-      when: ssh_public_key_paths is defined and ssh_public_key_paths|length > 0
+          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
+      when: sSH_PUBLIC_KEY_PATHS is defined and sSH_PUBLIC_KEY_PATHS|length > 0
 
     - name: Create projects directory for codebase roots
       file:

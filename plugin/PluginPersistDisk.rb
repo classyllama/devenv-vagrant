@@ -1,13 +1,14 @@
 class PluginPersistDisk
   
-  def self.vmCreate(vb, diskControllerName, diskControllerPortCount, persistContPort, persistContDev, persistDiskPath, persistDiskSizeGb)
+  def self.vmCreate(vb, diskControllerName, diskControllerPortCount, persistContPort, persistContDev, workingDirectory, persistDiskPath, persistDiskSizeGb)
     # If the file does not exist we need to create the virtual disk
     unless File.exist?(persistDiskPath)
       
       # Check if VirtualBox thinks it is still managing a non existent file
       vbStillManagingDisk = %x( vboxmanage list hdds )
-      if vbStillManagingDisk.include? "#{persistDiskPath}"
+      if vbStillManagingDisk.include? "#{workingDirectory}#{persistDiskPath}"
         # Remove managed disk in virtualbox before creating a new files
+        print "persistDiskPath: #{workingDirectory}#{persistDiskPath}\n"
         vb.customize ['closemedium', 'disk', persistDiskPath]
       end
       

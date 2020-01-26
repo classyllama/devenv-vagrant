@@ -32,7 +32,7 @@ class PluginHostmanagerHelper
   end
   
   # Check to make sure hostname of machine resolves
-  def self.vmUpTrigger(node)
+  def self.vmUpTrigger(node, machineName)
     node.trigger.after :up do |trigger|
       
       trigger.name = "Hostmanager Check"
@@ -40,11 +40,11 @@ class PluginHostmanagerHelper
         machine_name_resolves = ""
         
         begin
-          machine_name_resolves = IPSocket::getaddress("#{DEV_MACHINE_NAME}")
+          machine_name_resolves = IPSocket::getaddress("#{machineName}")
         rescue
         end
         if (machine_name_resolves == "")
-          print "\e[31m"+"DevEnv hostname not resolving "+"\e[33m"+"(#{DEV_MACHINE_NAME}) - Try running "+"\e[31m"+"vagrant hostmanager"+"\e[33m"+" and see if that corrects it."+"\e[0m\n"
+          print "\e[31m"+"DevEnv hostname not resolving "+"\e[33m"+"(#{machineName}) - Try running "+"\e[31m"+"vagrant hostmanager"+"\e[33m"+" and see if that corrects it."+"\e[0m\n"
         else
           #print "machine_name_resolves: #{machine_name_resolves}\n"
         end

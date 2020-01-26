@@ -3,8 +3,9 @@
 /persistent
 /mutagen.yml.lock
 /Vagrantfile.local.rb
-/local
+/Vagrantfile.config.rb
 
+/local
 /projects/*
 
 !/.keep

@@ -65,8 +65,9 @@ If you see a VERR_ALREADY_EXISTS error, you might need to purge an old value out
 
     vagrant up --debug
     vboxmanage list hdds
-    vboxmanage showmediuminfo disk data_disk.vmdk
-    vboxmanage closemedium disk data_disk.vmdk --delete
+    DISK_PATH="data_disk.vmdk"
+    vboxmanage showmediuminfo disk ${DISK_PATH}
+    vboxmanage closemedium disk ${DISK_PATH} --delete
 
 # Notes on file sync with Mutagen
 

@@ -1,28 +1,34 @@
-##### Provider-agnostic settings
-## REQUIRED: fixed mysql password
-## Instructions: generate a secure password that will be used as fixed mysql PW
-# FIXED_MYSQL_PW = 'CHANGEME'
+# This file is for local overrides for your user on your system
+# This allows each developer to specify config values that are specific
+# to their user/system configuration that will not impact other developers
+# that also work on the same project. Uncomment any relavant variables and
+# the values from this file will override default or project config variables.
+#
+# -------------------------------------------------------------------------------
+# This file should NOT be committed to the repo and can contain sensetive details
+# -------------------------------------------------------------------------------
 
-## OPTIONAL: public keys to authorized for www-data user
-## Instructions: change if using non-standard SSH public key
-SSH_PUBLIC_KEY_PATHS = ['~/.ssh/id_rsa.pub']
+# Environment Configs
+# $dev_machine_name = 'example.lan'
+# $dev_additional_hostnames = %w(store1.example.lan store2.example.lan)
 
+# System Configs
+# $dev_vm_cpus = 2
+# $dev_vm_ram = 4096
+# $dev_mysql_root_pw = 'CHANGEME'
+# $ssh_private_key = '~/.ssh/id_rsa'
+# $ssh_public_key_paths = ['~/.ssh/id_rsa.pub']
+#
+# $persistent_disks = [
+#   {
+#     "description" => "data",
+#     "persistDiskPath" => "data_disk.vmdk",
+#     "persistDiskSizeGb" => 50
+#   },
+#   {
+#     "description" => "datadb",
+#     "persistDiskPath" => "datadb_disk.vmdk",
+#     "persistDiskSizeGb" => 50
+#   }
+# ]
 
-##### Digital Ocean provider settings
-## REQUIRED: DO API token
-## Instructions: visit API -> Tokens/Keys in DO account interface
-# DIGITAL_OCEAN_API_TOKEN = 'CHANGEME'
-
-## OPTIONAL: UUID of block storage volume which should be used for persistent storage
-## Default: empty string
-## Instructions: @TODO
-# DIGITAL_OCEAN_BLOCK_VOLUME_ID = 'eric-is-great-and-awesome'
-
-## REQUIRED: SSH key name for use in DO
-## Instructions: Provide a meaningful name for the SSH key which will be uploaded to DO
-DIGITAL_OCEAN_SSH_KEY_NAME = ''
-
-## OPTIONAL: SSH private key for use in DO
-## Default: empty string
-## Instructions: If using more than one key, specify path to private SSH key that DO should use
-DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH = ''

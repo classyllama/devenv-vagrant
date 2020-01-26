@@ -4,16 +4,23 @@
 # Determine persistent and source paths
 if File.symlink?(__FILE__)
   # Assume we are already in the persistent path
-  persistent_path = ""
-  source_path = "source/"
+  persistent_path = "./"
+  source_path = "./source/"
+  persistent_disk_path = ""
 else
   # Assume we are in the source path
-  persistent_path = "persistent/"
-  source_path = ""
+  persistent_path = "./persistent/"
+  source_path = "./"
+  persistent_disk_path = "persistent/"
+  print "\e[31m"+"Warning: "+"\e[33m"+"This is designed to work better when calling vagrant from the persistent directory where Vagrantfile has been symlinked to the source directory."+"\e[0m"
 end
 
 # include local variables, if present
-require_relative "persistent/Vagrantfile.local"
+require_relative "Vagrantfile.default"
+require "#{source_path}Vagrantfile.config.rb" if File.file?("#{source_path}Vagrantfile.config.rb")
+require "#{source_path}Vagrantfile.local.rb" if File.file?("#{source_path}Vagrantfile.local.rb")
+require "#{persistent_path}Vagrantfile.config.rb" if File.file?("#{persistent_path}Vagrantfile.config.rb")
+require "#{persistent_path}Vagrantfile.local.rb" if File.file?("#{persistent_path}Vagrantfile.local.rb")
 
 # include plugin files
 require_relative 'plugin/PluginUtility'
@@ -32,12 +39,12 @@ Vagrant.configure('2') do |config|
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
   config.hostmanager.manage_guest = false
-  config.hostmanager.aliases = DEV_ADDITIONAL_HOSTNAMES
+  config.hostmanager.aliases = $dev_additional_hostnames
   
-  config.vm.define "#{DEV_MACHINE_NAME}" do |config|
+  config.vm.define "#{$dev_machine_name}" do |config|
     
     config.vm.box = "bento/centos-7"
-    config.vm.hostname = "#{DEV_MACHINE_NAME}"
+    config.vm.hostname = "#{$dev_machine_name}"
     config.vm.network :private_network, type: "dhcp"
     config.hostmanager.ignore_private_ip = false
     
@@ -46,15 +53,15 @@ Vagrant.configure('2') do |config|
     config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
       PluginHostmanagerHelper.vbIpResolver(vm, cached_addresses)
     end
-    PluginHostmanagerHelper.vmUpTrigger(config)
+    PluginHostmanagerHelper.vmUpTrigger(config, $dev_machine_name)
     
     # After provisioning change vagrant ssh to connect via
     # the hostname on the host_only network and use the 
     # www-data user when logging into the box
-    if PluginUtility.vmIsProvisioned("#{DEV_MACHINE_NAME}")
-      config.ssh.private_key_path = "#{SSH_PRIVATE_KEY}"
+    if PluginUtility.vmIsProvisioned("#{$dev_machine_name}")
+      config.ssh.private_key_path = "#{$ssh_private_key}"
       config.ssh.insert_key = false
-      config.ssh.host = "#{DEV_MACHINE_NAME}"
+      config.ssh.host = "#{$dev_machine_name}"
       config.ssh.port = 22
       config.ssh.username = 'www-data'
     end
@@ -66,12 +73,13 @@ Vagrant.configure('2') do |config|
     # Persistent Disk variable settings
     persistentDisks = Array.new
     nextPersistContPort = 1
-    PERSISTENT_DISKS.each {|disk|
+    $persistent_disks.each {|disk|
       persistentDisks.push(
         {
           "description" => disk["description"],
           "diskControllerName" => "SATA Controller",
-          "persistDiskPath" => "#{persistent_path}#{disk["persistDiskPath"]}",
+          "workingDirectory" => Dir.pwd,
+          "persistDiskPath" => "#{persistent_disk_path}#{disk["persistDiskPath"]}",
           "persistDiskSizeGb" => disk["persistDiskSizeGb"],
           "persistContPort" => nextPersistContPort,
           "persistContDev" => 0
@@ -80,11 +88,11 @@ Vagrant.configure('2') do |config|
       nextPersistContPort += 1
     }
     
-    # configure default RAM and number of CPUs allocated to vm
+    # configure RAM, CPUs and other machine settings
     config.vm.provider "virtualbox" do |vb|
-      vb.name = "#{DEV_MACHINE_NAME}"
-      vb.memory = DEV_VM_RAM
-      vb.cpus = DEV_VM_CPUS
+      vb.name = "#{$dev_machine_name}"
+      vb.memory = $dev_vm_ram
+      vb.cpus = $dev_vm_cpus
       # Adjust vram size to expected min
       vb.customize ["modifyvm", :id, "--vram", "16"]
       # Prevent VirtualBox from interfering with host audio stack
@@ -99,6 +107,7 @@ Vagrant.configure('2') do |config|
           persistentDisks.count+1, #diskControllerPortCount
           disk["persistContPort"], #persistContPort
           disk["persistContDev"], #persistContDev
+          disk["workingDirectory"], #workingDirectory
           disk["persistDiskPath"], #persistDiskPath
           disk["persistDiskSizeGb"] #persistDiskSizeGb
         )
@@ -114,25 +123,25 @@ Vagrant.configure('2') do |config|
       ansible.force_remote_user = false
       ansible.extra_vars = {
         host_zoneinfo: File.readlink('/etc/localtime'),
-        mysql_root_pw: DEV_MYSQL_ROOT_PW,
-        ssh_public_key_paths: SSH_PUBLIC_KEY_PATHS
+        mysql_root_pw: $dev_mysql_root_pw,
+        sSH_PUBLIC_KEY_PATHS: $ssh_public_key_paths
       }
     end
     
     # Triggers
     persistentDisks.each {|disk| 
-      PluginPersistDisk.vmUp(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"], disk["persistDiskPath"])
+      PluginPersistDisk.vmUp(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"], disk["persistDiskPath"])
     }
     #PluginMutagen.vmUp(config)
     
     #PluginMutagen.vmHalt(config)
     persistentDisks.each {|disk| 
-      PluginPersistDisk.vmHalt(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+      PluginPersistDisk.vmHalt(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
     }
     
     #PluginMutagen.vmDestroy(config)
     persistentDisks.each {|disk| 
-      PluginPersistDisk.vmDestroy(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+      PluginPersistDisk.vmDestroy(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
     }
     
   end

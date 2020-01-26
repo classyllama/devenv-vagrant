@@ -1,0 +1,27 @@
+# Global variables that are specific to the project and override the default
+# variables from the source repo.
+# This file should be committed to the project repo
+
+# Environment Configs
+$dev_machine_name = 'myprojectname.lan'
+$dev_additional_hostnames = %w(store1.myprojectname.lan store1.myprojectname.lan)
+
+# System Configs
+# $dev_vm_cpus = 2
+# $dev_vm_ram = 4096
+# $dev_mysql_root_pw = 'CHANGEME'
+# $ssh_private_key = '~/.ssh/id_rsa'
+# $ssh_public_key_paths = ['~/.ssh/id_rsa.pub']
+
+$persistent_disks = [
+  {
+    "description" => "data",
+    "persistDiskPath" => "data_disk.vmdk",
+    "persistDiskSizeGb" => 50
+  },
+  {
+    "description" => "datadb",
+    "persistDiskPath" => "datadb_disk.vmdk",
+    "persistDiskSizeGb" => 50
+  }
+]
