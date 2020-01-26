@@ -32,7 +32,6 @@ Vagrant.configure('2') do |config|
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
   config.hostmanager.manage_guest = false
-  #config.hostmanager.include_offline = true
   config.hostmanager.aliases = DEV_ADDITIONAL_HOSTNAMES
   
   config.vm.define "#{DEV_MACHINE_NAME}" do |config|
@@ -40,7 +39,6 @@ Vagrant.configure('2') do |config|
     config.vm.box = "bento/centos-7"
     config.vm.hostname = "#{DEV_MACHINE_NAME}"
     config.vm.network :private_network, type: "dhcp"
-    
     config.hostmanager.ignore_private_ip = false
     
     # Resolve guest DHCP assigned IP
@@ -50,8 +48,9 @@ Vagrant.configure('2') do |config|
     end
     PluginHostmanagerHelper.vmUpTrigger(config)
     
-    # so we can connect to remote servers from inside the vm
-    config.ssh.forward_agent = true
+    # After provisioning change vagrant ssh to connect via
+    # the hostname on the host_only network and use the 
+    # www-data user when logging into the box
     if PluginUtility.vmIsProvisioned("#{DEV_MACHINE_NAME}")
       config.ssh.private_key_path = "#{SSH_PRIVATE_KEY}"
       config.ssh.insert_key = false
@@ -59,15 +58,27 @@ Vagrant.configure('2') do |config|
       config.ssh.port = 22
       config.ssh.username = 'www-data'
     end
+    config.ssh.forward_agent = true
     config.vm.graceful_halt_timeout = 120
+    # Disable the default synced folder
+    config.vm.synced_folder '.', '/vagrant', disabled: true
     
     # Persistent Disk variable settings
-    diskControllerName = "SATA Controller"
-    persistDiskPath = "#{persistent_path}#{PERSISTENT_DISK_PATH}"
-    persistDiskSizeGb = PERSISTENT_DISK_SIZE_GB
-    persistContPort = 1
-    persistContDev = 0
-    machineName = config.vm.hostname
+    persistentDisks = Array.new
+    nextPersistContPort = 1
+    PERSISTENT_DISKS.each {|disk|
+      persistentDisks.push(
+        {
+          "description" => disk["description"],
+          "diskControllerName" => "SATA Controller",
+          "persistDiskPath" => "#{persistent_path}#{disk["persistDiskPath"]}",
+          "persistDiskSizeGb" => disk["persistDiskSizeGb"],
+          "persistContPort" => nextPersistContPort,
+          "persistContDev" => 0
+        }
+      )
+      nextPersistContPort += 1
+    }
     
     # configure default RAM and number of CPUs allocated to vm
     config.vm.provider "virtualbox" do |vb|
@@ -81,7 +92,18 @@ Vagrant.configure('2') do |config|
       # Disable VirtualBox Remote Display
       vb.customize ["modifyvm", :id, "--vrde", "off"]
       
-      PluginPersistDisk.vmCreate(vb, diskControllerName, persistContPort, persistContDev, persistDiskPath, persistDiskSizeGb)
+      persistentDisks.each {|disk| 
+        PluginPersistDisk.vmCreate(
+          vb, #vb
+          disk["diskControllerName"], #diskControllerName
+          persistentDisks.count+1, #diskControllerPortCount
+          disk["persistContPort"], #persistContPort
+          disk["persistContDev"], #persistContDev
+          disk["persistDiskPath"], #persistDiskPath
+          disk["persistDiskSizeGb"] #persistDiskSizeGb
+        )
+      }
+      
     end
     
     # Provision
@@ -98,14 +120,20 @@ Vagrant.configure('2') do |config|
     end
     
     # Triggers
-    PluginPersistDisk.vmUp(config, machineName, diskControllerName, persistContPort, persistContDev, persistDiskPath)
+    persistentDisks.each {|disk| 
+      PluginPersistDisk.vmUp(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"], disk["persistDiskPath"])
+    }
     #PluginMutagen.vmUp(config)
     
     #PluginMutagen.vmHalt(config)
-    PluginPersistDisk.vmHalt(config, machineName, diskControllerName, persistContPort, persistContDev)
+    persistentDisks.each {|disk| 
+      PluginPersistDisk.vmHalt(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+    }
     
     #PluginMutagen.vmDestroy(config)
-    PluginPersistDisk.vmDestroy(config, machineName, diskControllerName, persistContPort, persistContDev)
+    persistentDisks.each {|disk| 
+      PluginPersistDisk.vmDestroy(config, DEV_MACHINE_NAME, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+    }
     
   end
   

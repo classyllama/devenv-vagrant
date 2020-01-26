@@ -1,6 +1,6 @@
 class PluginPersistDisk
   
-  def self.vmCreate(vb, diskControllerName, persistContPort, persistContDev, persistDiskPath, persistDiskSizeGb)
+  def self.vmCreate(vb, diskControllerName, diskControllerPortCount, persistContPort, persistContDev, persistDiskPath, persistDiskSizeGb)
     # If the file does not exist we need to create the virtual disk
     unless File.exist?(persistDiskPath)
       
@@ -15,7 +15,7 @@ class PluginPersistDisk
     end
 
     # The storage controller will. now need 2 ports so that we can attach the additional disk
-    vb.customize ['storagectl', :id, '--name', "#{diskControllerName}", '--portcount', 2]
+    vb.customize ['storagectl', :id, '--name', "#{diskControllerName}", '--portcount', diskControllerPortCount]
 
     # Attach the new virtual disk to the vm 
     vb.customize ['storageattach', :id, '--storagectl', "#{diskControllerName}", '--port', persistContPort, '--device', persistContDev, '--type', 'hdd', '--medium', persistDiskPath]

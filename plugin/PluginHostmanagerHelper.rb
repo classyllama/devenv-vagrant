@@ -2,11 +2,17 @@ class PluginHostmanagerHelper
   
   # Resolve Guest IP by executing command on guest to get assigned IP
   def self.vbIpResolver(vm, cached_addresses)
+    # vagrant ssh -c "hostname -I | cut -d ' ' -f 2" -- -q
+    
     if vm.id
       host_ip = ""
       begin
         if cached_addresses[vm.name].nil?
           if hostname = (vm.ssh_info && vm.ssh_info[:host] && vm.communicate.ready?)
+            # Calling vm.communicate.execute() operates from within the operation
+            # but is similar to calling `vagrant ssh` and doesn't have problems with
+            # vagrant locking while it's performing the operation the ip is needed to
+            # be resolved for.
             vm.communicate.execute("hostname -I | cut -d ' ' -f 2") do |type, contents|
               cached_addresses[vm.name] = contents.split("\n").first[/(\d+\.\d+\.\d+\.\d+)/, 1]
             end
