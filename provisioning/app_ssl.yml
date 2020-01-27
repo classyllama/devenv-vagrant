@@ -4,94 +4,115 @@
   become: yes
   
   vars:
-    ssl_root_ca_dir: /server/.shared/ssl/
+    ssl_cert_dir: /etc/nginx/ssl/
+    local_ssl_cert_dir: /vagrant/local/rootca/
+    root_ca_conf_path: /etc/openssl/rootca.conf
   
   roles:
     
   tasks:
+    - name: Check for existing rootca config file
+      stat:
+        path: "{{ root_ca_conf_path }}"
+      register: root_ca_conf_file
+
+    - name: Copy root CA configuration
+      block:
+        - name: Create /etc/openssl directory
+          file:
+            path: /etc/openssl
+            state: directory
+        - name: Copy root CA config file
+          copy:
+            src: files/etc/rootca.conf
+            dest: "{{ root_ca_conf_path }}"
+      when: not root_ca_conf_file.stat.exists
+
+    - name: Check for existing nginx ssl directory
+      stat:
+        path: "{{ ssl_cert_dir }}"
+      register: nginx_ssl_dir
+
+    - name: Creates nginx ssl directory
+      file:
+        path: "{{ ssl_cert_dir }}"
+        state: directory
+      when: not nginx_ssl_dir.stat.exists
     
-    # Copy rootca.conf template file to server
+    - name: Check for existing nginx private key
+      stat:
+        path: "{{ ssl_cert_dir }}/local.key"
+      register: nginx_private_key
     
+    - name: create local ssl private key
+      shell: openssl genrsa -out {{ ssl_cert_dir }}/local.key 2048
+      when: not nginx_private_key.stat.exists
+
     - name: Check for existing rootca directory
       stat:
-        path: "{{ ssl_root_ca_dir }}/rootca"
+        path: "{{ ssl_cert_dir }}/rootca"
       register: ssl_rootca_dir
       
-    - name: Setup RootCA
+    - name: Setup root CA directories
       block: 
-      - name: Creates ssl directory
+      - name: Creates root CA directories
         file:
-          path: "{{ ssl_root_ca_dir }}/rootca/{{ item }}"
+          path: "{{ ssl_cert_dir }}/rootca/{{ item }}"
           state: directory
         with_items:
           - certs
           - crl
           - newcerts
           - private
-      - name: Create index
+      - name: Create root CA index
         file:
-          path: "{{ ssl_root_ca_dir }}/rootca/index.txt"
+          path: "{{ ssl_cert_dir }}/rootca/index.txt"
           state: touch
-      - name: Create serial
-          copy:
-            dest: "{{ ssl_root_ca_dir }}/rootca/serial"
-            content: 1000
+      - name: Create root CA serial
+        copy:
+          dest: "{{ ssl_cert_dir }}/rootca/serial"
+          content: 1000
       when: not ssl_rootca_dir.stat.exists
-    
-    
-    
-    
-    
-    - name: Check for existing root ca key
+
+    - name: Check for existing rootca on host
       stat:
-        path: "{{ ssl_root_ca_dir }}/rootca/private/ca.key.pem"
+        path: "{{ local_ssl_cert_dir }}"
+      register: host_ssl_rootca_dir
+
+    - name: Synchronize root CA from host
+      copy:
+        remote_src: yes
+        src: "{{ local_ssl_cert_dir }}"
+        dest: "{{ ssl_cert_dir }}/rootca/"
+      when: host_ssl_rootca_dir.stat.exists
+    
+    - name: Check for existing root CA key
+      stat:
+        path: "{{ ssl_cert_dir }}/rootca/private/ca.key"
       register: ssl_root_ca
       
-    - name: Setup RootCA
+    - name: Generate root CA cert/key pair
       block: 
-      - name: Creates ssl directory
-        shell: openssl genrsa -out {{ ssl_root_ca_dir }}/rootca/private/ca.key.pem 4096
+      - name: Generate root CA private key
+        shell: openssl genrsa -out {{ ssl_cert_dir }}/rootca/private/ca.key 4096
       
-      - name: Creates ssl directory
+      - name: Generate root CA certificate
         shell: |
-          openssl req -config /etc/openssl/rootca.conf -new -x509 -days 7300 -sha256 -extensions v3_ca \
-              -key {{ ssl_root_ca_dir }}/rootca/private/ca.key.pem \
-              -out {{ ssl_root_ca_dir }}/rootca/certs/ca.cert.pem \
-              -subj "/C=US/O=Vagrant DevEnv"
-      
-      - name: example copying file with owner and permissions
-        copy:
-          src: "{{ ssl_root_ca_dir }}/rootca/certs/ca.cert.pem"
-          dest: /etc/pki/ca-trust/source/anchors/local-ca.key.pem
-      
-      - shell: update-ca-trust
-      - shell: update-ca-trust enable
-      
+          openssl req -config {{ root_ca_conf_path }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
+              -key {{ ssl_cert_dir }}/rootca/private/ca.key \
+              -out {{ ssl_cert_dir }}/rootca/certs/ca.cert \
+              -subj "/C=US/O=Vagrant DevEnv 2.0"
+      - debug:
+          msg: 
+          - "Generated new root CA at {{ ssl_cert_dir }}/rootca/certs/ca.cert."
+          - "To avoid unnecessary root CA generation in the future, please sync {{ ssl_cert_dir }}/rootca{certs,private} to local/etc/rootca/ on your host machine."
       when: not ssl_root_ca.stat.exists
-    
-    
-    - name: Check for existing nginx ssl directory
-      stat:
-        path: /etc/nginx/ssl
-      register: nginx_ssl_dir
-    
-    - name: Creates nginx ssl directory
-      file:
-        path: /etc/nginx/ssl
-        state: directory
-      when: not nginx_ssl_dir.stat.exists
-    
-    - name: Check for existing nginx private key
-      stat:
-        path: /etc/nginx/ssl/local.key.pem
-      register: nginx_private_key
-    
-    - name: create local ssl private key
-      shell: openssl genrsa -out /etc/nginx/ssl/local.key.pem 2048
-      when: not nginx_private_key.stat.exists
-    
 
-
-
-
-
+    - name: Copy root CA cert to VM local trust store
+      copy:
+        remote_src: yes
+        src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert"
+        dest: /etc/pki/ca-trust/source/anchors/local-ca.key
+    
+    - shell: update-ca-trust
+    - shell: update-ca-trust enable

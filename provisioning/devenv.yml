@@ -1,0 +1,69 @@
+---
+- hosts: all
+  name: Dev Env Setup
+  become: yes
+  
+  vars:
+
+  tasks:
+    - name: Add www-data to cladmin group
+      user:
+        name: www-data
+        groups: cladmin
+        append: yes
+
+    - name: Authorize host SSH public keys
+      block:
+        - name: Authorize key for www-data
+          authorized_key:
+            user: www-data
+            state: present
+            key: "{{ lookup('file', item) }}"
+          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
+        - name: Authorize key for root
+          authorized_key:
+            user: root
+            state: present
+            key: "{{ lookup('file', item) }}"
+          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
+      when: sSH_PUBLIC_KEY_PATHS is defined and sSH_PUBLIC_KEY_PATHS|length > 0
+
+    - name: Create projects directory for codebase roots
+      file:
+        path: /var/www/html/projects
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '775'
+
+    - name: Reset root mysql PW to fixed value
+      block:
+
+      - name: Install python-mysqldb
+        package:
+          name: MySQL-python
+          state: present
+
+      - debug:
+          msg: "Resetting mysql root password to {{ mysql_root_pw }} ."
+
+      - name: Reset root mysql password
+        mysql_user:
+          user: root
+          password: "{{ mysql_root_pw }}"
+          host_all: yes
+
+      - name: Update root ~/.my.cnf with new root password
+        ini_file:
+          path: ~root/.my.cnf
+          section: client
+          option: password
+          value: "{{ mysql_root_pw }}"
+
+      - name: Update www-data ~/.my.cnf with root credentials
+        copy:
+          remote_src: yes
+          src: ~root/.my.cnf
+          dest: ~www-data/.my.cnf
+
+      when: mysql_root_pw is defined and mysql_root_pw|length > 0

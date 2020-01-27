@@ -1,0 +1,5 @@
+/repo_sources/*
+/*.vmdk
+/.vagrant/*
+/mutagen.yml.lock
+/Vagrantfile.local.rb

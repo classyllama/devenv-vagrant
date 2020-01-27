@@ -1,0 +1,53 @@
+---
+- hosts: all
+  name: Dev Env Vhosts Setup
+  become: yes
+  
+  vars:
+    vhosts_parent_dir: /var/www/html/projects
+    vhosts_dir_pattern: "*.dev"
+    nginx_ssl_dir: /etc/nginx/ssl/
+    ssl_config_dir: /etc/openssl/
+    ssl_config_path: "{{ ssl_config_dir }}vhost.conf"
+    root_ca_config_path: "{{ ssl_config_dir }}rootca.conf"
+  
+  tasks:
+    - name: Check for vhost SSL cert config
+      stat:
+        path: "{{ ssl_config_path }}"
+      register: ssl_config_file
+
+    - name: Copy vhost openssl configuration
+      block:
+        - name: Create /etc/openssl directory
+          file:
+            path: /etc/openssl
+            state: directory
+        - name: Copy vhost SSL config file
+          copy:
+            src: files/etc/vhost.conf
+            dest: "{{ ssl_config_path }}"
+      when: not ssl_config_file.stat.exists
+
+    - name: Identify vhost dirs
+      find:
+        paths: "{{ vhosts_parent_dir }}"
+        patterns: "{{ vhosts_dir_pattern }}"
+        file_type: directory
+      register: vhost_dirs
+
+    - debug:
+        verbosity: 1
+        msg:
+          - "Identified the following vhost dirs:" 
+          - "{{ vhost_dirs.files }}"
+
+    - name: Generate SSL certs for all vhosts
+      include_tasks: devenv_vhost_ssl.yml
+      loop: "{{ vhost_dirs.files }}"
+
+    - name: Generate vhost / backend nginx config pairs for all vhosts
+      include_tasks: devenv_vhost_nginx.yml
+      loop: "{{ vhost_dirs.files }}"
+      loop_control:
+        index_var: idx

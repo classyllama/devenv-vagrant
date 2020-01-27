@@ -1,0 +1,35 @@
+---
+- set_fact: 
+    vhost_name: "{{ item.path | basename }}"
+
+- debug:
+    verbosity: 1
+    msg: 
+      - Generating SSL cert for {{ vhost_name }}.
+      - Looking in {{ nginx_ssl_dir }} for existing certs.
+
+- name: Checking for SSL cert for {{ vhost_name }} vhost
+  stat:
+    path: "{{ nginx_ssl_dir }}/{{ vhost_name }}.crt"
+  register: vhost_cert_file
+
+- name: Generate SSL cert for {{ vhost_name }} vhost
+  block:
+    - name: Generate private key for {{ vhost_name }} vhost
+      copy:
+        remote_src: yes
+        src: "{{ nginx_ssl_dir }}/local.key"
+        dest: "{{ nginx_ssl_dir }}/{{ vhost_name }}.key"
+    - name: Generate CSR for {{ vhost_name }} vhost
+      shell: |
+        SAN="DNS.1:*.{{ vhost_name }},DNS.2:{{ vhost_name }}" openssl req -new -sha256 \
+          -key {{ nginx_ssl_dir }}/{{ vhost_name }}.key \
+          -out {{ nginx_ssl_dir }}/{{ vhost_name }}.csr \
+          -config {{ ssl_config_path }} \
+          -subj "/C=US/CN={{ vhost_name }}"
+    - name: Generate actual cert for {{ vhost_name }} vhost
+      shell: |
+        yes | openssl ca -config {{ root_ca_config_path }} -extensions server_cert -days 375 -notext -md sha256 \
+          -in {{ nginx_ssl_dir }}/{{ vhost_name }}.csr \
+          -out {{ nginx_ssl_dir }}/{{ vhost_name }}.crt
+  when: not vhost_cert_file.stat.exists

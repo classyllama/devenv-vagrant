@@ -2,3 +2,10 @@
 /.vagrant/*
 /persistent
 /mutagen.yml.lock
+/Vagrantfile.local.rb
+/Vagrantfile.config.rb
+
+/local
+/projects/*
+
+!/.keep

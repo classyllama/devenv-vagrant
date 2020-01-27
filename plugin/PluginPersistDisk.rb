@@ -1,17 +1,22 @@
 class PluginPersistDisk
   
-  def self.vmCreate(vb, diskControllerName, persistContPort, persistContDev, persistDiskPath, persistDiskSizeGb)
+  def self.vmCreate(vb, diskControllerName, diskControllerPortCount, persistContPort, persistContDev, workingDirectory, persistDiskPath, persistDiskSizeGb)
     # If the file does not exist we need to create the virtual disk
     unless File.exist?(persistDiskPath)
-      # vboxmanage closemedium disk persistent_data_disk.vmdk
-      # VBoxManage internalcommands sethduuid persistent_data_disk.vmdk
-      # vb.customize ['internalcommands', 'sethduuid', persistDiskPath]
-      # vb.customize ['closemedium', 'disk', persistDiskPath]
+      
+      # Check if VirtualBox thinks it is still managing a non existent file
+      vbStillManagingDisk = %x( vboxmanage list hdds )
+      if vbStillManagingDisk.include? "#{workingDirectory}#{persistDiskPath}"
+        # Remove managed disk in virtualbox before creating a new files
+        print "persistDiskPath: #{workingDirectory}#{persistDiskPath}\n"
+        vb.customize ['closemedium', 'disk', persistDiskPath]
+      end
+      
       vb.customize ['createmedium', 'disk', '--filename', persistDiskPath, '--size', (persistDiskSizeGb * 1024).to_s, '--format', 'VMDK']
     end
 
     # The storage controller will. now need 2 ports so that we can attach the additional disk
-    vb.customize ['storagectl', :id, '--name', "#{diskControllerName}", '--portcount', 2]
+    vb.customize ['storagectl', :id, '--name', "#{diskControllerName}", '--portcount', diskControllerPortCount]
 
     # Attach the new virtual disk to the vm 
     vb.customize ['storageattach', :id, '--storagectl', "#{diskControllerName}", '--port', persistContPort, '--device', persistContDev, '--type', 'hdd', '--medium', persistDiskPath]
@@ -62,8 +67,9 @@ class PluginPersistDisk
         contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
         trigger.info = "Persistent Disk: #{contPortDevValue}"
         if contPortDevValue != 'none'
-          trigger.warn = "Drive still attached (#{contPortDevValue}) - machine cannot be destroyed! - Please halt the machine first."
-          trigger.run = {inline: "exit 'drive attached - cannot be destroyed'"}
+          # Colorize text red ("\e[31m"+"text here"+"\e[0m")
+          trigger.warn = "\e[31m"+"Drive still attached "+"\e[33m"+"(#{contPortDevValue}) - machine cannot be destroyed! - "+"\e[31m"+"Please halt the machine first."+"\e[0m"
+          trigger.abort = true
         end
       end
     end
