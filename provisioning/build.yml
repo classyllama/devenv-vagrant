@@ -1,12 +1,9 @@
 ---
 #- import_playbook: persistent-disk.yml
 - import_playbook: common.yml
-- import_playbook: base.yml
-
-
-
-#- import_playbook: app.yml
-#- import_playbook: app_ssl.yml
+#- import_playbook: base.yml
+- import_playbook: app.yml
+- import_playbook: app_ssl.yml
 #- import_playbook: app_magento.yml
-#- import_playbook: app_xdebug.yml
-#- import_playbook: devenv.yml
+- import_playbook: app_xdebug.yml
+- import_playbook: devenv.yml

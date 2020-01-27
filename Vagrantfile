@@ -33,116 +33,222 @@ Vagrant.require_version ">= 2.2.5", "< 2.3.0"
 
 Vagrant.configure('2') do |config|
   
-  config.vagrant.plugins = ["vagrant-hostmanager"]
+  if $use_provider == "virtualbox"
+    
+    # ----------------------
+    # ----- virtualbox -----
+    # ----------------------
+    
+    config.vagrant.plugins = ["vagrant-hostmanager"]
   
-  # vagrant-hostmanager configuration
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.manage_guest = false
-  config.hostmanager.aliases = $dev_additional_hostnames
+    # vagrant-hostmanager configuration
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = false
+    config.hostmanager.aliases = $dev_additional_hostnames
   
-  config.vm.define "#{$dev_machine_name}" do |config|
+    config.vm.define "#{$dev_machine_name}" do |config|
     
-    config.vm.box = "bento/centos-7"
-    config.vm.hostname = "#{$dev_machine_name}"
-    config.vm.network :private_network, type: "dhcp"
-    config.hostmanager.ignore_private_ip = false
+      config.vm.box = "bento/centos-7"
+      config.vm.hostname = "#{$dev_machine_name}"
+      config.vm.network :private_network, type: "dhcp"
+      config.hostmanager.ignore_private_ip = false
     
-    # Resolve guest DHCP assigned IP
-    cached_addresses = {}
-    config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
-      PluginHostmanagerHelper.vbIpResolver(vm, cached_addresses)
-    end
-    PluginHostmanagerHelper.vmUpTrigger(config, $dev_machine_name)
+      # Resolve guest DHCP assigned IP
+      cached_addresses = {}
+      config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+        PluginHostmanagerHelper.vbIpResolver(vm, cached_addresses)
+      end
+      PluginHostmanagerHelper.vmUpTrigger(config, $dev_machine_name)
     
-    # After provisioning change vagrant ssh to connect via
-    # the hostname on the host_only network and use the 
-    # www-data user when logging into the box
-    if PluginUtility.vmIsProvisioned("#{$dev_machine_name}")
-      config.ssh.private_key_path = "#{$ssh_private_key}"
-      config.ssh.insert_key = false
-      config.ssh.host = "#{$dev_machine_name}"
-      config.ssh.port = 22
-      config.ssh.username = 'www-data'
-    end
-    config.ssh.forward_agent = true
-    config.vm.graceful_halt_timeout = 120
-    # Disable the default synced folder
-    config.vm.synced_folder '.', '/vagrant', disabled: true
+      # After provisioning change vagrant ssh to connect via
+      # the hostname on the host_only network and use the 
+      # www-data user when logging into the box
+      if PluginUtility.vmIsProvisioned("#{$dev_machine_name}")
+        config.ssh.private_key_path = "#{$ssh_private_key}"
+        config.ssh.insert_key = false
+        config.ssh.host = "#{$dev_machine_name}"
+        config.ssh.port = 22
+        config.ssh.username = 'www-data'
+      end
+      config.ssh.forward_agent = true
+      config.vm.graceful_halt_timeout = 120
+      # Disable the default synced folder
+      config.vm.synced_folder '.', '/vagrant', disabled: true
     
-    # Persistent Disk variable settings
-    persistentDisks = Array.new
-    nextPersistContPort = 1
-    $persistent_disks.each {|disk|
-      persistentDisks.push(
-        {
-          "description" => disk["description"],
-          "diskControllerName" => "SATA Controller",
-          "workingDirectory" => Dir.pwd,
-          "persistDiskPath" => "#{persistent_disk_path}#{disk["persistDiskPath"]}",
-          "persistDiskSizeGb" => disk["persistDiskSizeGb"],
-          "persistContPort" => nextPersistContPort,
-          "persistContDev" => 0
-        }
-      )
-      nextPersistContPort += 1
-    }
-    
-    # configure RAM, CPUs and other machine settings
-    config.vm.provider "virtualbox" do |vb|
-      vb.name = "#{$dev_machine_name}"
-      vb.memory = $dev_vm_ram
-      vb.cpus = $dev_vm_cpus
-      # Adjust vram size to expected min
-      vb.customize ["modifyvm", :id, "--vram", "16"]
-      # Prevent VirtualBox from interfering with host audio stack
-      vb.customize ["modifyvm", :id, "--audio", "none"]
-      # Disable VirtualBox Remote Display
-      vb.customize ["modifyvm", :id, "--vrde", "off"]
-      
-      persistentDisks.each {|disk| 
-        PluginPersistDisk.vmCreate(
-          vb, #vb
-          disk["diskControllerName"], #diskControllerName
-          persistentDisks.count+1, #diskControllerPortCount
-          disk["persistContPort"], #persistContPort
-          disk["persistContDev"], #persistContDev
-          disk["workingDirectory"], #workingDirectory
-          disk["persistDiskPath"], #persistDiskPath
-          disk["persistDiskSizeGb"] #persistDiskSizeGb
+      # Persistent Disk variable settings
+      persistentDisks = Array.new
+      nextPersistContPort = 1
+      $persistent_disks.each {|disk|
+        persistentDisks.push(
+          {
+            "description" => disk["description"],
+            "diskControllerName" => "SATA Controller",
+            "workingDirectory" => Dir.pwd,
+            "persistDiskPath" => "#{persistent_disk_path}#{disk["persistDiskPath"]}",
+            "persistDiskSizeGb" => disk["persistDiskSizeGb"],
+            "persistContPort" => nextPersistContPort,
+            "persistContDev" => 0
+          }
         )
+        nextPersistContPort += 1
       }
+    
+      # configure RAM, CPUs and other machine settings
+      config.vm.provider "virtualbox" do |vb|
+        vb.name = "#{$dev_machine_name}"
+        vb.memory = $dev_vm_ram
+        vb.cpus = $dev_vm_cpus
+        # Adjust vram size to expected min
+        vb.customize ["modifyvm", :id, "--vram", "16"]
+        # Prevent VirtualBox from interfering with host audio stack
+        vb.customize ["modifyvm", :id, "--audio", "none"]
+        # Disable VirtualBox Remote Display
+        vb.customize ["modifyvm", :id, "--vrde", "off"]
       
-    end
+        persistentDisks.each {|disk| 
+          PluginPersistDisk.vmCreate(
+            vb, #vb
+            disk["diskControllerName"], #diskControllerName
+            persistentDisks.count+1, #diskControllerPortCount
+            disk["persistContPort"], #persistContPort
+            disk["persistContDev"], #persistContDev
+            disk["workingDirectory"], #workingDirectory
+            disk["persistDiskPath"], #persistDiskPath
+            disk["persistDiskSizeGb"] #persistDiskSizeGb
+          )
+        }
+      
+      end
     
-    # Provision
-    config.vm.provision "ansible" do |ansible|
-      ansible.playbook = "#{source_path}provisioning/build.yml"
-      ansible.extra_vars = { host_zoneinfo: File.readlink('/etc/localtime') }
-      ansible.compatibility_mode = "2.0"
-      ansible.force_remote_user = false
-      ansible.extra_vars = {
-        host_zoneinfo: File.readlink('/etc/localtime'),
-        mysql_root_pw: $dev_mysql_root_pw,
-        sSH_PUBLIC_KEY_PATHS: $ssh_public_key_paths
+      # Provision
+      config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "#{source_path}provisioning/build.yml"
+        ansible.extra_vars = { host_zoneinfo: File.readlink('/etc/localtime') }
+        ansible.compatibility_mode = "2.0"
+        ansible.force_remote_user = false
+        ansible.extra_vars = {
+          host_zoneinfo: File.readlink('/etc/localtime'),
+          mysql_root_pw: $dev_mysql_root_pw,
+          sSH_PUBLIC_KEY_PATHS: $ssh_public_key_paths
+        }
+      end
+    
+      # Triggers
+      persistentDisks.each {|disk| 
+        PluginPersistDisk.vmUp(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"], disk["persistDiskPath"])
       }
+      #PluginMutagen.vmUp(config)
+    
+      #PluginMutagen.vmHalt(config)
+      persistentDisks.each {|disk| 
+        PluginPersistDisk.vmHalt(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+      }
+    
+      #PluginMutagen.vmDestroy(config)
+      persistentDisks.each {|disk| 
+        PluginPersistDisk.vmDestroy(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
+      }
+    
     end
     
-    # Triggers
-    persistentDisks.each {|disk| 
-      PluginPersistDisk.vmUp(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"], disk["persistDiskPath"])
-    }
-    #PluginMutagen.vmUp(config)
+  elsif $use_provider == "digitalocean"
     
-    #PluginMutagen.vmHalt(config)
-    persistentDisks.each {|disk| 
-      PluginPersistDisk.vmHalt(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
-    }
+    # ------------------------
+    # ----- digitalocean -----
+    # ------------------------
     
-    #PluginMutagen.vmDestroy(config)
-    persistentDisks.each {|disk| 
-      PluginPersistDisk.vmDestroy(config, $dev_machine_name, disk["diskControllerName"], disk["persistContPort"], disk["persistContDev"])
-    }
+    config.vagrant.plugins = ["vagrant-digitalocean"]
+    
+    config.vm.define "#{$dev_machine_name}" do |config|
+
+        # Disable the default synced folder
+        config.vm.synced_folder '.', '/vagrant', disabled: true
+        
+        # for all providers, perform basic rysnc sync
+        # config.vm.synced_folder ".", "/vagrant", type: "rsync",
+        #   rsync__exclude: [".git/", ".vagrant/", "*.dev/"]
+
+        # Digital Ocean provider scenario
+        config.vm.provider :digital_ocean do |provider, override|
+          override.ssh.private_key_path = "#{$ssh_private_key}"
+          override.vm.box = 'digital_ocean'
+          override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
+          override.nfs.functional = false
+          provider.tags = $digital_ocean_tags
+
+          unless $digital_ocean_ssh_key_name.empty?
+            provider.ssh_key_name = $digital_ocean_ssh_key_name
+          end
+          
+          provider.ipv6 = false
+          provider.monitoring = true
+          provider.token = $digital_ocean_api_token
+          
+          # To List distribution image slugs
+          # ----------------------------------
+          # export DO_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+          # curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${DO_TOKEN}" "https://api.digitalocean.com/v2/images?type=distribution&page=1&per_page=100" | jq .
+          provider.image = 'centos-7-x64'
+          provider.region = "#{$digital_ocean_region}"
+          provider.size = "#{$digital_ocean_droplet_size}"
+          
+          # To List volumes in region
+          # ----------------------------------
+          # export DO_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+          # curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${DO_TOKEN}" "https://api.digitalocean.com/v2/volumes" | jq .
+
+          # array of volume ids to be attached
+          # ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]
+          provider.volumes = $digital_ocean_block_volume_id
+
+
+
+
+
+          # Provision
+
+          # first, run DO-specific playbook
+          config.vm.provision "digital_ocean", type:'ansible' do |ansible|
+            ansible.playbook = "#{source_path}provisioning/digital_ocean.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.extra_vars = {
+              block_id: $digital_ocean_block_volume_id[0]
+            }
+          end
+
+          # then, provider-agnostic app playbook
+          config.vm.provision "app", type:'ansible' do |ansible|
+            ansible.playbook = ENV['PLAYBOOK'] || "#{source_path}provisioning/build.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.extra_vars = {
+              host_zoneinfo: File.readlink('/etc/localtime'),
+              mysql_root_pw: $dev_mysql_root_pw,
+              ssh_public_key_paths: $ssh_public_key_paths
+            }
+          end
+
+          # penultamently, run DO-specific post-app playbook
+          config.vm.provision "digital_ocean_post_app", type:'ansible' do |ansible|
+            ansible.playbook = "#{source_path}provisioning/digital_ocean_post_app.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.extra_vars = {
+              block_id: $digital_ocean_block_volume_id[0]
+            }
+          end
+
+          # finally, always run vhost playbook on all "ups"
+          # config.vm.provision "vhost", type:'ansible', run: "always" do |ansible|
+          #   ansible.playbook = "#{source_path}provisioning/devenv_vhosts.yml"
+          #   ansible.compatibility_mode = "2.0"
+          # end
+        end
+
+    end
+    
+    
+    
+    
     
   end
   

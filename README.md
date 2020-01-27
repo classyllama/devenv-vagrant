@@ -124,10 +124,14 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 
 ## Soft Requirements
 
-1. Ability to sync root CA to local filesystem and trust it
+1. [Gitman] installed on host.
+    * Requirement: convenient
+    * Implications: without gitman on the host, you would need to follow several manual commands to clone, and initialize this dev env template into a project
+    https://github.com/jacebrowning/gitman
+2. Ability to sync root CA to local filesystem and trust it
     * Requirement: convenient
     * Implications: without trusting root CA, SSL certs will not be valid. Without syncing generated root CA to local filesystem, a new one will be generated on each VM (re)creation.
-2. Ability to create predefined hosts entries for dev VMs.
+3. Ability to create predefined hosts entries for dev VMs.
     * Requirement: convenient
     * Implications: without using predefined hosts entries on host, copy-paste commands may not work as expected.
 
@@ -141,12 +145,13 @@ MacOS
   
     brew install virtualbox
     brew install vagrant
+    vagrant plugin list
     vagrant plugin install vagrant-hostmanager
     vagrant plugin install vagrant-digitalocean
     brew install ansible
     brew install mutagen
     
-    # Allow vagrant-hostmanager to update hosts file without requiring password
+    # Allow vagrant-hostmanager to update hosts file without requiring password prompt
 ```
 HOME_DIR="${HOME}"
 USER_GROUP_NAME="$(id -gn $(whoami))"
@@ -168,6 +173,11 @@ TODO: general installation instructions
 ## Digital Ocean
 
 The [Digital Ocean Vagrant Provider] must be installed prior to running VMs in the cloud.
+
+    # Display details of an existing droplet
+    export DO_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+    export DO_DROPLET_ID=xxxxxxxx
+    curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${DO_TOKEN}" "https://api.digitalocean.com/v2/droplets/${DO_DROPLET_ID}" | jq .
 
 TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loading.
 

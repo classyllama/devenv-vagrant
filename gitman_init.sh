@@ -27,3 +27,5 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 [[ -f persistent/.gitignore ]] || cp .gitignore.sample persistent/.gitignore
 [[ -f persistent/Vagrantfile.config.rb ]] || cp Vagrantfile.config.rb.sample persistent/Vagrantfile.config.rb
 [[ -f persistent/Vagrantfile.local.rb ]] || cp Vagrantfile.local.rb.sample persistent/Vagrantfile.local.rb
+
+# TODO Add README to persistent directory with instructions on initializing with gitman or manually
