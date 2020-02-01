@@ -1,4 +1,0 @@
----
-composer:
-  install_name: composer
-  download_url: https://getcomposer.org/download/1.8.3/composer.phar
