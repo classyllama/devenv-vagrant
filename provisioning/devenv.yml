@@ -1,69 +1,98 @@
 ---
 - hosts: all
-  name: Dev Env Setup
+  name: Application Server Setup
   become: yes
+
+  vars_files:
+    - ./app_vars.default.yml
+    - ./app_vars.config.yml
   
   vars:
+    
+  pre_tasks:
+    - name: change hostname to myserver
+      hostname:
+        name: "{{ app_domain }}"
+  
+  roles:
+    - { role: alpacaglue.devops-access }
+    - { role: alpacaglue.percona }
+    - { role: alpacaglue.boilerplate }
+    - { role: local.timezone }
+    - { role: alpacaglue.hostsfile }
+    - { role: alpacaglue.www-user }
+
+    - { role: alpacaglue.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
+    - { role: classyllama.php_fpm, tags: php-fpm }
+
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+    # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
+
+    - { role: alpacaglue.n98-magerun, tags: toolchain }
+    - { role: alpacaglue.composer, tags: toolchain }
+    - { role: alpacaglue.php-cachetool, tags: toolchain }
+
+    - { role: classyllama.nginx, tags: nginx }
 
   tasks:
-    - name: Add www-data to cladmin group
-      user:
-        name: www-data
-        groups: cladmin
-        append: yes
+    - package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - yum-plugin-replace
+        - pwgen
+        - jq
+        - unzip
+        - words
 
-    - name: Authorize host SSH public keys
-      block:
-        - name: Authorize key for www-data
-          authorized_key:
-            user: www-data
-            state: present
-            key: "{{ lookup('file', item) }}"
-          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
-        - name: Authorize key for root
-          authorized_key:
-            user: root
-            state: present
-            key: "{{ lookup('file', item) }}"
-          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
-      when: sSH_PUBLIC_KEY_PATHS is defined and sSH_PUBLIC_KEY_PATHS|length > 0
+    # Install ImageMagick
+    # verify tool exists: mogrify -version
+    # For access from PHP code it requires the pecl-imagick extension
+    - name: Install ImageMagick
+      tags: toolchain
+      package: 
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - ImageMagick
+        - ImageMagick-devel
+        - php72u-pecl-imagick
 
-    - name: Create projects directory for codebase roots
+    - name: Install Mail Tools
+      package:
+        name: mailx
+        state: present
+
+    - name: Link cachetool config into /var/www/html
       file:
-        path: /var/www/html/projects
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '775'
+        src: /home/www-data/.cachetool.yml
+        dest: /var/www/html/.cachetool.yml
+        state: link
+    
+    - include: tasks/database-create.yml
+      tags: database
+      args:
+        mysql_db: "demo_data"
+        mysql_host: "%"
+        mysql_user: magento_data
 
-    - name: Reset root mysql PW to fixed value
-      block:
+    - include: tasks/database-mycnf.yml
+      tags: database
+      args:
+        mycnf_file: /home/www-data/.my.cnf
+        mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
 
-      - name: Install python-mysqldb
-        package:
-          name: MySQL-python
-          state: present
+    - name: Run all notified handlers
+      meta: flush_handlers
+      tags: database
 
-      - debug:
-          msg: "Resetting mysql root password to {{ mysql_root_pw }} ."
+    - name: Link cachetool config into /var/www/html
+      file:
+        src: /home/www-data/.cachetool.yml
+        dest: /var/www/html/.cachetool.yml
+        state: link
 
-      - name: Reset root mysql password
-        mysql_user:
-          user: root
-          password: "{{ mysql_root_pw }}"
-          host_all: yes
-
-      - name: Update root ~/.my.cnf with new root password
-        ini_file:
-          path: ~root/.my.cnf
-          section: client
-          option: password
-          value: "{{ mysql_root_pw }}"
-
-      - name: Update www-data ~/.my.cnf with root credentials
-        copy:
-          remote_src: yes
-          src: ~root/.my.cnf
-          dest: ~www-data/.my.cnf
-
-      when: mysql_root_pw is defined and mysql_root_pw|length > 0
+    - name: Disable SELinux enforcement
+      selinux:
+        state: disabled

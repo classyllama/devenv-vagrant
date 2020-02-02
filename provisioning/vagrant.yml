@@ -1,0 +1,8 @@
+---
+#- import_playbook: vagrant_persistent_disk.yml
+- import_playbook: common.yml
+- import_playbook: devenv.yml
+- import_playbook: devenv_ssl.yml
+- import_playbook: devenv_composer.yml
+- import_playbook: devenv_xdebug.yml
+- import_playbook: devenv_config.yml

@@ -1,14 +1,7 @@
 ---
 - hosts: all
-  name: Magento Initialization Scripts
+  name: Copy composer credentials for repo.magento.com from host to devenv
   become: yes
-  
-  vars:
-    url_domain: dev-m2demo.demo
-    magent_rel_ver: "2.3.2"
-    env_root_dir: "/var/www/html"
-    magento_composer_project: "magento/project-community-edition"
-    magento_initialize_script: "initialize-magento.sh.j2"
   
   tasks:
     
@@ -48,19 +41,3 @@
         - remote_user and remote_user.stdout is defined and remote_user.stdout == ""
         - local_user and local_user.stdout is defined and local_user.stdout != ""
         - local_pass and local_pass.stdout is defined and local_pass.stdout != ""
-    
-    - name: Copy Magento init script
-      template:
-        src: "scripts/{{ magento_initialize_script }}"
-        dest: /home/www-data/initialize-magento.sh
-        owner: www-data
-        group: www-data
-        mode: 0775
-    
-    - name: Copy Magento clean script
-      copy:
-        src: scripts/clean-magento.sh
-        dest: /home/www-data/clean-magento.sh
-        owner: www-data
-        group: www-data
-        mode: 0775
