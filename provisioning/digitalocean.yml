@@ -1,0 +1,16 @@
+---
+# first, run DO-specific playbook
+- import_playbook: digitalocean_start.yml
+
+# then, provider-agnostic app playbook
+- import_playbook: common.yml
+- import_playbook: devenv.yml
+- import_playbook: devenv_ssl.yml
+- import_playbook: devenv_composer.yml
+- import_playbook: devenv_config.yml
+
+# penultamently, run DO-specific post-app playbook
+- import_playbook: digitalocean_end.yml
+
+# finally, always run vhost playbook on all "ups"
+# - import_playbook: devenv_vhosts.yml

@@ -2,6 +2,11 @@
 - name: Common
   hosts: all
   become: true
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
   tasks:
     - parted:
         device: /dev/sdb

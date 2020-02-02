@@ -3,6 +3,10 @@
   name: Digital Ocean Server Setup
   become: yes
 
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+
   vars:
     block_storage_mount_root: /var/www
     root_my_cnf_path: ~root/.my.cnf

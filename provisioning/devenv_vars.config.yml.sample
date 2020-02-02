@@ -1,0 +1,15 @@
+---
+##Domains used by server
+# app_domain: example.lan
+#
+# devops_access_users:
+#   - { username: www-data, pubkey: ~/.ssh/id_rsa.pub }
+# www_user_ssh_keys:
+#   - ~/.ssh/id_rsa.pub
+#
+# php_version: 72
+# mysql_root_pw: CHANGEME
+
+##Check to see what your system's timezone is set to
+# ls -la /etc/localtime
+# timezone_name: America/Chicago

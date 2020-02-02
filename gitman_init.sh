@@ -28,6 +28,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 [[ -f persistent/Vagrantfile.config.rb ]] || cp Vagrantfile.config.rb.sample persistent/Vagrantfile.config.rb
 [[ -f persistent/Vagrantfile.local.rb ]] || cp Vagrantfile.local.rb.sample persistent/Vagrantfile.local.rb
 [[ -f persistent/devenv_vars.config.yml ]] || cp provisioning/devenv_vars.config.yml.sample persistent/devenv_vars.config.yml
+[[ -f persistent/mutagen.yml ]] || cp mutagen.yml.sample persistent/mutagen.yml
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml

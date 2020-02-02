@@ -2,6 +2,10 @@
 - hosts: all
   name: Copy composer credentials for repo.magento.com from host to devenv
   become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
   
   tasks:
     

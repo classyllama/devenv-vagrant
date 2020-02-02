@@ -2,31 +2,14 @@
 - hosts: all
   name: Dev Env Setup
   become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
   
   vars:
 
   tasks:
-    - name: Add www-data to cladmin group
-      user:
-        name: www-data
-        groups: cladmin
-        append: yes
-
-    - name: Authorize host SSH public keys
-      block:
-        - name: Authorize key for www-data
-          authorized_key:
-            user: www-data
-            state: present
-            key: "{{ lookup('file', item) }}"
-          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
-        - name: Authorize key for root
-          authorized_key:
-            user: root
-            state: present
-            key: "{{ lookup('file', item) }}"
-          loop: "{{ sSH_PUBLIC_KEY_PATHS }}"
-      when: sSH_PUBLIC_KEY_PATHS is defined and sSH_PUBLIC_KEY_PATHS|length > 0
 
     - name: Create projects directory for codebase roots
       file:

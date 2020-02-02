@@ -1,16 +1,48 @@
 ---
 devops_access_users:
-  - { username: mjohnson, pubkey: files/ssh-keys/mjohnson }
+  - { username: www-data, pubkey: ~/.ssh/id_rsa.pub }
 www_user_ssh_keys:
-  - files/ssh-keys/mjohnson
+  - ~/.ssh/id_rsa.pub
 
 
+mysql_root_pw: CHANGEME
 
-app_domain: dev-m2demo.demo
+app_domain: example.lan
+
+# Check to see what your system's timezone is set to
+# ls -la /etc/localtime
+timezone_name: America/Chicago
+
 
 php_fpm_pm: ondemand
 php_fpm_pm_max_children: 10
 php_version: 72
+php_additional_modules:
+  - xdebug
+
+php_fpm_global_additional_ini:
+  display_errors: "on"
+  html_errors: "on"
+  error_reporting: E_ALL ^ E_DEPRECATED
+  max_execution_time: 600
+  date.timezone: "{{ timezone_name }}"
+  session.gc_maxlifetime: 7200
+  openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
+
+php_extension_xdebug_ini:
+  xdebug.remote_enable: "on"
+  xdebug.remote_host: 172.28.128.1
+  xdebug.idekey: PHPSTORM
+  xdebug.show_local_vars: "on"
+  xdebug.var_display_max_depth: 3
+  xdebug.max_nesting_level: 250
+  xdebug.file_link_format :  '"phpstorm://open?file=%f&line=%l"'
+  xdebug.profiler_enable: 0
+  xdebug.profiler_output_dir: "/tmp"
+  xdebug.profiler_output_name: cachegrind.out.%s.%t
+php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
+
+
 
 redis_version: 32
 mysqld_memory_percentage: 50
@@ -27,7 +59,7 @@ nginx_vhosts:
     pool: data
     params:
       server_name: "{{ app_domain }}"
-      webroot: /var/www/html/project/sitecode/pub
+      webroot: /var/www/html/pub
       #proxy_port: 6081
       proxy_port: 8080
     includes:
@@ -37,7 +69,7 @@ nginx_backends:
   - name: www-data
     pool: data
     listen: 8080
-    webroot: /var/www/html/project/sitecode/pub
+    webroot: /var/www/html/pub
     includes:
       - default.d/nginx-status.conf
       - available.d/realip.conf
@@ -55,3 +87,6 @@ nginx_conf_auth_allow: []
 # The backend servers are not hanlding SSL termination; optimize this for build speed
 nginx_diffie_hellman_bits: 1024
 nginx_config_hsts: no
+
+alpacaglue_relyon_rsepel: false
+use_classyllama_repo_ius: true

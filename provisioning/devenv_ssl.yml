@@ -2,6 +2,10 @@
 - hosts: all
   name: Application SSL Setup
   become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
   
   vars:
     ssl_cert_dir: /etc/nginx/ssl/
