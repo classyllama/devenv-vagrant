@@ -1,7 +1,7 @@
 sync:
   magento:
     alpha: "../../"
-    beta: "www-data@example.lan:/var/www/html/"
+    beta: "www-data@example.lan:/var/www/html/magento/"
     mode: "two-way-resolved"
     symlink:
       mode: "ignore"

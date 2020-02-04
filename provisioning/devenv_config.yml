@@ -18,6 +18,13 @@
         owner: www-data
         group: www-data
         mode: '775'
+    - name: Create projects directory for codebase roots
+      file:
+        path: /var/www/html/magento
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '775'
 
     - name: Reset root mysql PW to fixed value
       block:

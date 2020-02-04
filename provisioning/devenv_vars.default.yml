@@ -59,7 +59,7 @@ nginx_vhosts:
     pool: data
     params:
       server_name: "{{ app_domain }}"
-      webroot: /var/www/html/pub
+      webroot: /var/www/html/magento/pub
       #proxy_port: 6081
       proxy_port: 8080
     includes:
@@ -69,7 +69,7 @@ nginx_backends:
   - name: www-data
     pool: data
     listen: 8080
-    webroot: /var/www/html/pub
+    webroot: /var/www/html/magento/pub
     includes:
       - default.d/nginx-status.conf
       - available.d/realip.conf
