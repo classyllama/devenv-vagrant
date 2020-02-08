@@ -226,9 +226,9 @@ sources:
   -
   rev: feature/project-attempt
   link:
- scripts:
- - ./gitman_init.sh
-" | sudo tee ./gitman.yml
+  scripts:
+  - ./gitman_init.sh
+" | tee ./gitman.yml
 
 gitman install
 ```
@@ -236,6 +236,7 @@ gitman install
 Adjust configuration files with domain to use `example.lan` and any other project specific configs that should be different than the defaults
   `Vagrantfile.config.rb`
   `devenv_vars.config.yml`
+  `devenv_playbook.config.yml`
   `mutagen.yml`
 
 Start Vagrant

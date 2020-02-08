@@ -19,6 +19,7 @@ php_fpm_pm_max_children: 10
 php_version: 72
 php_additional_modules:
   - xdebug
+  - pecl-imagick
 
 php_fpm_global_additional_ini:
   display_errors: "on"
