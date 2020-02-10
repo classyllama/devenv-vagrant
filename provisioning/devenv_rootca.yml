@@ -1,0 +1,154 @@
+---
+- hosts: all
+  name: Application SSL Setup
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  vars:
+    ssl_cert_dir: /etc/nginx/ssl
+    root_ca_conf_path: /etc/openssl/rootca.conf
+    
+    host_trusted_root_ca_path: ~/.devenv/rootca
+    host_trusted_root_ca_key: "{{ host_trusted_root_ca_path }}/devenv_ca.key"
+    host_trusted_root_ca_crt: "{{ host_trusted_root_ca_path }}/devenv_ca.crt"
+    host_trusted_root_ca_index: "{{ host_trusted_root_ca_path }}/devenv_ca.index"
+    host_trusted_root_ca_serial: "{{ host_trusted_root_ca_path }}/devenv_ca.serial"
+  
+  roles:
+    
+  tasks:
+    
+    
+    - name: Directory on host for root ca files
+      local_action:
+        module: file
+        path: "{{ host_trusted_root_ca_path }}"
+        state: directory
+      become: false
+    
+    - name: Directory /etc/openssl for RootCA Config
+      file:
+        path: /etc/openssl
+        state: directory
+    - name: RootCA Config
+      template:
+        src: rootca/rootca.conf
+        dest: "{{ root_ca_conf_path }}"
+    
+    - name: Creates root CA directories
+      file:
+        path: "{{ ssl_cert_dir }}/rootca/{{ item }}"
+        state: directory
+      with_items:
+        - certs
+        - crl
+        - newcerts
+        - private
+    
+    
+    # TODO: Not sure what the local.key is used for
+    - name: Check for existing nginx private key
+      stat:
+        path: "{{ ssl_cert_dir }}/local.key"
+      register: nginx_private_key
+    
+    - name: create local ssl private key
+      shell: openssl genrsa -out {{ ssl_cert_dir }}/local.key 2048
+      when: not nginx_private_key.stat.exists
+    
+    
+    
+    - name: Check for an existing trusted root ca key on the host
+      local_action:
+        module: stat
+        path: "{{ host_trusted_root_ca_key }}"
+      become: false
+      register: host_trusted_root_ca_key_stat
+    - name: Check for an existing trusted root ca crt on the host
+      local_action:
+        module: stat
+        path: "{{ host_trusted_root_ca_crt }}"
+      become: false
+      register: host_trusted_root_ca_crt_stat
+    
+    
+    
+    - name: Create a new trusted root ca and save on the host
+      block:
+        
+        # Create root ca files on remote VM
+        - name: Create root CA index
+          file:
+            path: "{{ ssl_cert_dir }}/rootca/index.txt"
+            state: touch
+        - name: Create root CA serial
+          copy:
+            dest: "{{ ssl_cert_dir }}/rootca/serial"
+            content: 1000
+        - name: Generate root CA private key
+          shell: openssl genrsa -out {{ ssl_cert_dir }}/rootca/private/ca.key 4096
+        - name: Generate root CA certificate
+          shell: |
+            openssl req -config {{ root_ca_conf_path }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
+                -key {{ ssl_cert_dir }}/rootca/private/ca.key \
+                -out {{ ssl_cert_dir }}/rootca/certs/ca.cert \
+                -subj "/C=US/O=Vagrant DevEnv 2.0"
+
+        - name: Copy the root ca files to the host
+          fetch:
+            flat: yes
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+          with_items:
+            - { src: "{{ ssl_cert_dir }}/rootca/private/ca.key", dest: "{{ host_trusted_root_ca_key }}" }
+            - { src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert", dest: "{{ host_trusted_root_ca_crt }}" }
+            - { src: "{{ ssl_cert_dir }}/rootca/index.txt", dest: "{{ host_trusted_root_ca_index }}" }
+            - { src: "{{ ssl_cert_dir }}/rootca/serial", dest: "{{ host_trusted_root_ca_serial }}" }
+        
+        # register the new root ca on the host so that it is trusted
+        # See: https://github.com/classyllama/devenv#ssl
+        
+        # Create sudoer access for running command like what vagrant-hostmanager uses
+        # We may want to try and check for sudoers permission and automatically run if it exists
+        
+        # MacOS
+        # sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/.devenv/rootca/devenv_ca.crt
+        
+        # Windows
+        # certutil –addstore -enterprise –f "Root" c:\certs\ca.cert.pem
+        
+      when: not host_trusted_root_ca_key_stat.stat.exists or not host_trusted_root_ca_crt_stat.stat.exists
+    
+    
+    
+    - name: Copy the existing root ca from the host to be used on the remote vm
+      block:
+        # Create root ca on remote VM and copy back to host
+        
+        - name: Copy the existing root CA files into the remote vm
+          copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+          with_items:
+            - { src: "{{ host_trusted_root_ca_key }}", dest: "{{ ssl_cert_dir }}/rootca/private/ca.key" }
+            - { src: "{{ host_trusted_root_ca_crt }}", dest: "{{ ssl_cert_dir }}/rootca/certs/ca.cert" }
+            - { src: "{{ host_trusted_root_ca_index }}", dest: "{{ ssl_cert_dir }}/rootca/index.txt" }
+            - { src: "{{ host_trusted_root_ca_serial }}", dest: "{{ ssl_cert_dir }}/rootca/serial" }
+            
+      when: host_trusted_root_ca_key_stat.stat.exists and host_trusted_root_ca_crt_stat.stat.exists
+    
+    
+    
+    # Update the VM Trust Store
+    - name: Copy root CA cert to VM local trust store
+      copy:
+        remote_src: yes
+        src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert"
+        dest: /etc/pki/ca-trust/source/anchors/local-ca.key
+    
+    # Update the CA trust on the remote and enable it
+    - shell: update-ca-trust
+    - shell: update-ca-trust enable
