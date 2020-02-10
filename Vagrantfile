@@ -127,7 +127,7 @@ Vagrant.configure('2') do |config|
     
       # Provision
       config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "#{source_path}provisioning/vagrant.yml"
+        ansible.playbook = "#{source_path}provisioning/virtualbox.yml"
         ansible.compatibility_mode = "2.0"
         ansible.force_remote_user = false
       end
