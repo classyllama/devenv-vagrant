@@ -189,6 +189,11 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
 * Add `export VAGRANT_DEFAULT_PROVIDER="digital_ocean"` to `~/.bash_profile` if using DO provider as default.
 * To debug vagrant execution run `VAGRANT_LOG=debug` to get verbos debug output during execution of `vagrant` commands.
 * Remove keys from your system's known hosts file `ssh-keygen -R hostname`
+* If `vagrant ssh` doesn't do anything, your /etc/hosts file may be corrupt.
+    The entry may be in the hosts file, but running `ssh www-data@example.lan` results in an error `ssh: Could not resolve hostname`. It could also be line endings in the file.
+    Check that file is of type `charset=us-ascii`
+    
+        file -I /etc/hosts
 
 # Usage
 
