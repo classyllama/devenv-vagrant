@@ -80,6 +80,7 @@
     echo "
     mysqldump \
         --single-transaction \
+        --triggers \
         --routines \
         --events \
         --default-character-set=utf8 \
@@ -89,6 +90,7 @@
         -o LogLevel=ERROR \
         www-stage@stage.example.com \
       | pv | gunzip \
+      | LC_ALL=C sed 's/\/\*[^*]*DEFINER=[^*]*\*\///g' \
       | vagrant ssh -c \
       "mysql -D demo_data --default-character-set=utf8" -- -q
 
@@ -112,12 +114,26 @@
     bin/magento setup:upgrade
 
     # Configure Magento
-    bin/magento config:set web/unsecure/base_url https://example.lan/
-    bin/magento config:set web/secure/base_url https://example.lan/
-    bin/magento config:set web/unsecure/base_static_url https://example.lan/static/
-    bin/magento config:set web/secure/base_static_url https://example.lan/static/
-    bin/magento config:set web/unsecure/base_media_url https://example.lan/media/
-    bin/magento config:set web/secure/base_media_url https://example.lan/media/
+    
+    # Default
+    bin/magento config:set --lock-env web/unsecure/base_url https://example.lan/
+    bin/magento config:set --lock-env web/unsecure/base_link_url https://example.lan/
+    bin/magento config:set --lock-env web/unsecure/base_static_url https://example.lan/static/
+    bin/magento config:set --lock-env web/unsecure/base_media_url https://example.lan/media/
+    bin/magento config:set --lock-env web/secure/base_url https://example.lan/
+    bin/magento config:set --lock-env web/secure/base_link_url https://example.lan/
+    bin/magento config:set --lock-env web/secure/base_static_url https://example.lan/static/
+    bin/magento config:set --lock-env web/secure/base_media_url https://example.lan/media/
+
+    # store1 example
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/unsecure/base_url https://store1.example.lan/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/unsecure/base_link_url https://store1.example.lan/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/unsecure/base_static_url https://store1.example.lan/static/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/unsecure/base_media_url https://store1.example.lan/media/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/secure/base_url https://store1.example.lan/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/secure/base_link_url https://store1.example.lan/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/secure/base_static_url https://store1.example.lan/static/
+    # bin/magento config:set --scope=store --scope-code=store1 --lock-env web/secure/base_media_url https://store1.example.lan/media/
 
     bin/magento config:set dev/static/sign 0
     bin/magento config:set system/full_page_cache/caching_application 1
