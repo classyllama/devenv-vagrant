@@ -13,6 +13,32 @@
     - name: change hostname to myserver
       hostname:
         name: "{{ app_domain }}"
+    
+    - name: Set location of /var/www
+      block:
+        
+        - name: Check for existing /var/www directory
+          stat:
+            path: "/var/www"
+          register: var_www_stat
+        - name: "Check for existing {{ location_var_www }} directory"
+          stat:
+            path: "{{ location_var_www }}"
+          register: location_var_www_stat
+        - name: "Move /var/www to {{ location_var_www }}"
+          shell: "mv /var/www {{ location_var_www }}"
+          when: var_www_stat.stat.exists and not location_var_www_stat.stat.exists
+        - name: "Remove initial /var/www directory"
+          shell: "rm -rf /var/www"
+          when: var_www_stat.stat.exists and var_www_stat.stat.islnk is defined and var_www_stat.stat.islnk == False
+        
+        - name: "Create symlink for {{ location_var_www }} at /var/www"
+          file:
+            src: "{{ location_var_www }}"
+            dest: "/var/www"
+            state: link
+        
+      when: (location_var_www is defined) and (location_var_www|length > 0)
   
   roles:
     - { role: alpacaglue.percona }

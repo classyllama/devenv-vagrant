@@ -13,6 +13,7 @@ app_domain: example.lan
 # ls -la /etc/localtime
 timezone_name: America/Chicago
 
+location_var_www: ""
 
 php_fpm_pm: ondemand
 php_fpm_pm_max_children: 10
