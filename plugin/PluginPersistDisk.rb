@@ -6,12 +6,13 @@ class PluginPersistDisk
       
       # Check if VirtualBox thinks it is still managing a non existent file
       vbStillManagingDisk = %x( vboxmanage list hdds )
-      if vbStillManagingDisk.include? "#{workingDirectory}#{persistDiskPath}"
+      if vbStillManagingDisk.include? "#{workingDirectory}/#{persistDiskPath}"
         # Remove managed disk in virtualbox before creating a new files
-        print "persistDiskPath: #{workingDirectory}#{persistDiskPath}\n"
-        vb.customize ['closemedium', 'disk', persistDiskPath]
+        print "persistDiskPath: #{workingDirectory}/#{persistDiskPath} (closemedium)\n"
+        vmCloseMedium = %x( vboxmanage closemedium disk #{persistDiskPath} )
       end
       
+      # Configure creation of disk if it does not already exist
       vb.customize ['createmedium', 'disk', '--filename', persistDiskPath, '--size', (persistDiskSizeGb * 1024).to_s, '--format', 'VMDK']
     end
 
@@ -29,12 +30,16 @@ class PluginPersistDisk
       trigger.name = "Persistent Disk"
       if File.exist?(".vagrant/machines/#{machineName}/virtualbox/id")
         machineId = File.read(".vagrant/machines/#{machineName}/virtualbox/id")
-        vmInfoExtraction = %x( vboxmanage showvminfo #{machineId} --machinereadable | grep '"#{diskControllerName}-#{persistContPort}-#{persistContDev}"' )
-        contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
-        trigger.info = "Persistent Disk: #{contPortDevValue}"
-        if contPortDevValue == 'none'
-          trigger.warn = "Attaching Persistent Disk"
-          trigger.run = {inline: "vboxmanage storageattach '#{machineId}' --storagectl '#{diskControllerName}' --port #{persistContPort} --device #{persistContDev} --type hdd --medium #{persistDiskPath}"}
+        # Only try to attach if file actually exists
+        # If file does not exist it will automatically be created and attached
+        if File.exist?(persistDiskPath)
+          vmInfoExtraction = %x( vboxmanage showvminfo #{machineId} --machinereadable | grep '"#{diskControllerName}-#{persistContPort}-#{persistContDev}"' )
+          contPortDevValue = vmInfoExtraction.split("=")[1].to_s.gsub('"','').chomp()
+          trigger.info = "Persistent Disk: #{contPortDevValue}"
+          if contPortDevValue == 'none'
+            trigger.warn = "Attaching Persistent Disk"
+            trigger.run = {inline: "vboxmanage storageattach '#{machineId}' --storagectl '#{diskControllerName}' --port #{persistContPort} --device #{persistContDev} --type hdd --medium #{persistDiskPath}"}
+          end
         end
       end
     end

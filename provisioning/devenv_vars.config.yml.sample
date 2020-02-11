@@ -13,3 +13,9 @@
 ##Check to see what your system's timezone is set to
 # ls -la /etc/localtime
 # timezone_name: America/Chicago
+
+# virtualhost_disks:
+#   - { mount_path: /data, disk_device: sdb, partition_device: sdb1, fstype: xfs }
+#   - { mount_path: /datadb, disk_device: sdc, partition_device: sdc1, fstype: xfs }
+#
+# mysqld_datadir: /datadb/mysql

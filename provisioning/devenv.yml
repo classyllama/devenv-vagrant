@@ -15,7 +15,6 @@
         name: "{{ app_domain }}"
   
   roles:
-    - { role: alpacaglue.devops-access }
     - { role: alpacaglue.percona }
     - { role: alpacaglue.boilerplate }
     - { role: local.timezone }
