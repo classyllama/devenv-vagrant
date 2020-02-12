@@ -1,3 +1,47 @@
+# Requirements
+
+### MacOS
+
+Install tools needed for DevEnv
+
+    brew cask install virtualbox
+    brew cask install vagrant
+    vagrant plugin list
+    vagrant plugin install vagrant-hostmanager
+    vagrant plugin install vagrant-digitalocean
+    brew install ansible
+    brew install mutagen
+    brew install python
+
+Allow vagrant-hostmanager to update hosts file without requiring password prompt
+
+```
+HOME_DIR="${HOME}"
+USER_GROUP_NAME="$(id -gn $(whoami))"
+echo "
+HOME_DIR: ${HOME_DIR}
+USER_GROUP_NAME: ${USER_GROUP_NAME}
+VAGRANT_HOME: ${VAGRANT_HOME}
+"
+echo "
+Cmnd_Alias VAGRANT_HOSTMANAGER_UPDATE = /bin/cp ${VAGRANT_HOME}/tmp/hosts.local /etc/hosts
+%${USER_GROUP_NAME} ALL=(root) NOPASSWD: VAGRANT_HOSTMANAGER_UPDATE
+" | sudo tee /etc/sudoers.d/vagrant_hostmanager
+```
+
+Add this to your bash profile `~/.bash_profile` to make sure python 3.x is default for shell commands.
+For zsh you should put this in `~/.zshrc`
+
+    export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+
+Check default python version
+
+    python --version
+
+Install Gitman (v1.7+)
+
+    pip install gitman
+
 # Initialize DevEnv
 
   Initialize DevEnv repo source files
