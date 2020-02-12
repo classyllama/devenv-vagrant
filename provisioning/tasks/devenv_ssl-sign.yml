@@ -1,0 +1,43 @@
+---
+# common_name
+
+# nginx_ssl_cert_dir: /etc/nginx/ssl
+# devenv_openssl_rootca_dir: /etc/openssl/rootca
+# devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config
+# devenv_openssl_req_config: /etc/openssl/devenv_openssl_req_config
+
+- name: "Generate new key and request for {{ common_name }}"
+  shell: |
+    SAN="DNS.1:*.{{ common_name }},DNS.2:{{ common_name }}" openssl req -new -sha256 \
+      -nodes -newkey rsa:2048 -days 365 \
+      -keyout {{ nginx_ssl_cert_dir }}/{{ common_name }}.key \
+      -out {{ nginx_ssl_cert_dir }}/{{ common_name }}.csr \
+      -config {{ devenv_openssl_req_config }} \
+      -subj "/C=US/ST=Reality/L=Dissident/O=DevEnv/CN={{ common_name }}"
+  args:
+    creates: "{{ nginx_ssl_cert_dir }}/{{ common_name }}.key"
+  register: req_result
+
+- name: "Sign request with Certificate Authority for {{ common_name }}"
+  shell: |
+    yes | openssl ca \
+      -config {{ devenv_openssl_ca_config }} \
+      -extensions server_cert -days 375 -notext -md sha256 \
+      -in {{ nginx_ssl_cert_dir }}/{{ common_name }}.csr \
+      -out {{ nginx_ssl_cert_dir }}/{{ common_name }}.crt
+  args:
+    creates: "{{ nginx_ssl_cert_dir }}/{{ common_name }}.crt"
+  register: sign_result
+
+- name: enforce permission on key/cert files
+  file:
+    path: "{{ inner_item }}"
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - "{{ nginx_ssl_cert_dir }}/{{ common_name }}.key"
+    - "{{ nginx_ssl_cert_dir }}/{{ common_name }}.csr"
+  loop_control:
+      loop_var: inner_item
+  when: result,changed

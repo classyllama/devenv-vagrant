@@ -16,6 +16,11 @@
     root_ca_config_path: "{{ ssl_config_dir }}rootca.conf"
   
   tasks:
+    
+    
+    # TODO: Rewrite to feed project names into nginx_vhosts instead
+    
+    
     - name: Check for vhost SSL cert config
       stat:
         path: "{{ ssl_config_path }}"

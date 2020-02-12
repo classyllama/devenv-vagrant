@@ -8,8 +8,11 @@
     - ./devenv_vars.config.yml
   
   vars:
-    ssl_cert_dir: /etc/nginx/ssl
-    root_ca_conf_path: /etc/openssl/rootca.conf
+    nginx_ssl_cert_dir: /etc/nginx/ssl
+
+    devenv_openssl_rootca_dir: /etc/openssl/rootca
+    devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config
+    devenv_openssl_req_config: /etc/openssl/devenv_openssl_req_config
     
     host_trusted_root_ca_path: ~/.devenv/rootca
     host_trusted_root_ca_key: "{{ host_trusted_root_ca_path }}/devenv_ca.key"
@@ -29,18 +32,22 @@
         state: directory
       become: false
     
-    - name: Directory /etc/openssl for RootCA Config
+    - name: Directory /etc/openssl for OpenSSL Configs
       file:
         path: /etc/openssl
         state: directory
-    - name: RootCA Config
+    - name: OpenSSL Root CA Config
       template:
-        src: rootca/rootca.conf
-        dest: "{{ root_ca_conf_path }}"
+        src: openssl/devenv_openssl_ca_config
+        dest: "{{ devenv_openssl_ca_config }}"
+    - name: OpenSSL Request Config
+      template:
+        src: openssl/devenv_openssl_req_config
+        dest: "{{ devenv_openssl_req_config }}"
     
     - name: Creates root CA directories
       file:
-        path: "{{ ssl_cert_dir }}/rootca/{{ item }}"
+        path: "{{ devenv_openssl_rootca_dir }}/{{ item }}"
         state: directory
       with_items:
         - certs
@@ -49,14 +56,27 @@
         - private
     
     
-    # TODO: Not sure what the local.key is used for
+    
+    
+    # TODO: Legacy piece used in devenv_vhosts.yml and tasks/devenv_vhost_ssl.yml
+    # Should be able to be removed if not using vhosts for projects directory
+    - name: RootCA Config
+      template:
+        src: rootca/rootca.conf
+        dest: "/etc/openssl/rootca.conf"
+    
+    # TODO: Legacy piece used in devenv_vhosts.yml and tasks/devenv_vhost_ssl.yml
+    # Should be able to be removed if not using vhosts for projects directory
+    - name: "Directory {{ nginx_ssl_cert_dir }} for shared vhosts key"
+      file:
+        path: "{{ nginx_ssl_cert_dir }}"
+        state: directory
     - name: Check for existing nginx private key
       stat:
-        path: "{{ ssl_cert_dir }}/local.key"
+        path: "{{ nginx_ssl_cert_dir }}/local.key"
       register: nginx_private_key
-    
     - name: create local ssl private key
-      shell: openssl genrsa -out {{ ssl_cert_dir }}/local.key 2048
+      shell: openssl genrsa -out {{ nginx_ssl_cert_dir }}/local.key 2048
       when: not nginx_private_key.stat.exists
     
     
@@ -82,19 +102,19 @@
         # Create root ca files on remote VM
         - name: Create root CA index
           file:
-            path: "{{ ssl_cert_dir }}/rootca/index.txt"
+            path: "{{ devenv_openssl_rootca_dir }}/index.txt"
             state: touch
         - name: Create root CA serial
           copy:
-            dest: "{{ ssl_cert_dir }}/rootca/serial"
+            dest: "{{ devenv_openssl_rootca_dir }}/serial"
             content: 1000
         - name: Generate root CA private key
-          shell: openssl genrsa -out {{ ssl_cert_dir }}/rootca/private/ca.key 4096
+          shell: openssl genrsa -out {{ devenv_openssl_rootca_dir }}/private/ca.key 4096
         - name: Generate root CA certificate
           shell: |
-            openssl req -config {{ root_ca_conf_path }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
-                -key {{ ssl_cert_dir }}/rootca/private/ca.key \
-                -out {{ ssl_cert_dir }}/rootca/certs/ca.cert \
+            openssl req -config {{ devenv_openssl_ca_config }} -new -x509 -days 7300 -sha256 -extensions v3_ca \
+                -key {{ devenv_openssl_rootca_dir }}/private/ca.key \
+                -out {{ devenv_openssl_rootca_dir }}/certs/ca.cert \
                 -subj "/C=US/O=Vagrant DevEnv 2.0"
 
         - name: Copy the root ca files to the host
@@ -103,10 +123,10 @@
             src: "{{ item.src }}"
             dest: "{{ item.dest }}"
           with_items:
-            - { src: "{{ ssl_cert_dir }}/rootca/private/ca.key", dest: "{{ host_trusted_root_ca_key }}" }
-            - { src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert", dest: "{{ host_trusted_root_ca_crt }}" }
-            - { src: "{{ ssl_cert_dir }}/rootca/index.txt", dest: "{{ host_trusted_root_ca_index }}" }
-            - { src: "{{ ssl_cert_dir }}/rootca/serial", dest: "{{ host_trusted_root_ca_serial }}" }
+            - { src: "{{ devenv_openssl_rootca_dir }}/private/ca.key", dest: "{{ host_trusted_root_ca_key }}" }
+            - { src: "{{ devenv_openssl_rootca_dir }}/certs/ca.cert", dest: "{{ host_trusted_root_ca_crt }}" }
+            - { src: "{{ devenv_openssl_rootca_dir }}/index.txt", dest: "{{ host_trusted_root_ca_index }}" }
+            - { src: "{{ devenv_openssl_rootca_dir }}/serial", dest: "{{ host_trusted_root_ca_serial }}" }
         
         # register the new root ca on the host so that it is trusted
         # See: https://github.com/classyllama/devenv#ssl
@@ -133,10 +153,10 @@
             src: "{{ item.src }}"
             dest: "{{ item.dest }}"
           with_items:
-            - { src: "{{ host_trusted_root_ca_key }}", dest: "{{ ssl_cert_dir }}/rootca/private/ca.key" }
-            - { src: "{{ host_trusted_root_ca_crt }}", dest: "{{ ssl_cert_dir }}/rootca/certs/ca.cert" }
-            - { src: "{{ host_trusted_root_ca_index }}", dest: "{{ ssl_cert_dir }}/rootca/index.txt" }
-            - { src: "{{ host_trusted_root_ca_serial }}", dest: "{{ ssl_cert_dir }}/rootca/serial" }
+            - { src: "{{ host_trusted_root_ca_key }}", dest: "{{ devenv_openssl_rootca_dir }}/private/ca.key" }
+            - { src: "{{ host_trusted_root_ca_crt }}", dest: "{{ devenv_openssl_rootca_dir }}/certs/ca.cert" }
+            - { src: "{{ host_trusted_root_ca_index }}", dest: "{{ devenv_openssl_rootca_dir }}/index.txt" }
+            - { src: "{{ host_trusted_root_ca_serial }}", dest: "{{ devenv_openssl_rootca_dir }}/serial" }
             
       when: host_trusted_root_ca_key_stat.stat.exists and host_trusted_root_ca_crt_stat.stat.exists
     
@@ -146,9 +166,13 @@
     - name: Copy root CA cert to VM local trust store
       copy:
         remote_src: yes
-        src: "{{ ssl_cert_dir }}/rootca/certs/ca.cert"
+        src: "{{ devenv_openssl_rootca_dir }}/certs/ca.cert"
         dest: /etc/pki/ca-trust/source/anchors/local-ca.key
     
     # Update the CA trust on the remote and enable it
-    - shell: update-ca-trust
-    - shell: update-ca-trust enable
+    - name: update-ca-trust
+      shell: update-ca-trust
+      changed_when: false
+    - name: update-ca-trust enable
+      shell: update-ca-trust enable
+      changed_when: false

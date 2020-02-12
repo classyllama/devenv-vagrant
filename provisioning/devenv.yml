@@ -41,7 +41,7 @@
       when: (location_var_www is defined) and (location_var_www|length > 0)
   
   roles:
-    - { role: alpacaglue.percona }
+    - { role: alpacaglue.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
     - { role: alpacaglue.boilerplate }
     - { role: local.timezone }
     - { role: alpacaglue.hostsfile }
