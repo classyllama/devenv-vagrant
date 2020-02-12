@@ -14,6 +14,40 @@
     php_default_modules: "{{ php_default_modules | difference(['sodium']) }}"
   when: php_version < 72
 
+
+
+
+# php73-xdebug is not a valid package, so replace it with php73-pecl-xdebug on PHP 7.3
+- name: replace xdebug with pecl-xdebug ext when deploying 7.3 or later versions
+  set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['xdebug']) + [ 'pecl-xdebug' ] }}"
+  when: php_version >= 73 and 'xdebug' in php_default_modules
+- name: replace xdebug with pecl-xdebug ext when deploying 7.3 or later versions
+  set_fact:
+    php_additional_modules: "{{ php_additional_modules | difference(['xdebug']) + [ 'pecl-xdebug' ] }}"
+  when: php_version >= 73 and 'xdebug' in php_additional_modules
+
+# php73-mhash is not a valid package, so remove it from module list on PHP 7.3
+- name: drop 'mhash', 'curl', 'xsl', 'zip' ext when deploying 7.3 or later versions (php_modules)
+  set_fact:
+    php_additional_modules: "{{ php_additional_modules | difference(['mhash', 'curl', 'xsl', 'zip']) }}"
+  when: php_version >= 73
+
+
+- debug:
+    var: php_version
+- debug:
+    var: php_default_modules
+- debug:
+    var: php_additional_modules
+- debug:
+    var: php_modules
+
+
+
+
+
+
 - name: create {{ php_fpm_owner }} user
   user:
     name: "{{ php_fpm_owner }}"
@@ -25,11 +59,42 @@
     name: "{{ php_fpm_group }}"
     state: present
 
+
+
+
+
+- name: drop u from IUS package name
+  set_fact:
+    php_package_name_extra: "{{ php_version }}"
+  when: php_enablerepo == "ius" and php_version >= 73 and php_package_name_extra == (php_version ~ "u")
+
+- debug:
+    var: php_package_name_extra
+
+- name: Build array of package names to install with yum
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php{{ php_package_name_extra }}-{{ item }}' ]"
+  with_items: "{{ php_modules }}"
+  
+
+- debug:
+    var: php_yum_packages
+
+
+
+
+
+
+
 - name: install php-fpm
-  yum: name=php{{ php_version }}u-fpm enablerepo={{ php_enablerepo }}
+  yum: 
+    name: php{{ php_package_name_extra }}-fpm
+    enablerepo: "{{ php_enablerepo }}"
 
 - name: install php modules
-  yum: name=php{{ php_version }}u-{{ item }} enablerepo={{ php_enablerepo }}
+  yum: 
+    name: "php{{ php_package_name_extra }}-{{ item }}"
+    enablerepo: "{{ php_enablerepo }}"
   with_items: "{{ php_modules }}"
 
 - name: combine php-opcache defaults user provided settings

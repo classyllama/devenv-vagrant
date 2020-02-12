@@ -42,6 +42,12 @@
   notify:
     - ntpd started (rhel)
     - ntp started (debian)
+  
+- name: verify ntpd service started/enabled
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
 
 - name: installing classyllama bash profile
   template:

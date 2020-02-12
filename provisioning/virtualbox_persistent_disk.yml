@@ -1,0 +1,28 @@
+---
+- name: Common
+  hosts: all
+  become: true
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  tasks:
+    - parted:
+        device: "/dev/{{ item.disk_device }}"
+        number: 1
+        state: present
+      with_items: "{{ virtualhost_disks }}"
+
+    - filesystem:
+        fstype: "{{ item.fstype }}"
+        dev: "/dev/{{ item.partition_device }}"
+      with_items: "{{ virtualhost_disks }}"
+
+    - mount:
+        path: "{{ item.mount_path }}"
+        src: "/dev/{{ item.partition_device }}"
+        fstype: "{{ item.fstype }}"
+        opts: defaults,nofail,discard
+        state: mounted
+      with_items: "{{ virtualhost_disks }}"

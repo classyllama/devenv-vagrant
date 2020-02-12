@@ -1,0 +1,41 @@
+---
+- hosts: all
+  name: Digital Ocean Server Setup (Post App)
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+
+  vars:
+    block_storage_mount_root: /var/www
+    root_my_cnf_path: ~root/.my.cnf
+
+  tasks:
+
+    - name: Detect block storage mount status
+      set_fact:
+        block_storage_mounted: yes
+      loop: "{{ ansible_mounts }}"
+      when: block_id is defined and block_id | length > 0 and item.uuid == block_id
+
+    - debug:
+        verbosity: 1
+        msg: "The following storage block volume ID was provided: {{ block_id }}"
+
+    - name: Sync root my.cnf to block storage (if applicable)
+      block:
+
+      - name: Confirm presence of root my.cnf
+        stat:
+          path: "{{ root_my_cnf_path }}"
+        register: root_my_cnf_file
+
+      - name: Copy root my.cnf to block storage
+        copy:
+          remote_src: yes
+          src: "{{ root_my_cnf_path }}"
+          dest: "{{ block_storage_mount_root }}/.shared/root-my.cnf"
+        when: root_my_cnf_file.stat.exists
+
+      when: block_id is defined and block_id | length > 0 and block_storage_mounted is defined and block_storage_mounted

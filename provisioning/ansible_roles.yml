@@ -1,11 +1,20 @@
 ---
-- src: davidalger.composer
 
-- src: davidalger.php_cachetool
+- src: git@github.com:alpacaglue/ansible-role-composer.git
+  name: alpacaglue.composer
+  scm: git
 
-- src: davidalger.n98_magerun
+- src: git@github.com:alpacaglue/ansible-role-n98-magerun.git
+  name: alpacaglue.n98-magerun
+  scm: git
 
-- src: davidalger.varnish
+- src: git@github.com:alpacaglue/ansible-role-php-cachetool.git
+  name: alpacaglue.php-cachetool
+  scm: git
+
+- src: git@github.com:alpacaglue/ansible-role-varnish.git
+  name: alpacaglue.varnish
+  scm: git
 
 - src: geerlingguy.repo-epel
 

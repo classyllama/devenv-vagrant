@@ -1,0 +1,14 @@
+- hosts: all
+  name: "Custom Playbook"
+  gather_facts: no
+  become: true
+
+  vars_files:
+    - source/provisioning/devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  vars:
+  handlers:
+  pre_tasks:
+  roles:
+  tasks:

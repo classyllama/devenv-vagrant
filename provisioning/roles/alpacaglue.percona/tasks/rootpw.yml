@@ -17,6 +17,13 @@
       password: "{{ start_password.stdout }}"
   when: not root_my_cnf.stat.exists and percona_version >= 57
 
+- name: Override root password when a data directory exists on install
+  set_fact:
+    mycnf_start_root_opts:
+      user: root
+      password: "{{ mysqld_default_root_password }}"
+  when: mysqld_existing_datadir and (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)
+
 - name: initial creation of ~root/.my.cnf after mysqld install
   ini_file:
     dest: ~root/.my.cnf
@@ -24,7 +31,8 @@
     option: "{{ item.key }}"
     value: "{{ item.value }}"
   with_dict: "{{ mycnf_start_root_opts }}"
-  when: not root_my_cnf.stat.exists and percona_version >= 57
+  # when .my.cnf does not exist and (Percona 5.7+ or (a previously existing install and default password exist))
+  when: not root_my_cnf.stat.exists and ( percona_version >= 57 or (mysqld_existing_datadir and (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)) )
 
 - name: Install pwgen
   package:
@@ -42,6 +50,13 @@
       user: root
       password: "{{ result.stdout }}"
   when: result.changed
+
+- name: Override root password when a default password is set
+  set_fact:
+    mycnf_root_opts:
+      user: root
+      password: "{{ mysqld_default_root_password }}"
+  when: (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)
 
 - name: set mysql root localhost user password (socket connections)
   command: mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('{{ mycnf_root_opts.password }}');"
@@ -74,7 +89,7 @@
 
 - name: drop mysql anonymous localhost user
   command: mysql -e "DROP USER ''@'localhost';"
-  when: result.changed and percona_version < 57
+  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
 
 - name: get system hostname
   command: hostname
@@ -83,11 +98,11 @@
 
 - name: drop mysql anonymous {{ local_hostname.stdout }} user
   command: mysql -e "DROP USER ''@'{{ local_hostname.stdout }}';"
-  when: result.changed and percona_version < 57
+  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
 
 - name: drop mysql root {{ local_hostname.stdout }} user
   command: mysql -e "DROP USER 'root'@'{{ local_hostname.stdout }}';"
-  when: result.changed and percona_version < 57
+  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
 
 # MySQL 5.7 specific permission initialization
 - name: set mysql root 127.0.0.1 user password (tcp connections)

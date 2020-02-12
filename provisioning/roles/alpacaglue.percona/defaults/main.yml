@@ -23,6 +23,8 @@ percona_version: 56
 
 # Create the tmpdir if it doesn't exist; should be set to "no" when tmpdir path is a symlink (for example)
 mysqld_create_tmpdir: yes
+mysqld_existing_datadir: no
+mysqld_default_root_password: ""
 
 # Set these to "yes" on the master/slave servers of a replicated setup to enable replication setup
 #

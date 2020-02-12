@@ -1,0 +1,34 @@
+---
+
+- name: include default variables
+  include_vars: "../vars/main.yml"
+
+- name: prepare directories
+  file:
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0750') }}"
+    state: "{{ item.state | default('directory') }}"
+  loop:
+    - { dest: "{{ composer_download.dest | dirname }}" }
+
+- name: download composer
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    checksum: "{{ item.checksum }}"
+    timeout: 300
+  loop:
+    - "{{ composer_download }}"
+  register: get_url_result
+  until: get_url_result is succeeded
+
+- name: install composer and selfupdate
+  shell: |
+    cp {{ composer_download.dest }} {{ composer_install_path }}{{ composer_install_name }}
+    chmod 0755 {{ composer_install_path }}{{ composer_install_name }}
+    {{ composer_install_path }}{{ composer_install_name }} selfupdate
+  args:
+    executable: "/bin/bash"
+  when: get_url_result is changed

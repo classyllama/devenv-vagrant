@@ -1,7 +1,8 @@
 ---
-# Valid values are 55, 56, 70, 71 and 72
+# Valid values are 55, 56, 70, 71, 72 and 73
 php_version: 72
 php_enablerepo: ius
+php_package_name_extra: "{{ php_version }}u"
 
 # List of php modules to install
 php_default_modules:

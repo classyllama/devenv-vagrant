@@ -2,6 +2,10 @@
 - hosts: all
   name: Dev Env Vhosts Setup
   become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
   
   vars:
     vhosts_parent_dir: /var/www/html/projects
@@ -12,6 +16,11 @@
     root_ca_config_path: "{{ ssl_config_dir }}rootca.conf"
   
   tasks:
+    
+    
+    # TODO: Rewrite to feed project names into nginx_vhosts instead
+    
+    
     - name: Check for vhost SSL cert config
       stat:
         path: "{{ ssl_config_path }}"
@@ -43,11 +52,11 @@
           - "{{ vhost_dirs.files }}"
 
     - name: Generate SSL certs for all vhosts
-      include_tasks: devenv_vhost_ssl.yml
+      include_tasks: tasks/devenv_vhost_ssl.yml
       loop: "{{ vhost_dirs.files }}"
 
     - name: Generate vhost / backend nginx config pairs for all vhosts
-      include_tasks: devenv_vhost_nginx.yml
+      include_tasks: tasks/devenv_vhost_nginx.yml
       loop: "{{ vhost_dirs.files }}"
       loop_control:
         index_var: idx

@@ -2,18 +2,16 @@
 - name: Common
   hosts: all
   become: true
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
   
   roles:
     - { role: geerlingguy.repo-epel }
+    - { role: alpacaglue.devops-access }
   
   tasks:
-    - name: Set local timezone to {{ host_zoneinfo | dirname | basename }}/{{ host_zoneinfo | basename }}
-      file:
-        src: "{{ host_zoneinfo }}"
-        dest: /etc/localtime
-        state: link
-        force: yes
-
     - package:
         name: "{{ item }}"
       with_items:

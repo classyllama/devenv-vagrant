@@ -1,5 +1,8 @@
 set -eu
 
+# TODO: Legacy piece may be from old devenv and no longer used
+# Before things were converted to using ansible playbooks to create certs
+
 ########################################
 # Init default script vars
 

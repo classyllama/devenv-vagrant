@@ -33,6 +33,10 @@ Vagrant.require_version ">= 2.2.5", "< 2.3.0"
 
 Vagrant.configure('2') do |config|
   
+  
+  
+  
+  
   if $use_provider == "virtualbox"
     
     # ----------------------
@@ -123,15 +127,9 @@ Vagrant.configure('2') do |config|
     
       # Provision
       config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "#{source_path}provisioning/build.yml"
-        ansible.extra_vars = { host_zoneinfo: File.readlink('/etc/localtime') }
+        ansible.playbook = "#{source_path}provisioning/virtualbox.yml"
         ansible.compatibility_mode = "2.0"
         ansible.force_remote_user = false
-        ansible.extra_vars = {
-          host_zoneinfo: File.readlink('/etc/localtime'),
-          mysql_root_pw: $dev_mysql_root_pw,
-          sSH_PUBLIC_KEY_PATHS: $ssh_public_key_paths
-        }
       end
     
       # Triggers
@@ -151,7 +149,14 @@ Vagrant.configure('2') do |config|
       }
     
     end
-    
+  
+  
+  
+  
+  
+  
+  
+  
   elsif $use_provider == "digitalocean"
     
     # ------------------------
@@ -164,10 +169,6 @@ Vagrant.configure('2') do |config|
 
         # Disable the default synced folder
         config.vm.synced_folder '.', '/vagrant', disabled: true
-        
-        # for all providers, perform basic rysnc sync
-        # config.vm.synced_folder ".", "/vagrant", type: "rsync",
-        #   rsync__exclude: [".git/", ".vagrant/", "*.dev/"]
 
         # Digital Ocean provider scenario
         config.vm.provider :digital_ocean do |provider, override|
@@ -201,47 +202,16 @@ Vagrant.configure('2') do |config|
           # array of volume ids to be attached
           # ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]
           provider.volumes = $digital_ocean_block_volume_id
-
-
-
-
-
+          
           # Provision
-
-          # first, run DO-specific playbook
-          config.vm.provision "digital_ocean", type:'ansible' do |ansible|
-            ansible.playbook = "#{source_path}provisioning/digital_ocean.yml"
-            ansible.compatibility_mode = "2.0"
-            ansible.extra_vars = {
-              block_id: $digital_ocean_block_volume_id[0]
-            }
-          end
-
-          # then, provider-agnostic app playbook
           config.vm.provision "app", type:'ansible' do |ansible|
-            ansible.playbook = ENV['PLAYBOOK'] || "#{source_path}provisioning/build.yml"
-            ansible.compatibility_mode = "2.0"
-            ansible.extra_vars = {
-              host_zoneinfo: File.readlink('/etc/localtime'),
-              mysql_root_pw: $dev_mysql_root_pw,
-              ssh_public_key_paths: $ssh_public_key_paths
-            }
-          end
-
-          # penultamently, run DO-specific post-app playbook
-          config.vm.provision "digital_ocean_post_app", type:'ansible' do |ansible|
-            ansible.playbook = "#{source_path}provisioning/digital_ocean_post_app.yml"
+            ansible.playbook = ENV['PLAYBOOK'] || "#{source_path}provisioning/digitalocean.yml"
             ansible.compatibility_mode = "2.0"
             ansible.extra_vars = {
               block_id: $digital_ocean_block_volume_id[0]
             }
           end
-
-          # finally, always run vhost playbook on all "ups"
-          # config.vm.provision "vhost", type:'ansible', run: "always" do |ansible|
-          #   ansible.playbook = "#{source_path}provisioning/devenv_vhosts.yml"
-          #   ansible.compatibility_mode = "2.0"
-          # end
+          
         end
 
     end

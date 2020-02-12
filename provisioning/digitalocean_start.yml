@@ -1,0 +1,64 @@
+---
+- hosts: all
+  name: Digital Ocean Server Setup
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+
+  vars:
+    block_storage_mount_root: /var/www
+    root_my_cnf_path: ~root/.my.cnf
+
+  tasks:
+
+    - debug:
+        verbosity: 1
+        msg: "The following storage block volume ID was provided: {{ block_id }}"
+
+    - name: "Mount attached block storage (if applicable)"
+      block:
+
+      - name: Check for attached block storage
+        stat:
+          path: "/dev/disk/by-uuid/{{ block_id }}"
+        register: block_volume_device
+      - name: Mount attached block storage
+        mount:
+          path: "{{ block_storage_mount_root }}"
+          src: "/dev/disk/by-uuid/{{ block_id }}"
+          fstype: xfs
+          opts: discard,defaults,noatime
+          state: mounted
+        when: block_volume_device.stat.exists
+      - name: Create mysql bind data directory
+        file:
+          path: "{{ block_storage_mount_root }}/mysql"
+          state: directory
+      - name: Bind mount mysql data directory
+        mount:
+          path: /var/lib/mysql
+          src: "{{ block_storage_mount_root }}/mysql"
+          opts: bind
+          state: mounted
+          fstype: none
+
+      - name: Create block storage shared dir
+        file:
+          path: "{{ block_storage_mount_root }}/.shared"
+          state: directory
+
+      when: block_id is defined and block_id | length > 0
+
+    - name: Check for block storage shared root my.cnf
+      stat:
+        path: "{{ block_storage_mount_root }}/.shared/root-my.cnf"
+      register: shared_root_my_cnf_file
+
+    - name: Copy shared root my.cnf into local machine (if applicable)
+      copy:
+        remote_src: yes
+        src: "{{ block_storage_mount_root }}/.shared/root-my.cnf"
+        dest: "{{ root_my_cnf_path }}"
+      when: shared_root_my_cnf_file.stat.exists 

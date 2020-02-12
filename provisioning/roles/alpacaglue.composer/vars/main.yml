@@ -1,0 +1,8 @@
+---
+
+# Download links and checksums found at https://getcomposer.org/download/
+_composer_download:
+  1.9.1:
+    url: "https://getcomposer.org/download/1.9.1/composer.phar"
+    dest: "/var/cache/ansible/composer-1.9.1.phar"
+    checksum: "sha256:1f210b9037fcf82670d75892dfc44400f13fe9ada7af9e787f93e50e3b764111"

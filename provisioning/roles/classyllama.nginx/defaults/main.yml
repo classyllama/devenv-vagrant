@@ -129,3 +129,4 @@ nginx_additional_real_ip_from_list: []
 #   - 198.41.128.0/17
 
 nginx_x_forwarded_for: remote_addr
+nginx_sign_task: ssl-selfsign.yml
