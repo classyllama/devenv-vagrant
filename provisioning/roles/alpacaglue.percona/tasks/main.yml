@@ -7,6 +7,14 @@
     - "Percona-Server-server-{{ percona_version }}"
     - "Percona-Server-client-{{ percona_version }}"
 
+- name: Check for existing datadir
+  stat: 
+    path: "{{ mysqld_datadir }}"
+  register: mysqld_datadir_stat
+- set_fact:
+    mysqld_existing_datadir: yes
+  when: mysqld_datadir_stat.stat.exists
+
 - name: create mysqld tmpdir
   file:
     path: "{{ mysqld_tmpdir }}"
