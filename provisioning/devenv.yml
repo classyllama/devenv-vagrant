@@ -32,6 +32,11 @@
           shell: "rm -rf /var/www"
           when: var_www_stat.stat.exists and var_www_stat.stat.islnk is defined and var_www_stat.stat.islnk == False
         
+        - name: "Create {{ location_var_www }}"
+          file:
+            path: "{{ location_var_www }}"
+            state: directory
+            mode: '0755'
         - name: "Create symlink for {{ location_var_www }} at /var/www"
           file:
             src: "{{ location_var_www }}"

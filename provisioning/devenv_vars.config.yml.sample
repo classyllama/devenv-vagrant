@@ -19,3 +19,32 @@
 #   - { mount_path: /datadb, disk_device: sdc, partition_device: sdc1, fstype: xfs }
 #
 # mysqld_datadir: /datadb/mysql
+# location_var_www: /data/www
+
+# nginx_vhosts:
+#   - name: "{{ app_domain }}"
+#     pool: data
+#     params:
+#       server_name: "{{ app_domain }}"
+#       webroot: /var/www/html/magento/pub
+#       #proxy_port: 6081
+#       proxy_port: 8080
+#     includes:
+#       - available.d/magento2-static.conf
+#
+# nginx_backends:
+#   - name: www-data
+#     pool: data
+#     listen: 8080
+#     webroot: /var/www/html/magento/pub
+#     includes:
+#       - default.d/nginx-status.conf
+#       - available.d/realip.conf
+#       - available.d/magento2.conf
+#
+# nginx_extras:
+#   - conf.d/map.conf
+#   #- { src: ../persistent/templates/nginx/conf.d/map.conf, dest: conf.d/map.conf }
+#   - available.d/realip.conf
+#   - { src: nginx/magento2-static.conf, dest: available.d/magento2-static.conf }
+#   - { src: nginx/magento2.conf, dest: available.d/magento2.conf }

@@ -1,4 +1,6 @@
 ---
+- import_playbook: playbooks/check_ansible_version.yml
+
 - import_playbook: common.yml
 - import_playbook: virtualbox_persistent_disk.yml
 - import_playbook: devenv_rootca.yml

@@ -1,10 +1,7 @@
 ---
 - name: Install varnish41 repo dependencies
   yum:
-    name: "{{ item }}"
-  with_items:
-    - pygpgme
-    - yum-utils
+    name: ['pygpgme', 'yum-utils']
 
 - name: Remove deprecated varnish41 repo config
   file:

@@ -1,4 +1,6 @@
 ---
+- import_playbook: playbooks/check_ansible_version.yml
+
 # first, run DO-specific playbook
 - import_playbook: digitalocean_start.yml
 

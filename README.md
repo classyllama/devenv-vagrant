@@ -229,7 +229,7 @@ sources:
   repo: git@github.com:alpacaglue/exp-vagrant-m2.git
   sparse_paths:
   -
-  rev: feature/project-attempt
+  rev: master
   link:
   scripts:
   - ./gitman_init.sh
@@ -244,145 +244,7 @@ Adjust configuration files with domain to use `example.lan` and any other projec
   `devenv_playbook.config.yml`
   `mutagen.yml`
 
-Start Vagrant
-
-    vagrant up
-
-Start Mutagen
-
-    mutagen project start
-
-Initialize files if needed
-
-    cd /var/www/html/magento
-
-    composer install
-
-Setup configs for env.php
-
-    cd /var/www/html/magento
-
-    mkdir pub/media
-    mkdir pub/static
-
-    bin/magento setup:install \
-      --base-url="https://example.lan" \
-      --base-url-secure="https://example.lan" \
-      --backend-frontname="backend" \
-      --use-rewrites=1 \
-      --admin-user="admin" \
-      --admin-firstname="admin" \
-      --admin-lastname="admin" \
-      --admin-email="admin@example.lan" \
-      --admin-password="admin123" \
-      --db-host="127.0.0.1" \
-      --db-user="root" \
-      --db-password="qwerty" \
-      --db-name="demo_data" \
-      --magento-init-params="MAGE_MODE=developer" \
-      --use-secure=1 \
-      --use-secure-admin=1 \
-      --session-save=redis \
-      --session-save-redis-host=127.0.0.1 \
-      --session-save-redis-port=6380 \
-      --session-save-redis-db=0 \
-      --cache-backend=redis \
-      --cache-backend-redis-server=127.0.0.1 \
-      --cache-backend-redis-db=0 \
-      --cache-backend-redis-port=6379 \
-    ;
-
-Import Database from stage
-
-  If you want to keep the database dump file from stage in your project directory it may be best to store it in the `tools/devenv` directory so that it doesn't get synced down to the VM as mutagen ignores the `tools/devenv` directory.
-
-    echo "
-    mysql -e 'show databases'
-    " | ssh -o StrictHostKeyChecking=no \
-        -o UserKnownHostsFile=/dev/null \
-        -o LogLevel=ERROR \
-        www-data@example.com
-
-    echo "show databases" | vagrant ssh -c "mysql" -- -q
-
-    echo "
-    mysqldump \
-        --single-transaction \
-        --routines \
-        --events \
-        --default-character-set=utf8 \
-        demo_data | gzip
-    " | ssh -o StrictHostKeyChecking=no \
-        -o UserKnownHostsFile=/dev/null \
-        -o LogLevel=ERROR \
-        www-data@example.com \
-      | pv | gunzip \
-      | vagrant ssh -c \
-      "mysql -D demo_data --default-character-set=utf8" -- -q
-
-Sync Media Files
-
-  Run from within the VM
-
-    rsync -avz --progress \
-      -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR" \
-      --exclude="catalog/product/cache" \
-      --exclude="cache/*" \
-      --exclude="/captcha/*" \
-      --exclude="/tmp/*" \
-      --exclude="/productFeed/*" \
-      --exclude="/klevu_images/*" \
-      www-data@example.com:/var/www/html/shared/pub/media/ \
-      /var/www/html/magento/pub/media/
-
-Setup configs for devenv
-
-    cd /var/www/html/magento
-
-    # Configure Magento
-    bin/magento config:set web/unsecure/base_url https://example.lan/
-    bin/magento config:set web/secure/base_url https://example.lan/
-    bin/magento config:set web/unsecure/base_static_url https://example.lan/static/
-    bin/magento config:set web/secure/base_static_url https://example.lan/static/
-    bin/magento config:set web/unsecure/base_media_url https://example.lan/media/
-    bin/magento config:set web/secure/base_media_url https://example.lan/media/
-
-    bin/magento config:set dev/static/sign 0
-    bin/magento config:set system/full_page_cache/caching_application 1
-
-    bin/magento app:config:import
-    bin/magento cache:flush
-    bin/magento deploy:mode:set developer
-    bin/magento cache:flush
-
-    mr admin:user:create \
-      --admin-user=admin \
-      --admin-password=admin123 \
-      --admin-email=admin@example.lan \
-      --admin-firstname=admin \
-      --admin-lastname=admin
-
-    # Save admin credentials as indicator that script completed successfully
-```
-ADMIN_CREDENTIALS=$(cat <<CONTENTS_HEREDOC
-{
-  "base_url": "https://example.lan/",
-  "admin_url": "$https://example.lan/backend",
-  "admin_user": "admin",
-  "admin_pass": "admin123"
-}
-CONTENTS_HEREDOC
-)
-echo "${ADMIN_CREDENTIALS}" > magento_admin_credentials.json
-``` 
-
-Monitor Mutagen
-
-    mutagen sync monitor
-
-Open in browser
-
-  https://espressoservices.lan/
+Reference the project readme that was copied into the tools/devenv directory from here
 
 ## Updating VM Virtual Host Configuration
 
@@ -395,6 +257,9 @@ vagrant provision --provision-with vhost <node>
 TOOD: add instructions to create alias for above command.
 
 # SSL
+
+TODO: devenv_rootca.yml
+  Make sure when the rootca is used in remote, that index and serial updates are pushed back to host for persisting rootca use.
 
 TODO: describe root CA cert signing mechanism.
 

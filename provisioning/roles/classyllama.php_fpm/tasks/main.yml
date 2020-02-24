@@ -93,9 +93,8 @@
 
 - name: install php modules
   yum: 
-    name: "php{{ php_package_name_extra }}-{{ item }}"
+    name: "{{ php_yum_packages }}"
     enablerepo: "{{ php_enablerepo }}"
-  with_items: "{{ php_modules }}"
 
 - name: combine php-opcache defaults user provided settings
   set_fact:

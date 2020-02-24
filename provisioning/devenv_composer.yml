@@ -9,6 +9,14 @@
   
   tasks:
     
+    - name: Create /home/www-data/.ansible/tmp
+      file:
+        path: /home/www-data/.ansible/tmp
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0770
+    
     - name: Get remote composer user
       shell: /usr/local/bin/composer config -g http-basic.repo.magento.com | jq -r '.username'
       become: yes

@@ -1,4 +1,10 @@
 ---
+# Define the supported ansible version requirements of these playbooks
+ansible_version_require_min: "2.6"          # Example "2.9" or "2"
+ansible_version_require_min_operator: ">="  # Example ">=" or ">"
+ansible_version_require_max: "3"            # Example "2.10" or "3"
+ansible_version_require_max_operator: "<"   # Example "<=" or "<"
+
 devops_access_users:
   - { username: www-data, pubkey: ~/.ssh/id_rsa.pub }
 www_user_ssh_keys:
