@@ -118,6 +118,9 @@ mysqld_replicate_wild_ignore_table: false
 # Extra MySQL Configs
 mysqld_my_cnf_extras: {}
 
+# Enable Federated Storage Engine
+mysqld_enable_federated_storage_engine: no
+
 ## Logging
 mysqld_log_output: FILE
 mysqld_slow_query_log: 0

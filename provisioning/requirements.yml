@@ -43,12 +43,10 @@ roles:
   - src: git@github.com:classyllama/ansible-role-php-fpm.git  
     name: classyllama.php_fpm
     scm: git
-    version: feature/ansible-29
 
   - src: git@github.com:classyllama/ansible-role-nginx.git
     name: classyllama.nginx
     scm: git
-    version: feature/ansible-29
 
 
 

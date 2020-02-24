@@ -11,13 +11,13 @@
 - name: create group {{ nginx_logrotate_group }}
   group:
     name: "{{ nginx_logrotate_group }}"
-    system: yes
+    system: true
   tags: logrotate
 
 - name: assign users to logrotate group
   user:
     name: "{{ item }}"
     groups: "{{ nginx_logrotate_group }}"
-    append: yes
+    append: true
   with_items: "{{ nginx_logrotate_users }}"
   tags: logrotate

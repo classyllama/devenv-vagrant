@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    nginx_diffie_hellman_bits: 1024
+
+  roles:
+    - role: davidalger.nginx

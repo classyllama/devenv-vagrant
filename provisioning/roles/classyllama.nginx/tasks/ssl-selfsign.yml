@@ -18,5 +18,5 @@
     - /etc/nginx/ssl/{{ common_name }}.key
     - /etc/nginx/ssl/{{ common_name }}.crt
   loop_control:
-      loop_var: inner_item
-  when: result,changed
+    loop_var: inner_item
+  when: result is changed

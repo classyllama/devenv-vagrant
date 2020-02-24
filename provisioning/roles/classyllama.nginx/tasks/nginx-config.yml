@@ -1,5 +1,6 @@
 ---
-- file:
+- name: create config directories
+  file:
     dest: /etc/nginx/{{ item }}
     owner: root
     group: root
