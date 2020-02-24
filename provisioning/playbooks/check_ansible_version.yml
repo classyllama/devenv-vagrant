@@ -9,16 +9,7 @@
     - ../devenv_vars.config.yml
   
   tasks:
-    - debug:
-        var: ansible_version
-
-    - debug:
-        var: ansible_version.string is not version(ansible_version_require_min, ansible_version_require_min_operator)
-    - debug:
-        var: ansible_version.string is not version(ansible_version_require_max, ansible_version_require_max_operator)
-    
     - name: check ansible version
-      # when: ansible_version.string != ansible_version_requirements
       when: 
         ansible_version.string is not version(ansible_version_require_min, ansible_version_require_min_operator) or
         ansible_version.string is not version(ansible_version_require_max, ansible_version_require_max_operator)

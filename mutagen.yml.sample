@@ -10,7 +10,6 @@ sync:
       paths:
         - ".idea/*"
         - "var/"
-        - "generated/"
         - "dev/"
         - "phpserver/"
         - "update/"
