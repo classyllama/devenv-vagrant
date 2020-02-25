@@ -43,7 +43,7 @@ php_extension_xdebug_ini:
   xdebug.idekey: PHPSTORM
   xdebug.show_local_vars: "on"
   xdebug.var_display_max_depth: 3
-  xdebug.max_nesting_level: 250
+  xdebug.max_nesting_level: 1000
   xdebug.file_link_format :  '"phpstorm://open?file=%f&line=%l"'
   xdebug.profiler_enable: 0
   xdebug.profiler_output_dir: "/tmp"
