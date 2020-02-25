@@ -23,6 +23,7 @@ require "#{persistent_path}Vagrantfile.config.rb" if File.file?("#{persistent_pa
 require "#{persistent_path}Vagrantfile.local.rb" if File.file?("#{persistent_path}Vagrantfile.local.rb")
 
 # include plugin files
+require_relative 'plugin/VagrantPatch'
 require_relative 'plugin/PluginUtility'
 require_relative 'plugin/PluginPersistDisk'
 require_relative 'plugin/PluginMutagen'

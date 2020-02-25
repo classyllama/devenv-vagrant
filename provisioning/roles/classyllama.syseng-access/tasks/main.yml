@@ -1,23 +1,23 @@
 ---
-- name: create devops groups
+- name: create syseng groups
   group:
     name: "{{ item }}"
-  with_items: "{{ devops_access_groups }}"
+  with_items: "{{ syseng_access_groups }}"
 
-- name: create devops users
+- name: create syseng users
   user:
     name: "{{ item.username }}"
-    groups: "{{ devops_access_groups | join(',') }}"
+    groups: "{{ syseng_access_groups | join(',') }}"
     append: yes
     shell: /bin/bash
-  with_items: "{{ devops_access_users }}"
+  with_items: "{{ syseng_access_users }}"
 
 - name: import user ssh-keys
   authorized_key:
     user: "{{ item.username }}"
     key: "{{ lookup('file', '{{ item.pubkey }}') }}"
     exclusive: yes
-  with_items: "{{ devops_access_users }}"
+  with_items: "{{ syseng_access_users }}"
 
 # Confirm include directory exists with the proper permissions
 - name: create /etc/sudoers.d dir
@@ -28,10 +28,10 @@
     mode: 0750
     state: directory
 
-- name: configure cladmin sudo rights
+- name: configure syseng sudo rights
   template:
-    src: sudoers.d/classyllama
-    dest: /etc/sudoers.d/classyllama
+    src: sudoers.d/sysengadmins
+    dest: /etc/sudoers.d/sysengadmins
     owner: root
     group: root
     mode: 0400

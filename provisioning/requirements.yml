@@ -28,6 +28,10 @@ roles:
 
 
 
+  - src: git@github.com:classyllama/ansible-role-syseng-access.git
+    name: classyllama.syseng-access
+    scm: git
+
   - src: git@github.com:classyllama/ansible-role-nginx.git
     name: classyllama.nginx
     scm: git
@@ -53,9 +57,7 @@ roles:
 
 
 
-  - src: git@github.com:alpacaglue/ansible-role-devops-access.git
-    name: alpacaglue.devops-access
-    scm: git
+
 
   - src: git@github.com:alpacaglue/ansible-role-boilerplate.git
     name: alpacaglue.boilerplate

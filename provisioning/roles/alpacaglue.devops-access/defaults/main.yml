@@ -1,9 +1,0 @@
----
-devops_access_users: []
-# Set the devops_access_users array when using this role to create and authorize a user
-# devops_access_users:
-#   - { username: mjohnson, pubkey: files/ssh-keys/mjohnson }
-devops_access_groups:
-  - users
-  - cladmin
-  - sshusers

@@ -9,7 +9,7 @@
   
   roles:
     - { role: geerlingguy.repo-epel }
-    - { role: alpacaglue.devops-access }
+    - { role: classyllama.syseng-access }
   
   tasks:
     - package:
