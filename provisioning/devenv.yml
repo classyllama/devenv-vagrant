@@ -50,7 +50,7 @@
     - { role: alpacaglue.boilerplate }
     - { role: local.timezone }
     - { role: alpacaglue.hostsfile }
-    - { role: alpacaglue.www-user }
+    - { role: classyllama.www-user }
 
     - { role: alpacaglue.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
     - { role: classyllama.php_fpm, tags: php-fpm }

@@ -5,7 +5,8 @@ www_user_groups:
 www_user_ssh_keys: []
 # Set the www_user_ssh_keys array when using this role to authorize keys
 # www_user_ssh_keys:
-#   - files/ssh-keys/mjohnson
+#   - files/ssh-keys/my_username
 
 # This may be used to set an optional custom home directory. The home dir's parent directory must already exist.=
 www_user_home: null
+www_user_use_default_html: true
