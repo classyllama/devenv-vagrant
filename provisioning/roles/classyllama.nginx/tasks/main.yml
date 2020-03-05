@@ -40,8 +40,8 @@
     enabled: true
 
 # Reload nginx now if nginx.conf was touched; this allows nginx to disassociate with previous user if needed
-- name: restart nginx service
-  service:
-    name: nginx
-    state: restarted
+- name: reload nginx service
+  debug:
+      msg: "reloading nginx"
+  notify: reload nginx
   when: nginx_conf_result|default(false) and nginx_conf_result is changed
