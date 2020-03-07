@@ -11,6 +11,7 @@
     - lsof
     - mailx
     - patch
+    - jq
 
 - name: yara package
   package:
@@ -49,10 +50,10 @@
     state: started
     enabled: yes
 
-- name: installing classyllama bash profile
+- name: installing syseng bash profile
   template:
-    src: profile.d/classyllama.sh
-    dest: /etc/profile.d/classyllama.sh
+    src: profile.d/syseng.sh
+    dest: /etc/profile.d/syseng.sh
     owner: root
     group: root
     mode: 0755

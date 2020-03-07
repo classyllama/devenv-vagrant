@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: classyllama.repo-percona, when: use_classyllama_repo_percona|default(true) }

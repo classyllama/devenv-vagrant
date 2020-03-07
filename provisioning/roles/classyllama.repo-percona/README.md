@@ -3,8 +3,8 @@
   Add the repo to the ansible-galaxy install file
 
     ANSIBLE_GALAXY_CONTENTS=$(cat <<'CONTENTS_HEREDOC'
-    - src: git@github.com:alpacaglue/ansible-role-repo-percona.git
-      name: alpacaglue.repo-percona
+    - src: git@github.com:classyllama/ansible-role-repo-percona.git
+      name: classyllama.repo-percona
       scm: git
     CONTENTS_HEREDOC
     )
@@ -24,7 +24,7 @@
     - hosts: mage2-app
       become: true
       roles:
-        - alpacaglue.repo-percona
+        - classyllama.repo-percona
     CONTENTS_HEREDOC
     )
     echo "${PLAYBOOK_CONTENTS}" > ${TEMP_PLAYBOOK_FILE}
