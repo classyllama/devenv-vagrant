@@ -1,0 +1,16 @@
+---
+
+# A list of all the hosts which should have host records added to the /etc/hosts file
+hostsfile_hosts: "{{ groups['all'] }}"
+
+# A list of hosts to add additional private host records for (each private hostname is suffixed "-int")
+hostsfile_int_hosts: "{{ groups['all'] }}"
+
+# Set this to the interface used for the private subnet. Example: ansible_em2, or ansible_em3
+hostsfile_int_interface:
+
+# List of additional entries to be appended to the hosts file
+hostsfile_records: []
+
+# Path to /etc/hosts (this is used on Travis to allow writing the file)
+hostsfile_path: /etc/hosts

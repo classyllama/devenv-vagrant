@@ -1,0 +1,8 @@
+---
+- name: Configure {{ hostsfile_path }}
+  template:
+    src: hosts
+    dest: "{{ hostsfile_path }}"
+    owner: root
+    group: root
+    mode: 0644

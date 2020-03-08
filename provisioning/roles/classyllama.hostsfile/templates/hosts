@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+{% for item in hostsfile_hosts | sort %}
+{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['ansible_nodename'] }} {{ hostvars[item]['ansible_hostname'] }}
+{% endfor %}
+
+{% if hostsfile_int_interface %}{% for item in hostsfile_int_hosts %}
+{{ hostvars[item][hostvars[item]['hostsfile_int_interface']]['ipv4']['address'] }} {{ hostvars[item]['ansible_hostname'] }}-int
+{% endfor %}{% endif %}
+{% for item in hostsfile_records %}
+{{ item }}
+{% endfor %}

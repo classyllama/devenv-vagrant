@@ -1,0 +1,4 @@
+composer_install_path: /usr/local/bin/
+composer_install_name: composer
+composer_version: "1.9.3"
+composer_download: "{{ _composer_download[composer_version] }}"

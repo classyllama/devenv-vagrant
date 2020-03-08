@@ -9,76 +9,63 @@
 roles:
 
   - src: geerlingguy.repo-epel
-
-
-
-
+  
   - src: git@github.com:classyllama/ansible-role-syseng-access.git
     name: classyllama.syseng-access
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-nginx.git
     name: classyllama.nginx
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
     name: classyllama.multi_redis
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-repo-ius.git
     name: classyllama.repo_ius
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-php-fpm.git  
     name: classyllama.php_fpm
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-nginx.git
     name: classyllama.nginx
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-www-user.git
     name: classyllama.www-user
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-repo-percona.git
     name: classyllama.repo-percona
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-percona.git
     name: classyllama.percona
     scm: git
-
+  
   - src: git@github.com:classyllama/ansible-role-boilerplate.git
     name: classyllama.boilerplate
     scm: git
-
-
-
-
-
-
-
-
-
-
-
-  - src: git@github.com:alpacaglue/ansible-role-varnish.git
-    name: alpacaglue.varnish
+  
+  - src: git@github.com:classyllama/ansible-role-varnish.git
+    name: classyllama.varnish
     scm: git
-    
-  - src: git@github.com:alpacaglue/ansible-role-hostsfile.git
-    name: alpacaglue.hostsfile
+  
+  - src: git@github.com:classyllama/ansible-role-hostsfile.git
+    name: classyllama.hostsfile
     scm: git
-
-  - src: git@github.com:alpacaglue/ansible-role-composer.git
-    name: alpacaglue.composer
+  
+  - src: git@github.com:classyllama/ansible-role-composer.git
+    name: classyllama.composer
     scm: git
-
-  - src: git@github.com:alpacaglue/ansible-role-n98-magerun.git
-    name: alpacaglue.n98-magerun
+  
+  - src: git@github.com:classyllama/ansible-role-n98-magerun.git
+    name: classyllama.n98-magerun
     scm: git
-
-  - src: git@github.com:alpacaglue/ansible-role-php-cachetool.git
-    name: alpacaglue.php-cachetool
+  
+  - src: git@github.com:classyllama/ansible-role-php-cachetool.git
+    name: classyllama.php-cachetool
     scm: git

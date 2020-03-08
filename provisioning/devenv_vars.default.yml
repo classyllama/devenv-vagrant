@@ -101,6 +101,3 @@ nginx_ssl_cert_dir: /etc/nginx/ssl
 devenv_openssl_rootca_dir: /etc/openssl/rootca
 devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config
 devenv_openssl_req_config: /etc/openssl/devenv_openssl_req_config
-
-alpacaglue_relyon_rsepel: false
-use_classyllama_repo_ius: true

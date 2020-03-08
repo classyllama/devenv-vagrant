@@ -1,0 +1,18 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: n98_magerun
+  author: David Alger
+  description: Installs n98-magerun CLI tool for use with Magento 1 or 2
+  license: MIT
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 6
+
+  galaxy_tags:
+    - system
