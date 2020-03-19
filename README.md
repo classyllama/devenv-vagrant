@@ -1,3 +1,54 @@
+# TODO
+[ ] Deploy repo to classyllama private vagrant-devenv (will make public later)
+[ ] Update ProWorld with new devenv repo
+[ ] Update rebaraccelerator devenv
+[ ] Update Gardner devenv
+[ ] Update README and sample files
+    [ ] Project Setup/Configuration
+    [ ] Cleanup DevEnv Repo Readme
+    [ ] Instructions for Trusting RootCA
+
+[ ] Windows VirtualBox Support
+    [ ] WSL (Ubuntu/CentOS)
+    [ ] x64/ARM
+    [ ] VirtualBox
+        [ ] Persistent Disk
+    [ ] Vagrant (within WSL)
+        [ ] Hostmanager
+    [ ] Ansible (within WSL)
+        [ ] Trust RootCA
+    [ ] Mutagen (within Windows)
+[ ] Windows ARM DigitalOcean Support
+    [ ] Detatch/Reattach Data Disk
+    [ ] Use Data Disk for different VMs?
+[ ] Mutagen auto start/stop
+[ ] Refine VirtualBox Persistent Disk Portability
+    [ ] On vagrant up check that both ID and FilePath match in virtualbox media
+    [ ] Define instructions in README for moving project files
+    [ ] Consider locating persistent disk volume files in separate location from project files
+[ ] Ability to disable/enable xdebug
+
+[ ] Redis 5 (currently installs 3.2)
+[ ] Varnish 6.x (currently installs 4.1)
+[ ] Percona 5.7 (currently installs 5.6)
+[ ] MariaDB 10.2
+[ ] ElasticSearch 6.x
+[ ] RabitMQ 3.8.x
+
+[ ] Vagrant bento/centos-8
+
+[ ] Look into better syncing index/serial on root ca usage inside vm
+[ ] Store composer cache on persistent storage to improve setup time between VM rebuilds
+[ ] Look into utilizing Traefik
+[?] Look into using DNSMasq
+  Utilizing vagrant-hostmanager may reduce the need for DNSMasq
+[ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
+    [ ] Mailtrap
+    [ ] MailSlurper
+    [ ] MailCatcher
+    [ ] MailHog
+
+
 # Starting
 
     vagrant up
@@ -21,37 +72,6 @@ Create host entries in `/etc/hosts` file
 
 https://dev-m2demo.demo/
 
-# TODO
-[X] Finish building `app_ssl.yml` for setting up shared root CA from host into VM for issuing SSL certs.
-[ ] Determine what changes are needed to run this form Windows
-    [ ] VirtualBox
-    [ ] Vagrant
-    [ ] Ansible
-    [ ] Mutagen
-[ ] Store composer cache on persistent storage to improve setup time between VM rebuilds
-
-[ ] Actually store something and utilize the attached persistent disk /data/ for DB and site files.
-
-[ ] install bypassing varnish and using built-in full page cache
-[ ] Get the ability to customize what user is logged into via `vagrant ssh`
-
-  You can change what user is logged in with via the `vagrant ssh` command and it would be ideal to use that instead of `ssh www-data@dev-m2demo`
-
-[ ] portable dev environment for any project
-
-  Need to better define directory structure both in the VM and where these DevEnv files reside in relation to a project's repo and such. I may need to rethink how a demo install would work, and invole syncing up files with Mutagen between the host and VM, that way a demo install is compatible with the expectation of a repo residing on the host and syncing files over into the VM. There may need to be some kind of post install step to get things where they need to be or something, and a place holder on the host where once the demo files are installed the files are synced up to. Maybe we don't symlink after a demo install, and instead perform a copy to the project sitecode directory.
-
-[ ] Look into utilizing Traefik
-[-] Look into using DNSMasq
-  Utilizing vagrant-hostmanager may reduce the need for DNSMasq
-[ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
-    [ ] Mailtrap
-    [ ] MailSlurper
-    [ ] MailCatcher
-    [ ] MailHog
-
-[ ] Review/Refactor/Refine SSL Implementation for VirtualBox project setup
-[ ] Review/Refactor/Refine Windows compatibility with VirtualBox project setup
 
 # Notes on Windows Support
 
@@ -212,6 +232,10 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
     echo "show databases;" | vagrant ssh -c "mysql" -- -q
   
     pv database_dump_file.sql | vagrant ssh -c "mysql" -- -q
+
+## Additional Dev Tools
+
+https://atom.io/
 
 ## Project Setup
 
