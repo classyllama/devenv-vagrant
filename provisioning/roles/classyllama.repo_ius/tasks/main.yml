@@ -4,36 +4,35 @@
     path: /etc/yum.repos.d/ius.repo
   register: ius_repofile_result
 
-- name: Configure IUS variables
-  set_fact:
-    ius_distribution_abbrev: "{{ (ansible_distribution == 'CentOS') | ternary('centos', 'rhel') }}"
-
+# Install Instructions: https://ius.io/setup
 - name: Install IUS repo
   yum:
     name: |
-      https://{{ ius_distribution_abbrev }}{{ ansible_distribution_major_version }}.iuscommunity.org/ius-release.rpm
+      https://repo.ius.io/ius-release-el{{ ansible_distribution_major_version }}.rpm
     state: present
   when: not ius_repofile_result.stat.exists
 
-- name: Copy old GPG key for older packages
-  copy:
-    src: files/IUS-COMMUNITY-GPG-KEY
-    dest: /etc/pki/rpm-gpg/IUS-COMMUNITY-GPG-KEY
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Import old IUS GPG key
+- name: Import IUS GPG key
   rpm_key:
-    key: /etc/pki/rpm-gpg/IUS-COMMUNITY-GPG-KEY
+    key: /etc/pki/rpm-gpg/RPM-GPG-KEY-IUS-{{ ansible_distribution_major_version }}
     state: present
   when: not ius_repofile_result.stat.exists
 
 # You can validate installed GPG keys with this command:
 # rpm -q --queryformat "%{SUMMARY}\n" gpg-pubkey
 
-- name: Import IUS GPG key
+# Import old IUS repo GPG key for GPG Check validation on older packages
+- name: Copy old IUS GPG key for older packages
+  copy:
+    src: files/IUS-COMMUNITY-GPG-KEY
+    dest: /etc/pki/rpm-gpg/IUS-COMMUNITY-GPG-KEY
+    owner: root
+    group: root
+    mode: '0644'
+  when: repo_ius_import_old_gpg_key
+
+- name: Import old IUS GPG key
   rpm_key:
-    key: /etc/pki/rpm-gpg/RPM-GPG-KEY-IUS-7
+    key: /etc/pki/rpm-gpg/RPM-GPG-KEY-IUS-{{ ansible_distribution_major_version }}
     state: present
-  when: not ius_repofile_result.stat.exists
+  when: repo_ius_import_old_gpg_key and not ius_repofile_result.stat.exists

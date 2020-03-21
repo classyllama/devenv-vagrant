@@ -43,10 +43,20 @@ php_fpm_listen_host: 127.0.0.1
 php_fpm_listen_mode: "0660"
 
 php_fpm_mb_per_thread: 196
-php_fpm_memory_percentage: 100
+php_fpm_memory_percentage: 80
+php_fpm_cpu_percentage: 80
+php_fpm_avg_response_time_sec: 0.5
+php_fpm_per_vcpu_load_x: 2
+
+# Number of concurrent requests/second based on CPU capcity
+php_fpm_max_busy_processes: "{{ (ansible_processor_vcpus / php_fpm_avg_response_time_sec * php_fpm_per_vcpu_load_x)|int }}"
+php_fpm_pm_max_children_cpu: "{{ (php_fpm_cpu_percentage / 100 * php_fpm_max_busy_processes|int)|int }}"
+
+# Memory limitation for active process memory usage
+php_fpm_pm_max_children_mem: "{{ (php_fpm_memory_percentage / 100 * ansible_memtotal_mb / php_fpm_mb_per_thread)|int }}"
 
 php_fpm_pm: static
-php_fpm_pm_max_children: "{{ (php_fpm_memory_percentage / 100 * ansible_memtotal_mb / php_fpm_mb_per_thread)|int }}"
+php_fpm_pm_max_children: "{{ (php_fpm_pm_max_children_cpu < php_fpm_pm_max_children_mem) | ternary(php_fpm_pm_max_children_cpu, php_fpm_pm_max_children_mem) }}"
 php_fpm_pm_max_requests: 5000
 php_fpm_pm_idle_timeout: 20s
 php_fpm_status_path: /php-status
