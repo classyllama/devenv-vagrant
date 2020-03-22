@@ -1,0 +1,40 @@
+# TODO
+[ ] Windows VirtualBox Support
+    [ ] WSL (Ubuntu/CentOS)
+    [ ] x64/ARM
+    [ ] VirtualBox
+        [ ] Persistent Disk
+    [ ] Vagrant (within WSL)
+        [ ] Hostmanager
+    [ ] Ansible (within WSL)
+        [ ] Trust RootCA
+    [ ] Mutagen (within Windows)
+[ ] Windows ARM DigitalOcean Support
+    [ ] Detatch/Reattach Data Disk
+    [ ] Use Data Disk for different VMs?
+[ ] Mutagen auto start/stop
+[ ] Refine VirtualBox Persistent Disk Portability
+    [ ] On vagrant up check that both ID and FilePath match in virtualbox media
+    [ ] Define instructions in README for moving project files
+    [ ] Consider locating persistent disk volume files in separate location from project files
+[ ] Ability to disable/enable xdebug
+
+[ ] Redis 5 (currently installs 3.2)
+[ ] Varnish 6.x (currently installs 4.1)
+[ ] Percona 5.7 (currently installs 5.6)
+[ ] MariaDB 10.2
+[ ] ElasticSearch 6.x
+[ ] RabitMQ 3.8.x
+
+[ ] Vagrant bento/centos-8
+
+[ ] Look into better syncing index/serial on root ca usage inside vm
+[ ] Store composer cache on persistent storage to improve setup time between VM rebuilds
+[ ] Look into utilizing Traefik
+[?] Look into using DNSMasq
+  Utilizing vagrant-hostmanager may reduce the need for DNSMasq
+[ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
+    [ ] Mailtrap
+    [ ] MailSlurper
+    [ ] MailCatcher
+    [ ] MailHog
