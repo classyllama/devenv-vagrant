@@ -18,7 +18,7 @@ location: repo_sources
 sources:
 - name: devenv
   type: git
-  repo: git@github.com:alpacaglue/exp-vagrant-m2.git
+  repo: git@github.com:classyllama/devenv-vagrant.git
   sparse_paths:
   -
   rev: master
@@ -170,6 +170,10 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 3. Ability to create predefined hosts entries for dev VMs.
     * Requirement: convenient
     * Implications: without using predefined hosts entries on host, copy-paste commands may not work as expected.
+4. [Composer] + [jq] installed on host.
+    * Requirement: convenient
+    * Implications: allows composer credentials from host to be inserted into VM
+
 
 # Host Requirement Installation
 
@@ -276,3 +280,12 @@ If you see a VERR_ALREADY_EXISTS error, you might need to purge an old value out
     DISK_PATH="data_disk.vmdk"
     vboxmanage showmediuminfo disk ${DISK_PATH}
     vboxmanage closemedium disk ${DISK_PATH} --delete
+
+[Virtualbox]: https://www.virtualbox.org/
+[Vagrant-Hostmanager]: https://github.com/devopsgroup-io/vagrant-hostmanager
+[Composer]: https://getcomposer.org/
+[jq]: https://stedolan.github.io/jq/
+[Digital Ocean Vagrant Provider]: https://github.com/devopsgroup-io/vagrant-digitalocean
+[Ansible]: https://www.ansible.com/
+[Mutagen]: https://mutagen.io/
+[Gitman]: https://github.com/jacebrowning/gitman
