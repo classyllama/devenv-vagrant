@@ -1,0 +1,20 @@
+---
+
+# Download details at https://gordalina.github.io/cachetool/
+_cachetool_download:
+  5.0.0: # PHP >=7.2
+    # url: "https://gordalina.github.io/cachetool/downloads/cachetool.phar"
+    url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-5.0.0.phar?raw=true"
+    dest: "/usr/local/bin/cachetool"
+    # sha1sum cachetool-5.0.0.phar
+    checksum: "sha256:0c4bc66e300c8a5653162a5794006e792c368e74"
+  4.1.1: # PHP >=7.1
+    url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-4.1.1.phar?raw=true"
+    dest: "/usr/local/bin/cachetool"
+    # sha1sum cachetool-4.1.1.phar
+    checksum: "sha256:5f625541c8b4c10dcfcc2a7a0a525b3c6d11be02"
+  3.2.1: # PHP >=5.5.9
+    url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true"
+    dest: "/usr/local/bin/cachetool"
+    # sha1sum cachetool-3.2.1.phar
+    checksum: "sha256:26db6569f0083839ab1e49a8417b95966b6707b1"

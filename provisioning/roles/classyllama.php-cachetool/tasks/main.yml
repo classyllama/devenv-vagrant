@@ -1,9 +1,17 @@
 ---
+
+- name: include default variables
+  include_vars: "../vars/main.yml"
+
 - name: install cachetool
   get_url:
-    url: "{{ cachetool_download_url }}"
-    dest: "{{ cachetool_install_path }}"
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    checksum: "{{ item.checksum }}"
+    timeout: 300
     mode: 0755
+  loop:
+    - "{{ cachetool_download }}"
 
 - name: create cachetool tmpdir
   file:
