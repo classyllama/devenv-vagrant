@@ -17,6 +17,7 @@
     update_password: on_create
     append_privs: "{{ mysql_append_privs|default(false) }}"
     priv: "{{ mysql_privileges }}"
+  no_log: true
 
 # store info in mysql_user_info as dict member so commanding playbook can lookup any run's values
 - name: "Append {{ mysql_user }} credentials to mysql_user_info"

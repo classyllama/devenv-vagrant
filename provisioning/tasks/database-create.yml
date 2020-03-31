@@ -31,6 +31,7 @@
     update_password: on_create
     append_privs: "{{ mysql_append_privs|default(False) }}"
     priv: "{{ mysql_privs|default(mysql_db + '.*:ALL') }}"
+  no_log: true
   when: ('stdout' in pw_result) and mysql_host is defined
 
 # store info in mysql_user_info as dict member so commanding playbook can lookup any run's values
