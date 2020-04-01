@@ -13,7 +13,7 @@
   register: mysqld_datadir_stat
 - set_fact:
     mysqld_existing_datadir: yes
-  when: mysqld_datadir_stat.stat.exists
+  when: mysqld_datadir != mysqld_default_datadir and mysqld_datadir_stat.stat.exists
 
 - name: create mysqld tmpdir
   file:

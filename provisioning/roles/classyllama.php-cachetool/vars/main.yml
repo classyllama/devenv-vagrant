@@ -6,15 +6,15 @@ _cachetool_download:
     # url: "https://gordalina.github.io/cachetool/downloads/cachetool.phar"
     url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-5.0.0.phar?raw=true"
     dest: "/usr/local/bin/cachetool"
-    # sha1sum cachetool-5.0.0.phar
-    checksum: "sha256:0c4bc66e300c8a5653162a5794006e792c368e74"
+    # sha256sum cachetool-5.0.0.phar
+    checksum: "sha256:72150439310875af39e0f2cf346bde93150b3c9cad842eb6ea942e9e3956dd70"
   4.1.1: # PHP >=7.1
     url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-4.1.1.phar?raw=true"
     dest: "/usr/local/bin/cachetool"
-    # sha1sum cachetool-4.1.1.phar
-    checksum: "sha256:5f625541c8b4c10dcfcc2a7a0a525b3c6d11be02"
+    # sha256sum cachetool-4.1.1.phar
+    checksum: "sha256:d8b5fbabcdbd0463c2a1bc58fc7f72c3eb35ac911f32ab1696f84d739e9b8237"
   3.2.1: # PHP >=5.5.9
     url: "https://github.com/gordalina/cachetool/blob/gh-pages/downloads/cachetool-3.2.1.phar?raw=true"
     dest: "/usr/local/bin/cachetool"
-    # sha1sum cachetool-3.2.1.phar
-    checksum: "sha256:26db6569f0083839ab1e49a8417b95966b6707b1"
+    # sha256sum cachetool-3.2.1.phar
+    checksum: "sha256:ce2bdecce23e35ed0fa793bcade3cf73cc4a3945479df88bdc4a1c9ff676bb5e"
