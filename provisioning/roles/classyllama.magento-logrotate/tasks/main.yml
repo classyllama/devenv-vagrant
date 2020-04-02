@@ -1,0 +1,9 @@
+---
+- name: configure logrotate.d/magento
+  template:
+    src: logrotate
+    dest: /etc/logrotate.d/magento
+    owner: root
+    group: root
+    mode: 0644
+  tags: logrotate

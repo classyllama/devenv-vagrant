@@ -1,0 +1,6 @@
+---
+magento_logrotate_sets:
+  - path: /var/www/html/current/var/log/*.log
+    owner: www-data
+    group: www-data
+    # mode: "640"       # (optional) default of 640 in logrotate template

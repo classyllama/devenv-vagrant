@@ -69,3 +69,13 @@ roles:
   - src: git@github.com:classyllama/ansible-role-php-cachetool.git
     name: classyllama.php-cachetool
     scm: git
+
+  - src: git@github.com:classyllama/ansible-role-magento-logrotate.git
+    name: classyllama.magento-logrotate
+    scm: git
+
+  # 3rd Party Ansible Roles
+  - src: git@github.com:elastic/ansible-elasticsearch.git
+    version: 25bd09f # last version to support multi-environment install
+    name: elastic.elasticsearch
+    scm: git
