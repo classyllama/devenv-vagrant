@@ -1,4 +1,8 @@
 # TODO
+[ ] Evaluate bin/magento deploy:mode:show
+    Confirm developer mode when executed through php-fpm
+    Confirm developer mode when executed through CLI
+      Previously this was enforced in bash profile setting ENV 'export MAGE_MODE=developer'
 [ ] Windows VirtualBox Support
     [ ] WSL (Ubuntu/CentOS)
     [ ] x64/ARM

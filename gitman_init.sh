@@ -11,9 +11,6 @@ PERSIST_DIR="${GITMAN_ROOT}" # Use gitman root
 GITMAN_LOCATION=$(cd $(pwd -P)/../;echo ${PWD##*/})
 SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 
-# Initialize lab directory
-#[[ -d ../../${EXPERIMENT_NAME} ]] || mkdir ../../${EXPERIMENT_NAME}
-
 # Link from source directory to persistent directory
 [[ -L persistent ]] || ln -s ${PERSIST_DIR} persistent
 
@@ -34,7 +31,3 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml
-
-# app_vars.config.yml
-
-# TODO Add README to persistent directory with instructions on initializing with gitman or manually
