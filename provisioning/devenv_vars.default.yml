@@ -19,6 +19,8 @@ app_domain: example.lan
 # ls -la /etc/localtime
 timezone_name: America/Chicago
 
+virtualhost_disks: []
+
 location_var_www: ""
 
 php_fpm_pm: ondemand

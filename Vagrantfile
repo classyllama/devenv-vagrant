@@ -54,7 +54,7 @@ Vagrant.configure('2') do |config|
   
     config.vm.define "#{$dev_machine_name}" do |config|
     
-      config.vm.box = "bento/centos-7"
+      config.vm.box = "#{$vagrant_base_box}"
       config.vm.hostname = "#{$dev_machine_name}"
       config.vm.network :private_network, type: "dhcp"
       config.hostmanager.ignore_private_ip = false
