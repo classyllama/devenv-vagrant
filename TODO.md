@@ -22,6 +22,7 @@
     [ ] Define instructions in README for moving project files
     [ ] Consider locating persistent disk volume files in separate location from project files
 [ ] Ability to disable/enable xdebug
+    [ ] built-in info page (special path) for checking devenv details like if xdebug is enabled or not
 
 [ ] Redis 5 (currently installs 3.2)
 [ ] Varnish 6.x (currently installs 4.1)
