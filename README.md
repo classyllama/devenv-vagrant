@@ -180,7 +180,7 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 ##### MacOS
   
     brew cask install virtualbox
-    brew install vagrant
+    brew cask install vagrant
     vagrant plugin list
     vagrant plugin install vagrant-hostmanager
     vagrant plugin install vagrant-digitalocean
