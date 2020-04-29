@@ -13,10 +13,10 @@
     - name: change hostname to myserver
       hostname:
         name: "{{ app_domain }}"
-    
+
     - name: Set location of /var/www
       block:
-        
+
         - name: Check for existing /var/www directory
           stat:
             path: "/var/www"
@@ -31,7 +31,7 @@
         - name: "Remove initial /var/www directory"
           shell: "rm -rf /var/www"
           when: var_www_stat.stat.exists and var_www_stat.stat.islnk is defined and var_www_stat.stat.islnk == False
-        
+
         - name: "Create {{ location_var_www }}"
           file:
             path: "{{ location_var_www }}"
@@ -42,92 +42,91 @@
             src: "{{ location_var_www }}"
             dest: "/var/www"
             state: link
-        
+
       when: (location_var_www is defined) and (location_var_www|length > 0)
-  
+
   roles:
-    - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
     - { role: classyllama.boilerplate }
     - { role: local.timezone }
     - { role: classyllama.hostsfile }
     - { role: classyllama.www-user }
-
-    - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: classyllama.php_fpm, tags: php-fpm }
-
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
-
-    - { role: classyllama.n98-magerun, tags: toolchain }
-    - { role: classyllama.composer, tags: toolchain }
-    - { role: classyllama.php-cachetool, tags: toolchain }
-
-    - { role: classyllama.nginx, tags: nginx }
-
-  tasks:
-    - package:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - yum-plugin-replace
-        - pwgen
-        - jq
-        - unzip
-        - words
-
-    # Install ImageMagick
-    # verify tool exists: mogrify -version
-    # For access from PHP code it requires the pecl-imagick extension
-    - name: Install ImageMagick
-      tags: toolchain
-      package: 
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - ImageMagick
-        - ImageMagick-devel
-
-    # Enable xDebug
-    - name: configure xdebug.ini
-      ini_file:
-        dest: "{{ php_xdebug_ini_path }}"
-        section: xdebug
-        option: "{{ item.key }}"
-        value: "{{ item.value }}"
-      with_dict: "{{ php_extension_xdebug_ini }}"
-      notify: restart php-fpm
-
-    - name: Install Mail Tools
-      package:
-        name: mailx
-        state: present
     
-    - include: tasks/database-create.yml
-      tags: database
-      args:
-        mysql_db: "demo_data"
-        mysql_host: "%"
-        mysql_user: magento_data
-
-    - include: tasks/database-mycnf.yml
-      tags: database
-      args:
-        mycnf_file: /home/www-data/.my.cnf
-        mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
-
-    - name: Run all notified handlers
-      meta: flush_handlers
-      tags: database
-
-    - name: Link cachetool config into /var/www/html
-      file:
-        src: /home/www-data/.cachetool.yml
-        dest: /var/www/html/.cachetool.yml
-        state: link
-
-    - name: Disable SELinux enforcement
-      selinux:
-        state: disabled
-
-- import_playbook: ../persistent/devenv_playbook.config.yml
+    - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
+    # - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
+    # - { role: classyllama.php_fpm, tags: php-fpm }
+    # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
+    # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+    # # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
+#
+#     - { role: classyllama.n98-magerun, tags: toolchain }
+#     - { role: classyllama.composer, tags: toolchain }
+#     - { role: classyllama.php-cachetool, tags: toolchain }
+#
+    # - { role: classyllama.nginx, tags: nginx }
+#
+#   tasks:
+#     - package:
+#         name: "{{ item }}"
+#         state: present
+#       with_items:
+#         - yum-plugin-replace
+#         - pwgen
+#         - jq
+#         - unzip
+#         - words
+#
+#     # Install ImageMagick
+#     # verify tool exists: mogrify -version
+#     # For access from PHP code it requires the pecl-imagick extension
+#     - name: Install ImageMagick
+#       tags: toolchain
+#       package:
+#         name: "{{ item }}"
+#         state: present
+#       with_items:
+#         - ImageMagick
+#         - ImageMagick-devel
+#
+#     # Enable xDebug
+#     - name: configure xdebug.ini
+#       ini_file:
+#         dest: "{{ php_xdebug_ini_path }}"
+#         section: xdebug
+#         option: "{{ item.key }}"
+#         value: "{{ item.value }}"
+#       with_dict: "{{ php_extension_xdebug_ini }}"
+#       notify: restart php-fpm
+#
+#     - name: Install Mail Tools
+#       package:
+#         name: mailx
+#         state: present
+#
+#     - include: tasks/database-create.yml
+#       tags: database
+#       args:
+#         mysql_db: "demo_data"
+#         mysql_host: "%"
+#         mysql_user: magento_data
+#
+#     - include: tasks/database-mycnf.yml
+#       tags: database
+#       args:
+#         mycnf_file: /home/www-data/.my.cnf
+#         mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
+#
+#     - name: Run all notified handlers
+#       meta: flush_handlers
+#       tags: database
+#
+#     - name: Link cachetool config into /var/www/html
+#       file:
+#         src: /home/www-data/.cachetool.yml
+#         dest: /var/www/html/.cachetool.yml
+#         state: link
+#
+#     - name: Disable SELinux enforcement
+#       selinux:
+#         state: disabled
+#
+# - import_playbook: ../persistent/devenv_playbook.config.yml
