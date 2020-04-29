@@ -18,16 +18,35 @@
         - wget
         - bc
         - rsync
-        - lsof
-        - ack
-        - perl
-        - man
-        - bash-completion
-        - pv
-        - git
-        - tree
-        - ack
-        - ps_mem
         - yara
-        - patch
-        - jq
+    
+    # Yum update and reboot as needed
+    - name: upgrade all packages
+      package:
+        name: '*'
+        state: latest
+      tags: yum-update
+    
+    - name: check for reboot hint
+      shell: if [ $(rpm -q --last kernel | awk 'NR==1 {print $1}') != kernel-$(uname -r) ]; then echo 'reboot'; else echo 'Kernel is current'; fi
+      ignore_errors: true
+      changed_when: false
+      register: reboot_hint
+      tags: yum-update
+    
+    - name: Rebooting ...
+      shell: sleep 5 && shutdown -r now 'Rebooting (Yum Updates)'
+      async: 1
+      poll: 0
+      ignore_errors: true
+      changed_when: "reboot_hint.stdout == 'reboot'"
+      register: rebooting
+      tags: yum-update
+      when: "reboot_hint.stdout == 'reboot'"
+
+    - name: Wait for remote system to reboot...
+      become: no
+      wait_for_connection:
+        delay: 60
+      when: rebooting is changed
+      tags: yum-update
