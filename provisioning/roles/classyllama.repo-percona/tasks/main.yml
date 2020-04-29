@@ -11,7 +11,8 @@
 
 - name: Install Percona Server repo
   yum:
-    name: "https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm"
+    # name: "https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm"
+    name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
     state: present
   when: not percona_repofile_result.stat.exists
 

@@ -11,7 +11,7 @@ www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
 
-mysql_root_pw: CHANGEME
+# mysql_root_pw: CHANGEME
 
 app_domain: example.lan
 
@@ -55,6 +55,7 @@ php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
 
 redis_version: 32
+percona_version: 56
 mysqld_memory_percentage: 50
 
 cachetool_config:
