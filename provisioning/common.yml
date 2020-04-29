@@ -13,12 +13,18 @@
   
   tasks:
     - package:
-        name: "{{ item }}"
-      with_items:
-        - wget
-        - bc
-        - rsync
-        - yara
+        name: 
+          - wget
+          - bc
+          - rsync
+          - yara
+          # - yum-plugin-replace
+          - unzip
+          - words
+
+    # - name: Disable SELinux enforcement
+    #   selinux:
+    #     state: disabled
     
     # Yum update and reboot as needed
     - name: upgrade all packages

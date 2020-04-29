@@ -56,25 +56,39 @@
     # - { role: classyllama.php_fpm, tags: php-fpm }
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    # # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
-#
-#     - { role: classyllama.n98-magerun, tags: toolchain }
-#     - { role: classyllama.composer, tags: toolchain }
-#     - { role: classyllama.php-cachetool, tags: toolchain }
-#
     # - { role: classyllama.nginx, tags: nginx }
-#
-#   tasks:
-#     - package:
-#         name: "{{ item }}"
-#         state: present
-#       with_items:
-#         - yum-plugin-replace
-#         - pwgen
-#         - jq
-#         - unzip
-#         - words
-#
+
+    # - { role: classyllama.n98-magerun, tags: toolchain }
+    # - { role: classyllama.composer, tags: toolchain }
+    # - { role: classyllama.php-cachetool, tags: toolchain }
+
+  tasks:
+
+    # - package:
+    #     name: python-pip
+    #
+    # - name: Make sure pymysql is present
+    #   pip:
+    #     name: pymysql
+    #     state: present
+    #
+    # - include: tasks/database-create.yml
+    #   tags: database
+    #   args:
+    #     mysql_db: "demo_data"
+    #     mysql_host: "%"
+    #     mysql_user: magento_data
+    #
+    # - include: tasks/database-mycnf.yml
+    #   tags: database
+    #   args:
+    #     mycnf_file: /home/www-data/.my.cnf
+    #     mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
+    #
+    # - name: Run all notified handlers
+    #   meta: flush_handlers
+    #   tags: database
+    
 #     # Install ImageMagick
 #     # verify tool exists: mogrify -version
 #     # For access from PHP code it requires the pecl-imagick extension
@@ -87,6 +101,12 @@
 #         - ImageMagick
 #         - ImageMagick-devel
 #
+#     - name: Link cachetool config into /var/www/html
+#       file:
+#         src: /home/www-data/.cachetool.yml
+#         dest: /var/www/html/.cachetool.yml
+#         state: link
+#
 #     # Enable xDebug
 #     - name: configure xdebug.ini
 #       ini_file:
@@ -96,37 +116,5 @@
 #         value: "{{ item.value }}"
 #       with_dict: "{{ php_extension_xdebug_ini }}"
 #       notify: restart php-fpm
-#
-#     - name: Install Mail Tools
-#       package:
-#         name: mailx
-#         state: present
-#
-#     - include: tasks/database-create.yml
-#       tags: database
-#       args:
-#         mysql_db: "demo_data"
-#         mysql_host: "%"
-#         mysql_user: magento_data
-#
-#     - include: tasks/database-mycnf.yml
-#       tags: database
-#       args:
-#         mycnf_file: /home/www-data/.my.cnf
-#         mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
-#
-#     - name: Run all notified handlers
-#       meta: flush_handlers
-#       tags: database
-#
-#     - name: Link cachetool config into /var/www/html
-#       file:
-#         src: /home/www-data/.cachetool.yml
-#         dest: /var/www/html/.cachetool.yml
-#         state: link
-#
-#     - name: Disable SELinux enforcement
-#       selinux:
-#         state: disabled
-#
-# - import_playbook: ../persistent/devenv_playbook.config.yml
+
+- import_playbook: ../persistent/devenv_playbook.config.yml

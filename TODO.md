@@ -1,4 +1,18 @@
 # TODO
+[ ] EL8 Support
+    [ ] Varnish
+    [ ] PHP
+    [ ] Redis
+    [ ] Nginx
+    [ ] ElasticSearch
+    [ ] Tools
+      [ ] ImageMagick
+      [ ] magerun
+      [ ] composer
+      [ ] cachetool
+      [ ] xdebug
+    [ ] db creation from ansible python pip MySQL-python
+
 [ ] Evaluate bin/magento deploy:mode:show
     Confirm developer mode when executed through php-fpm
     Confirm developer mode when executed through CLI
@@ -26,7 +40,6 @@
 
 [ ] Redis 5 (currently installs 3.2)
 [ ] Varnish 6.x (currently installs 4.1)
-[ ] Percona 5.7 (currently installs 5.6)
 [ ] MariaDB 10.2
 [ ] ElasticSearch 6.x
 [ ] RabitMQ 3.8.x
