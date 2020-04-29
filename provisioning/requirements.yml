@@ -48,6 +48,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-boilerplate.git
     name: classyllama.boilerplate
+    version: el8-support # testing RHEL/CentOS 8 Support
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-varnish.git
