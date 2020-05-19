@@ -179,8 +179,8 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 
 ##### MacOS
   
-    brew install virtualbox
-    brew install vagrant
+    brew cask install virtualbox
+    brew cask install vagrant
     vagrant plugin list
     vagrant plugin install vagrant-hostmanager
     vagrant plugin install vagrant-digitalocean
@@ -252,6 +252,10 @@ TODO: Describe how to populate DO token, etc, and any changes to Vagrantfile loa
     echo "show databases;" | vagrant ssh -c "mysql" -- -q
   
     pv database_dump_file.sql | vagrant ssh -c "mysql" -- -q
+
+## Magento CLI Proxy
+
+Normally you would SSH into Vagrant using `vagrant ssh` to run `bin/magento` commands. To make things easier there is a Magento CLI proxy in this package. You can run `bin/magento` commands while in the `devenv` directory and the commands will be proxied to the vagrant vm.
 
 ## Additional Dev Tools
 
