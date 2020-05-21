@@ -1,5 +1,18 @@
 ---
 ##############################
+# Varnish Version
+#
+# Varnish may have different configurations based on the version
+
+# Version 4.1 was very common for quite a while
+# varnish_version: 41
+
+# Version 6.0 has an LTS version
+# varnish_version: 60lts
+
+varnish_version: 41
+
+##############################
 # Instance configuration
 #
 # See man page for details on named instances. Also used for file suffixing;
@@ -26,7 +39,7 @@ varnish_admin_listen_address: 127.0.0.1
 ## VCL config
 
 # Default varnish instance configuration template
-varnish_vcl_template: magento2.vcl.j2
+varnish_vcl_template: vcl/magento2.vcl.j2
 
 # Backend reponse ttl in seconds
 varnish_beresp_ttl: 86400
