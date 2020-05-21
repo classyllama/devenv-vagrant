@@ -51,7 +51,9 @@
     - { role: classyllama.hostsfile }
     - { role: classyllama.www-user }
     
-    - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
+    # - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
+    - { role: classyllama.mariadb }
+
     # - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
     # - { role: classyllama.php_fpm, tags: php-fpm }
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
