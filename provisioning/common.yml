@@ -21,6 +21,7 @@
           # - yum-plugin-replace
           - unzip
           - words
+          - coreutils
 
     # - name: Disable SELinux enforcement
     #   selinux:
