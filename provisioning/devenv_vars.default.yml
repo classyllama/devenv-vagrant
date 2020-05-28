@@ -65,6 +65,10 @@ cachetool_config:
     temp_dir: /dev/shm/cachetool
     extensions: [ opcache ]
 
+use_classyllama_repo_nginx: true
+use_classyllama_repo_nginx_appstream: false
+nginx_stream_version: "1.18"
+
 nginx_vhosts:
   - name: "{{ app_domain }}"
     pool: data

@@ -58,7 +58,7 @@
     # - { role: classyllama.php_fpm, tags: php-fpm }
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    # - { role: classyllama.nginx, tags: nginx }
+    - { role: classyllama.nginx, tags: nginx }
 
     # - { role: classyllama.n98-magerun, tags: toolchain }
     # - { role: classyllama.composer, tags: toolchain }

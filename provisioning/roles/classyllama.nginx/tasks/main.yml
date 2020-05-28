@@ -1,27 +1,51 @@
 ---
+# Support for post-transaction-action on package changes
 - name: install yum-plugin-post-transaction-actions
   package:
     name: yum-plugin-post-transaction-actions
     state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version < '8'
 
-- name: install post-transaction-action
+# Action to update log directory permissions on any package updates
+- name: install post-transaction-action for yum
   template:
     src: nginx.action.j2
     dest: /etc/yum/post-actions/nginx.action
     owner: root
     group: root
     mode: 0600
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version < '8'
 
-- name: check if nginx repo is already configured
-  stat:
-    path: /etc/yum.repos.d/nginx.repo
-  register: nginx_repofile_result
-
-- name: install nginx repo
+# This may not be needed in newer versions. 
+# Nginx 1.18 seemed to install on CentOS 8 with the desired directory permissions already
+- name: create /etc/nginx/ssl dir
+  file:
+    path: /etc/dnf/plugins/post-transaction-actions.d
+    owner: root
+    group: root
+    mode: 0655
+    state: directory
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+- name: install post-transaction-action for dnf
   template:
-    src: nginx.repo.j2
-    dest: /etc/yum.repos.d/nginx.repo
-  when: not nginx_repofile_result.stat.exists
+    src: nginx.action.j2
+    dest: /etc/dnf/plugins/post-transaction-actions.d/nginx.action
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+
+
+
 
 - name: install nginx
   yum: name=nginx

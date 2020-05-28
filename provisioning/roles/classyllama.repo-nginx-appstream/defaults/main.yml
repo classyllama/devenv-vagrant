@@ -1,0 +1,10 @@
+---
+##############################
+# Nginx Stream Version
+#
+# Nginx is distributed via AppStream for RedHat/CentOS official repositories
+# The stream provided directly by RedHat/CentOS has version 1.14 and 1.16
+
+# EPEL provides a stream for Nginx 1.18
+
+nginx_stream_version: "1.18"
