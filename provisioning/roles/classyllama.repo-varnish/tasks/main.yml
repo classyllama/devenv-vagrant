@@ -7,8 +7,8 @@
 
 
 
-# On RHEL/CentOS 8 the Percona-Server-server-* packages will not show up if 
-# the default mysql stream module is enabled
+# On RHEL/CentOS 8 the packages will not show up if 
+# the default stream module is enabled
 # https://www.percona.com/doc/percona-server/5.7/installation/yum_repo.html
 - name: Check dnf module varnish
   shell:
@@ -32,7 +32,7 @@
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version >= '8'
     - dnf_module_varnish.stdout != ""
-    - not '[x]' in dnf_module_mysql.stdout
+    - not '[x]' in dnf_module_varnish.stdout
 
 
 
