@@ -8,9 +8,9 @@
 #   (optional) mysql_append_privs: <yes|no>    If yes, privileges will be appended instead of overwritten
 #
 ---
-- name: Install python-mysqldb
-  package:
-    name: MySQL-python
+# - name: Install python-mysqldb
+#   package:
+#     name: MySQL-python
 
 - name: Generate password for {{ mysql_user }}
   command: uuidgen

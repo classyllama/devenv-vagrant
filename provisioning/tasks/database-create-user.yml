@@ -1,7 +1,7 @@
 ---
-- name: Install python-mysqldb
-  package:
-    name: MySQL-python
+# - name: Install python-mysqldb
+#   package:
+#     name: MySQL-python
     
 - name: "Generate password for {{ mysql_user }}"
   command: uuidgen
