@@ -11,6 +11,11 @@ www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
 
+magent_rel_ver: "2.3.5-p1"
+env_root_dir: "/var/www/html/magento"
+magento_composer_project: "magento/project-community-edition"
+magento_initialize_script: "initialize-magento.sh.j2"
+
 # mysql_root_pw: CHANGEME
 
 app_domain: example.lan

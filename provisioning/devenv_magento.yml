@@ -1,0 +1,26 @@
+---
+- hosts: all
+  name: Application Server Setup
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  tasks:
+    
+    - name: Copy Magento init script
+      template:
+        src: "scripts/{{ magento_initialize_script }}"
+        dest: /home/www-data/initialize-magento.sh
+        owner: www-data
+        group: www-data
+        mode: 0775
+    
+    - name: Copy Magento clean script
+      copy:
+        src: scripts/clean-magento.sh
+        dest: /home/www-data/clean-magento.sh
+        owner: www-data
+        group: www-data
+        mode: 0775
