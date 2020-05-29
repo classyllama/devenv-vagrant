@@ -55,14 +55,14 @@
     - { role: classyllama.mariadb }
 
     - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    # - { role: classyllama.php_fpm, tags: php-fpm }
+    - { role: classyllama.php_fpm, tags: php-fpm }
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
     # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
     - { role: classyllama.nginx, tags: nginx }
 
-    # - { role: classyllama.n98-magerun, tags: toolchain }
-    # - { role: classyllama.composer, tags: toolchain }
-    # - { role: classyllama.php-cachetool, tags: toolchain }
+    - { role: classyllama.n98-magerun, tags: toolchain }
+    - { role: classyllama.composer, tags: toolchain }
+    - { role: classyllama.php-cachetool, tags: toolchain }
 
   tasks:
 
@@ -102,13 +102,13 @@
 #       with_items:
 #         - ImageMagick
 #         - ImageMagick-devel
-#
-#     - name: Link cachetool config into /var/www/html
-#       file:
-#         src: /home/www-data/.cachetool.yml
-#         dest: /var/www/html/.cachetool.yml
-#         state: link
-#
+
+    - name: Link cachetool config into /var/www/html
+      file:
+        src: /home/www-data/.cachetool.yml
+        dest: /var/www/html/.cachetool.yml
+        state: link
+
 #     # Enable xDebug
 #     - name: configure xdebug.ini
 #       ini_file:

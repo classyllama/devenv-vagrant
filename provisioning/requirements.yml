@@ -10,6 +10,8 @@ roles:
 
   - src: geerlingguy.repo-epel
   
+  - src: geerlingguy.repo-remi
+  
   - src: git@github.com:classyllama/ansible-role-syseng-access.git
     name: classyllama.syseng-access
     scm: git

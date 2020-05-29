@@ -5,6 +5,7 @@
 - import_playbook: virtualbox_persistent_disk.yml
 - import_playbook: devenv_rootca.yml
 - import_playbook: devenv.yml
-# - import_playbook: devenv_composer.yml
-#
-# - import_playbook: devenv_config.yml
+- import_playbook: devenv_composer.yml
+- import_playbook: devenv_magento.yml
+
+- import_playbook: devenv_config.yml

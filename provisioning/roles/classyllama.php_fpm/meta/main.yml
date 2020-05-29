@@ -1,6 +1,8 @@
 ---
 dependencies:
   - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(true) }
+  - { role: geerlingguy.repo-remi, when: use_geerlingguy_repo_remi | default(false) }
+  - { role: classyllama.repo-php-appstream, when: use_classyllama_repo_php_appstream | default(false) }
 
 galaxy_info:
   role_name: php_fpm
