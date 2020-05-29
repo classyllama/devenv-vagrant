@@ -64,16 +64,10 @@
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.php-cachetool, tags: toolchain }
 
+    - { role: classyllama.repo-python3-appstream, tags: python3}
+
   tasks:
 
-    # - package:
-    #     name: python-pip
-    #
-    # - name: Make sure pymysql is present
-    #   pip:
-    #     name: pymysql
-    #     state: present
-    #
     # - include: tasks/database-create.yml
     #   tags: database
     #   args:
@@ -90,6 +84,16 @@
     # - name: Run all notified handlers
     #   meta: flush_handlers
     #   tags: database
+    - package:
+        name:
+          - "{{ python_package_name }}"
+          - "{{ python_pip_package_name }}"
+
+    - name: Make sure pymysql is present
+      pip:
+        name: pymysql
+        state: present
+
     
 #     # Install ImageMagick
 #     # verify tool exists: mogrify -version
