@@ -8,6 +8,7 @@
 #   - ~/.ssh/id_rsa.pub
 #
 # php_version: 72
+# php_enablerepo: ius
 # mysql_root_pw: CHANGEME
 
 ##Check to see what your system's timezone is set to
