@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+
+{% for set in rclone_logrotate_sets %}
+{{ set.path }} {
+    su {{ set.owner }} {{ set.group }}
+    weekly
+    missingok
+    rotate 12
+    compress
+    delaycompress
+    notifempty
+    create {{ set.mode|default('640') }} {{ set.owner }} {{ set.group }}
+    copytruncate
+    dateext
+}
+{% endfor %}

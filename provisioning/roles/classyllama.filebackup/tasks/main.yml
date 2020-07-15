@@ -1,0 +1,26 @@
+---
+- name: create {{ filebackup_data_dir }}
+  file:
+    dest: "{{ filebackup_data_dir }}"
+    owner: root
+    group: root
+    mode: 0700
+    state: directory
+
+- name: upload {{ filebackup_bin_dir }}/filebackup.sh
+  template:
+    src: "{{ filebackup_template }}"
+    dest: "{{ filebackup_bin_dir }}/filebackup.sh"
+    owner: root
+    group: root
+    mode: 0700
+
+- name: configure daily file backup cron workers
+  tags: crontab
+  cron:
+    name: filebackup_sh
+    job: "{{ filebackup_bin_dir }}/filebackup.sh {{ item.backup_name }} {{ item.backup_path }} {{ filebackup_data_dir }}"
+    user: root
+    minute: "{{ item.cron_minute }}"
+    hour: "{{ item.cron_hour }}"
+  with_items: "{{ filebackup_backup_items }}"

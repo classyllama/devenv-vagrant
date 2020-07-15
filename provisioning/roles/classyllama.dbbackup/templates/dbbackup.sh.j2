@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+
+# Usage: dbbackup.sh <backup_dir>
+
+set -e
+
+# Set variables
+DUMP_DIRECTORY="/var/dbbackup"
+[ -n "$1" ] && DUMP_DIRECTORY=$1
+
+TIMESTAMP=$(date --utc +%Y%m%dT%H%M%SZ) # Get ISO 8601 UTC Timestamp
+
+# Set default file permissions 600
+umask 177
+
+# Make sure dump directory exists
+mkdir -p ${DUMP_DIRECTORY}
+
+# Get list of all databases
+DATABASES=$(mysql -e "SHOW DATABASES;" | grep -Ev "(Database|information_schema|performance_schema)")
+
+# Loop through each database in list and dump to file
+for DATABASE in ${DATABASES}; do
+    
+     # Dump Database Schema
+     mysqldump \
+         --single-transaction \
+         --triggers \
+         --routines \
+         --events \
+         --no-data \
+         --dump-date \
+         ${DATABASE} | \
+     gzip > ${DUMP_DIRECTORY}/${TIMESTAMP}_${DATABASE}_schema.sql.gz
+
+     # Dump Database Data
+     mysqldump \
+         --single-transaction \
+         --no-create-info \
+         --no-create-db \
+         --dump-date \
+         ${DATABASE} | \
+     gzip > ${DUMP_DIRECTORY}/${TIMESTAMP}_${DATABASE}_data.sql.gz
+done
+
+# Delete files older than 7 days
+find ${DUMP_DIRECTORY}/* -mtime +{{ dbbackup_keep_days }} -exec rm {} \;

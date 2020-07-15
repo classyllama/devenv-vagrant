@@ -1,0 +1,10 @@
+---
+awscli_installer_download: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+awscli_download_path: /root/awscli-exe-linux-x86_64.zip
+awscli_unzip_destination: /root/
+awscli_unzip_path: /root/awscli-exe-linux-x86_64
+
+awscli_install_dir: /usr/local/aws-cli
+awscli_bin_dir: /usr/local/bin
+awscli_root_bin_dir: /usr/local/sbin
+awscli_bin_executable: aws

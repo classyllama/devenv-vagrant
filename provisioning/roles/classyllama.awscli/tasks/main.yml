@@ -1,0 +1,51 @@
+---
+- name: "Check for existing {{ awscli_install_dir }} install directory"
+  stat:
+    path: "{{ awscli_install_dir }}"
+  register: install_path_stat
+
+- name: Download AWS CLI
+  get_url:
+    url: "{{ awscli_installer_download }}"
+    dest: "{{ awscli_download_path }}"
+    timeout: 300
+  register: get_url_result
+  until: get_url_result is succeeded
+  when: not install_path_stat.stat.exists
+
+- name: "Check for existing {{ awscli_download_path }} download directory"
+  stat:
+    path: "{{ awscli_download_path }}"
+  register: download_path_stat
+
+- name: Extract AWS CLI download
+  unarchive:
+    src: "{{ awscli_download_path }}"
+    dest: "{{ awscli_unzip_destination }}"
+    list_files: no
+    remote_src: yes
+  when: not install_path_stat.stat.exists and download_path_stat.stat.exists
+
+- name: "Check for existing {{ awscli_unzip_destination }} unzip directory"
+  stat:
+    path: "{{ awscli_unzip_destination }}"
+  register: unzip_path_stat
+
+- name: Execute AWS CLI installer
+  shell: |
+    {{ awscli_unzip_destination }}/aws/install -i {{ awscli_install_dir }} -b {{ awscli_bin_dir }}
+  args:
+    executable: "/bin/bash"
+  when: not install_path_stat.stat.exists and unzip_path_stat.stat.exists
+
+- name: "Check for existing {{ awscli_bin_dir }}/{{ awscli_bin_executable }} executable binary"
+  stat:
+    path: "{{ awscli_bin_dir }}/{{ awscli_bin_executable }}"
+  register: bin_path_stat
+
+- name: link AWS CLI binary to root binary path
+  file:
+    path: "{{ awscli_root_bin_dir }}/{{ awscli_bin_executable }}"
+    src: "{{ awscli_bin_dir }}/{{ awscli_bin_executable }}"
+    state: link
+  when: bin_path_stat.stat.exists and awscli_bin_dir != awscli_root_bin_dir

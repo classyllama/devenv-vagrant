@@ -1,0 +1,29 @@
+---
+rclone_archiver_template: rclone_archiver.sh.j2
+rclone_archiver_bin_dir: /usr/local/bin
+rclone_archiver_items: []
+
+# Example
+# rclone_archiver_items:
+#   - source_directory: /var/filebackup
+#     remote: rclone_remote_name
+#     bucket: s3_bucket_name
+#     destination_directory: my_hostname/filebackup
+#     log_file: /var/log/rclone_archiver/filebackup.log
+#     cron_hour: 2
+#     cron_minute: 0
+#   - source_directory: /var/dbbackup
+#     remote: rclone_remote_name
+#     bucket: s3_bucket_name
+#     destination_directory: my_hostname/dbbackup
+#     log_file: /var/log/rclone_archiver/dbbackup.log
+#     cron_hour: 2
+#     cron_minute: 30
+
+rclone_logrotate_sets: []
+
+# Example
+# rclone_logrotate_sets:
+#   - path: /var/log/rclone_archiver/*.log
+#     owner: root
+#     group: root
