@@ -8,8 +8,8 @@
     - ./devenv_vars.config.yml
   
   roles:
-    - { role: geerlingguy.repo-epel }
     - { role: classyllama.syseng-access }
+    - { role: geerlingguy.repo-epel }
   
   tasks:
     - package:

@@ -1,7 +1,7 @@
 ---
 dependencies:
-  - { role: classyllama.repo_ius, when: not redis_do_not_use_ius_repo|default(false) }
-
+  - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(true) }
+  
 galaxy_info:
   role_name: multi_redis
   author: David Alger
