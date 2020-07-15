@@ -18,10 +18,17 @@
           - bc
           - rsync
           - yara
-          # - yum-plugin-replace
           - unzip
           - words
           - coreutils
+    
+    # EL7 Packages
+    - package:
+        name: 
+          - yum-plugin-replace
+      when:
+        - ansible_os_family == 'RedHat'
+        - ansible_distribution_major_version <= '7'
 
     # - name: Disable SELinux enforcement
     #   selinux:
