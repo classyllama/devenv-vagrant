@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+// Start command
+$cmd = 'vagrant ssh -c "cd magento; bin/magento';
+
+// remove first arg 'bin/magento'
+array_shift($argv);
+
+// Clear Cache Shortcut, ie bin/magento clear
+if ($argv[0] === 'clear') {
+    $cmd .= " c:c; bin/magento c:f";
+
+// Combine arg array - build normal command args
+} else {
+    foreach ($argv as $v) {
+        $cmd .= " $v";
+    }
+}
+
+// Close command
+$cmd = $cmd . '"';
+
+// Notify Dev
+echo 'Running command: ' . $cmd . PHP_EOL;
+
+// Execute
+echo shell_exec($cmd);

@@ -8,6 +8,7 @@
 #   - ~/.ssh/id_rsa.pub
 #
 # php_version: 72
+# php_enablerepo: ius
 # percona_version: 56
 # mysql_root_pw: CHANGEME
 
