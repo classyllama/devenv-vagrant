@@ -18,7 +18,7 @@
 - name: configure daily file backup cron workers
   tags: crontab
   cron:
-    name: filebackup_sh
+    name: "filebackup_sh {{ item.backup_name }}"
     job: "{{ filebackup_bin_dir }}/filebackup.sh {{ item.backup_name }} {{ item.backup_path }} {{ filebackup_data_dir }}"
     user: root
     minute: "{{ item.cron_minute }}"
