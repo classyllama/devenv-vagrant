@@ -28,6 +28,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 [[ -f persistent/mutagen.yml ]] || cp mutagen.yml.sample persistent/mutagen.yml
 [[ -f persistent/devenv_playbook.config.yml ]] || cp provisioning/devenv_playbook.config.yml.sample persistent/devenv_playbook.config.yml
 [[ -f persistent/README.md ]] || cp README.md.project.sample persistent/README.md
+[[ -f persistent/ansible.cfg ]] || cp provisioning/ansible.cfg.sample persistent/ansible.cfg
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml

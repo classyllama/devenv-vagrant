@@ -1,6 +1,6 @@
 [defaults]
-library = ./modules
-roles_path = ./roles
+library = ./source/provisioning/modules
+roles_path = ./source/provisioning/roles
 
 retry_files_enabled = False
 
