@@ -51,28 +51,29 @@ nginx_status_allow:
 nginx_extras: []
 
 nginx_vhosts: []
-
 ## Example Usage
-#    nginx_vhosts:
-#      - name:
-#        pool:
-#        params: (optional)
-#          server_name:
-#          webroot:
-#          proxy_port:
-#        template: vhost.conf (optional)
+# nginx_vhosts:
+#   - name:
+#     pool:
+#     params: (optional)
+#       server_name:
+#       webroot:
+#       proxy_port:
+#     template: vhost.conf (optional)
 
 # Default vhost includes
 nginx_vhost_includes:
   - default.d/*.conf
 
-nginx_backends:
-  - name: www-data
-    pool: data
-    listen: 127.0.0.1:8080
-    webroot: /var/www/html/current
-    includes: []
-#   template: backend.conf (optional)
+nginx_backends: []
+## Example Usage
+# nginx_backends:
+#   - name: www-data
+#     pool: data
+#     listen: 127.0.0.1:8080
+#     webroot: /var/www/data/current
+#     includes: []
+#     template: backend.conf # (optional)
 
 # Default backend include files
 nginx_backend_includes:

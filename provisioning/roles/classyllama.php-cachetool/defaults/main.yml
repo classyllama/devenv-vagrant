@@ -6,13 +6,13 @@ cachetool_download: "{{ _cachetool_download[cachetool_version] }}"
 # Example cachetool_config:
 #
 #   cachetool_config:
-#     - path: /var/www/html
+#     - path: /var/www/data
 #       adapter: fastcgi
 #       fastcgi: /var/run/php-fpm/www-data.sock
 #       temp_dir: /dev/shm/cachetool
 #       extensions: [ opcache ]
 #
-# The above conifguration will place a .cachetool.yml file in /var/www/html limiting and configuring cachetool to
-# work with the native php-opcache via the www-data php-fpm pool unix-socket when the tool is run within /var/www/html
+# The above conifguration will place a .cachetool.yml file in /var/www/data limiting and configuring cachetool to
+# work with the native php-opcache via the www-data php-fpm pool unix-socket when the tool is run within /var/www/data
 #
 cachetool_config: []

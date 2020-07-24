@@ -1,0 +1,22 @@
+---
+
+- name: PHP PECL - software package dependencies
+  package:
+    name: "{{ php_pecl_software_package_dependencies }}"
+
+- name: PHP PECL - Update Channel
+  command: pecl channel-update pecl.php.net
+  changed_when: false
+
+- name: PHP PECL - Install Packages
+  pear:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ php_pecl_packages }}"
+
+- name: PHP PECL - Configure Extension INI Files
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.dest }}"
+  notify: restart php-fpm
+  with_items: "{{ php_pecl_extension_ini }}"

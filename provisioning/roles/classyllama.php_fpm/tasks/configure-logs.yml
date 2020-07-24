@@ -1,4 +1,5 @@
 ---
+
 - name: "{{ php_fpm_pool }} : create log files"
   file:
     path: "{{ item }}"
@@ -6,6 +7,8 @@
     owner: "{{ php_fpm_owner }}"
     group: "{{ php_fpm_group }}"
     mode: 0600
+    modification_time: preserve
+    access_time: preserve
   with_items:
     - "{{ php_fpm_errorlog }}"
     - "{{ php_fpm_slowlog }}"

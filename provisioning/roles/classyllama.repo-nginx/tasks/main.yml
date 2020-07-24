@@ -18,7 +18,7 @@
 
 - name: Disable nginx module
   shell:
-    cmd: dnf -y module disable varnish
+    cmd: dnf -y module disable nginx
     warn: false
   when: 
     - ansible_os_family == 'RedHat'

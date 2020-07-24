@@ -136,6 +136,9 @@
     mode: 0600
   notify: reload php-fpm
 
+- import_tasks: pecl_packages.yml
+  when: php_pecl_packages | length > 0
+
 - import_tasks: configure-logs.yml
 
 - name: start php-fpm

@@ -36,9 +36,17 @@
 
 
 
-- name: Install varnish repo dependencies
-  yum:
-    name: ['pygpgme', 'yum-utils']
+- name: Install varnish repo dependency yum-utils
+  package:
+    name: 
+      - yum-utils
+- name: Install varnish repo dependency pygpgme
+  package:
+    name:
+      - pygpgme
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version < '8'
 
 - name: Remove deprecated varnish41 repo config
   file:
@@ -54,7 +62,7 @@
 
 - name: Install varnish repo
   template:
-    src: "varnishcache_varnish{{ varnish_version }}.repo"
+    src: "varnishcache_varnish.repo"
     dest: "/etc/yum.repos.d/varnishcache_varnish{{ varnish_version }}.repo"
   when: not varnish_repofile_result.stat.exists
 

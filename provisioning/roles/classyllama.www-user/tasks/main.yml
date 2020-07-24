@@ -16,7 +16,7 @@
 
 # replace www- out of username for data dir name if present
 - set_fact: www_user_web_dir={{ www_user_name|replace("www-", "") }}
-  when: www_user_use_default_html and www_user_name != "www-data"
+  when: not www_user_use_default_html or www_user_name != "www-data"
 
 # use standard /var/www/html when www-data is used
 - set_fact: www_user_web_dir=html

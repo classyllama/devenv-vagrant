@@ -6,7 +6,7 @@ set -eu
 ########################################
 # Init default script vars
 
-sites_dir=/var/www/html/projects
+sites_dir=/var/www/data/projects
 certs_dir=/etc/nginx/ssl
 
 ########################################

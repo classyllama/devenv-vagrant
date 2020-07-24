@@ -14,7 +14,7 @@
     # TODO: Discuss using /var/www/projects by default instead for shared devenv on multiple projects
     - name: Create projects directory for codebase roots
       file:
-        path: /var/www/html/projects
+        path: /var/www/data/projects
         state: directory
         owner: www-data
         group: www-data
@@ -23,7 +23,7 @@
     # TODO: Discuss using /var/www/data by default instead for embedding devenv in project repo
     - name: Create projects directory for codebase roots
       file:
-        path: /var/www/html/magento
+        path: /var/www/data/magento
         state: directory
         owner: www-data
         group: www-data

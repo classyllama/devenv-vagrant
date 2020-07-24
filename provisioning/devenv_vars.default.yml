@@ -10,12 +10,6 @@ syseng_access_users:
 www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
-
-magent_rel_ver: "2.3.5-p1"
-env_root_dir: "/var/www/html/magento"
-magento_composer_project: "magento/project-community-edition"
-magento_initialize_script: "initialize-magento.sh.j2"
-
 # mysql_root_pw: CHANGEME
 
 app_domain: example.lan
@@ -70,6 +64,7 @@ cachetool_config:
     temp_dir: /dev/shm/cachetool
     extensions: [ opcache ]
 
+www_user_use_default_html: false
 use_classyllama_repo_nginx: true
 use_classyllama_repo_nginx_appstream: false
 nginx_stream_version: "1.18"
@@ -79,7 +74,7 @@ nginx_vhosts:
     pool: data
     params:
       server_name: "{{ app_domain }}"
-      webroot: /var/www/html/magento/pub
+      webroot: /var/www/data/magento/pub
       #proxy_port: 6081
       proxy_port: 8080
     includes:
@@ -89,7 +84,7 @@ nginx_backends:
   - name: www-data
     pool: data
     listen: 8080
-    webroot: /var/www/html/magento/pub
+    webroot: /var/www/data/magento/pub
     includes:
       - default.d/nginx-status.conf
       - available.d/realip.conf
@@ -113,3 +108,20 @@ nginx_ssl_cert_dir: /etc/nginx/ssl
 devenv_openssl_rootca_dir: /etc/openssl/rootca
 devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config
 devenv_openssl_req_config: /etc/openssl/devenv_openssl_req_config
+
+es_version: 7.8.0
+es_config:
+  node.name: "node1"
+  cluster.name: "test-cluster"
+  http.host: 0.0.0.0,
+  http.port: 9200
+  transport.tcp.port: 9300
+  node.data: true
+  node.master: true
+  bootstrap.memory_lock: true
+es_heap_size: 1g
+# es_enable_xpack: false
+es_api_basic_auth_username: elastic
+es_api_basic_auth_password: changeme
+es_plugins:
+  - plugin: ingest-attachment

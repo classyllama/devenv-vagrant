@@ -119,10 +119,13 @@ roles:
 
 
   # 3rd Party Ansible Roles
-  - src: git@github.com:elastic/ansible-elasticsearch.git
-    version: 25bd09f # last version to support multi-environment install
-    name: elastic.elasticsearch
-    scm: git
+
+  - src: elastic.elasticsearch
+    version: 7.8.0
+  # - src: git@github.com:elastic/ansible-elasticsearch.git
+  #   version: 25bd09f # last version to support multi-environment install
+  #   name: elastic.elasticsearch
+  #   scm: git
 
   - src: geerlingguy.repo-epel
   

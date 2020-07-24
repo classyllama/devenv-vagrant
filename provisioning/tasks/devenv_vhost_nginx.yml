@@ -18,7 +18,7 @@
     vhost_pool: data
     vhost_params:
       server_name: "{{ vhost_name }}"
-      webroot: /var/www/html/projects/{{ vhost_name }}/pub
+      webroot: /var/www/data/projects/{{ vhost_name }}/pub
       proxy_port: "{{ vhost_backend_port }}"
     vhost_template: vhost.conf
     vhost_includes:
@@ -40,7 +40,7 @@
       backend_template: backend.conf
       backend_name: "{{ vhost_name }}"
       backend_listen: "{{ vhost_backend_port }}"
-      backend_webroot: /var/www/html/projects/{{ vhost_name }}/pub
+      backend_webroot: /var/www/data/projects/{{ vhost_name }}/pub
       backend_pool: data
       backend_includes:
         - default.d/nginx-status.conf

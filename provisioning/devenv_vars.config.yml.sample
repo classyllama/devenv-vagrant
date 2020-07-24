@@ -28,7 +28,7 @@
 #     pool: data
 #     params:
 #       server_name: "{{ app_domain }}"
-#       webroot: /var/www/html/magento/pub
+#       webroot: /var/www/data/magento/pub
 #       #proxy_port: 6081
 #       proxy_port: 8080
 #     includes:
@@ -38,7 +38,7 @@
 #   - name: www-data
 #     pool: data
 #     listen: 8080
-#     webroot: /var/www/html/magento/pub
+#     webroot: /var/www/data/magento/pub
 #     includes:
 #       - default.d/nginx-status.conf
 #       - available.d/realip.conf

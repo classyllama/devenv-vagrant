@@ -3,7 +3,7 @@
 set -eu
 
 # Move to realpath
-cd $(pwd -P)
+cd $(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
 EXPERIMENT_NAME="${PWD##*/}" # Use the current directory name
 GITMAN_ROOT="../../"

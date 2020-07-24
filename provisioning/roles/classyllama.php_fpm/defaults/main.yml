@@ -87,3 +87,18 @@ php_fpm_global_ini: "{{ php_fpm_global_default_ini|combine(php_fpm_global_additi
 
 # Use this dictionary to override / append values to php_ext_opcache_default from vars/opcache.yml
 php_ext_opcache: {}
+
+php_pecl_software_package_dependencies: []
+# # Example Usage
+# php_pecl_software_package_dependencies:
+#   - libzip
+#   - libzip-devel
+php_pecl_packages: []
+# # Example Usage
+# php_pecl_packages:
+#   - pecl/zip
+php_pecl_extension_ini: []
+# # Example Usage
+# php_pecl_extension_ini:
+#   - dest: /etc/php.d/40-zip.ini
+#     content: extension=zip.so

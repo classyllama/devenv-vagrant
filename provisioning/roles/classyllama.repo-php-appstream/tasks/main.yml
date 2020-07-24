@@ -28,7 +28,7 @@
 
 - name: Enable php module version
   shell:
-    cmd: "dnf -y module enable php:{{ php_stream_version }}"
+    cmd: "dnf -y module enable php:{{ php_stream_version }}/devel"
     warn: false
   when: 
     - ansible_os_family == 'RedHat'

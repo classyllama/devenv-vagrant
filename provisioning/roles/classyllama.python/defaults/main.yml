@@ -1,0 +1,8 @@
+---
+python_package_name: python3
+python_software_packages: 
+  - "{{ python_package_name }}"
+  - "{{ python_package_name }}-pip"
+  - "{{ python_package_name }}-devel"
+  - "{{ python_package_name }}-PyMySQL"
+python_pip_packages: []

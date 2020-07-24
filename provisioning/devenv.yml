@@ -47,36 +47,27 @@
 
   roles:
     - { role: classyllama.boilerplate }
+    - { role: classyllama.python, tags: python}
     - { role: local.timezone }
     - { role: classyllama.hostsfile }
     - { role: classyllama.www-user }
     
     # - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
     - { role: classyllama.mariadb }
+    - { role: classyllama.php_fpm, tags: php-fpm }
+    - { role: classyllama.nginx, tags: nginx }
+    - { role: elastic.elasticsearch, tags: [ elasticsearch, elastic-stack ] }
 
     - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: classyllama.php_fpm, tags: php-fpm }
     - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
     - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    - { role: classyllama.nginx, tags: nginx }
 
     - { role: classyllama.n98-magerun, tags: toolchain }
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.php-cachetool, tags: toolchain }
 
-    - { role: classyllama.repo-python3-appstream, tags: python3}
-
+    - { role: classyllama.magento-demo, tags: magento-demo, magento_demo_hostname: "{{ app_domain }}" }
   tasks:
-
-    - package:
-        name:
-          - "{{ python_package_name }}"
-          - "{{ python_pip_package_name }}"
-
-    - name: Make sure pymysql is present
-      pip:
-        name: pymysql
-        state: present
 
     # - name: Install python-mysqldb
     #   package:
@@ -99,32 +90,31 @@
       meta: flush_handlers
       tags: database
     
-#     # Install ImageMagick
-#     # verify tool exists: mogrify -version
-#     # For access from PHP code it requires the pecl-imagick extension
-#     - name: Install ImageMagick
-#       tags: toolchain
-#       package:
-#         name: "{{ item }}"
-#         state: present
-#       with_items:
-#         - ImageMagick
-#         - ImageMagick-devel
+    # # Install ImageMagick
+    # # verify tool exists: mogrify -version
+    # # For access from PHP code it requires the pecl-imagick extension
+    # - name: Install ImageMagick
+    #   tags: toolchain
+    #   package:
+    #     name:
+    #       - ImageMagick
+    #       - ImageMagick-devel
+    #     state: present
 
-    - name: Link cachetool config into /var/www/html
+    - name: Link cachetool config into /var/www/data
       file:
         src: /home/www-data/.cachetool.yml
-        dest: /var/www/html/.cachetool.yml
+        dest: /var/www/data/.cachetool.yml
         state: link
 
-#     # Enable xDebug
-#     - name: configure xdebug.ini
-#       ini_file:
-#         dest: "{{ php_xdebug_ini_path }}"
-#         section: xdebug
-#         option: "{{ item.key }}"
-#         value: "{{ item.value }}"
-#       with_dict: "{{ php_extension_xdebug_ini }}"
-#       notify: restart php-fpm
+    # Enable xDebug
+    - name: configure xdebug.ini
+      ini_file:
+        dest: "{{ php_xdebug_ini_path }}"
+        section: xdebug
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_extension_xdebug_ini }}"
+      notify: restart php-fpm
 
 - import_playbook: ../persistent/devenv_playbook.config.yml
