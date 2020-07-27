@@ -12,3 +12,5 @@
   pip:
     name: "{{ python_pip_packages }}"
     state: present
+  when: ( python_pip_packages | length > 0 )
+  

@@ -1,0 +1,95 @@
+---
+- name: Cache Sync To Shared Storage
+  hosts: all
+  become: true
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  roles:
+  
+  tasks:
+    
+    - name: Create local cache directory (dnf)
+      file:
+        path: ../persistent/.cache/dnf
+        state: directory
+        mode: "755"
+      delegate_to: localhost
+      become: false
+    
+    - name: Create remote cache directory (dnf)
+      file:
+        path: /var/cache/dnf
+        state: directory
+        mode: "755"
+    
+    - name: Update cache directory on host (dnf)
+      synchronize:
+        mode: pull
+        src: /var/cache/dnf/
+        dest: ../persistent/.cache/dnf/
+        owner: no
+        group: no
+        recursive: yes
+        rsync_opts:
+          - '--prune-empty-dirs'
+          - "--include=*/"
+          - "--include=*.rpm"
+          - "--exclude=*"
+    
+    
+    
+    - name: Create local cache directory (yum)
+      file:
+        path: ../persistent/.cache/yum
+        state: directory
+        mode: "755"
+      delegate_to: localhost
+      become: false
+    
+    - name: Create remote cache directory (yum)
+      file:
+        path: /var/cache/yum
+        state: directory
+        mode: "755"
+    
+    - name: Update cache directory on host (yum)
+      synchronize:
+        mode: pull
+        src: /var/cache/yum/
+        dest: ../persistent/.cache/yum/
+        owner: no
+        group: no
+        recursive: yes
+        rsync_opts:
+          - '--prune-empty-dirs'
+          - "--include=*/"
+          - "--include=*.rpm"
+          - "--exclude=*"
+    
+    
+    
+    - name: Create local cache directory (composer)
+      file:
+        path: ../persistent/.cache/composer
+        state: directory
+        mode: "755"
+      delegate_to: localhost
+      become: false
+    
+    - name: Create remote cache directory (yum)
+      file:
+        path: /home/www-data/.composer/cache
+        state: directory
+        mode: "755"
+    
+    - name: Update cache directory on host (yum)
+      synchronize:
+        mode: pull
+        src: /home/www-data/.composer/cache/
+        dest: ../persistent/.cache/composer/
+        owner: no
+        group: no
+        recursive: yes

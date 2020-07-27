@@ -51,7 +51,8 @@ php_extension_xdebug_ini:
   xdebug.profiler_output_name: cachegrind.out.%s.%t
 php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
-python_pip_package_name: python-pip
+use_classyllama_repo_python_appstream: false
+python_package_name: python3
 
 redis_version: 32
 percona_version: 56

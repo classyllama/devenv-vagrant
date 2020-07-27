@@ -53,6 +53,8 @@
     - { role: classyllama.www-user }
     
     # - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
+    # - { role: classyllama.percona, when: use_classyllama_percona | default(false) }
+    
     - { role: classyllama.mariadb }
     - { role: classyllama.php_fpm, tags: php-fpm }
     - { role: classyllama.nginx, tags: nginx }
@@ -68,6 +70,10 @@
 
     - { role: classyllama.magento-demo, tags: magento-demo, magento_demo_hostname: "{{ app_domain }}" }
   tasks:
+    
+    # - include_role:
+    #       name: classyllama.percona
+    #     when: use_classyllama_percona | default(false)
 
     # - name: Install python-mysqldb
     #   package:
@@ -116,5 +122,28 @@
         value: "{{ item.value }}"
       with_dict: "{{ php_extension_xdebug_ini }}"
       notify: restart php-fpm
+    
+    # Copy composer cache files to www-users
+    - name: Create remote cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        state: directory
+        mode: "755"
+        owner: www-data
+        group: www-data
+    
+    - name: Synchronize remote composer directories for www-data
+      synchronize:
+        src: /root/.composer/cache/
+        dest: /home/www-data/.composer/cache/
+      delegate_to: "{{ inventory_hostname }}"
+      
+    - name: Update user:group ownership on www-data cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        recurse: true
+        owner: www-data
+        group: www-data
+    
 
 - import_playbook: ../persistent/devenv_playbook.config.yml
