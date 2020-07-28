@@ -52,10 +52,9 @@
     - { role: classyllama.hostsfile }
     - { role: classyllama.www-user }
     
-    # - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
-    # - { role: classyllama.percona, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.percona, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.mariadb, when: use_classyllama_mariadb | default(false) }
     
-    - { role: classyllama.mariadb }
     - { role: classyllama.php_fpm, tags: php-fpm }
     - { role: classyllama.nginx, tags: nginx }
     - { role: elastic.elasticsearch, tags: [ elasticsearch, elastic-stack ] }
@@ -70,10 +69,6 @@
 
     - { role: classyllama.magento-demo, tags: magento-demo, magento_demo_hostname: "{{ app_domain }}" }
   tasks:
-    
-    # - include_role:
-    #       name: classyllama.percona
-    #     when: use_classyllama_percona | default(false)
 
     # - name: Install python-mysqldb
     #   package:

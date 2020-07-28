@@ -1,9 +1,26 @@
 ---
 # This is used in varnish_reload_vcl.j2 to eliminate rhel 6 / 7 dedicated copy of template
 - name: set fact varnish_params_dest
-  set_fact: varnish_params_dest=/etc/varnish/varnish-{{ varnish_instance.name }}.params
+  set_fact: 
+    varnish_params_dest: "/etc/varnish/varnish-{{ varnish_instance.name }}.params"
 
-- name: configure varnish-{{ varnish_instance.name }} service
+- name: Create Varnish Secret File
+  file:
+    path: /etc/varnish/secret
+    state: touch
+    owner: root
+    group: root
+    mode: 0600
+    modification_time: preserve
+    access_time: preserve
+  register: varnish_secret
+  when: varnish_version == 64
+
+- name: Populate random value in Varnish secret file
+  command: dd if=/dev/random of=/etc/varnish/secret count=1
+  when: varnish_version == 64 and varnish_secret.changed
+
+- name: "configure varnish-{{ varnish_instance.name }} service"
   template: 
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"

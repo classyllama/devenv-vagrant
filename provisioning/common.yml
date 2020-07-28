@@ -10,6 +10,7 @@
   roles:
     - { role: classyllama.syseng-access }
     - { role: geerlingguy.repo-epel }
+    - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(false) }
   
   tasks:
     - package:
@@ -29,6 +30,7 @@
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version <= '7'
+        - use_classyllama_repo_ius == true
 
     # - name: Disable SELinux enforcement
     #   selinux:
