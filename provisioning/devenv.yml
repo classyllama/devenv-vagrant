@@ -52,16 +52,16 @@
     - { role: classyllama.hostsfile }
     - { role: classyllama.www-user }
     
-    - { role: classyllama.percona, when: use_classyllama_percona | default(false) }
-    - { role: classyllama.mariadb, when: use_classyllama_mariadb | default(false) }
+    - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
     
     - { role: classyllama.php_fpm, tags: php-fpm }
     - { role: classyllama.nginx, tags: nginx }
-    - { role: elastic.elasticsearch, tags: [ elasticsearch, elastic-stack ] }
+    - { role: elastic.elasticsearch, tags: [ elasticsearch, elastic-stack ], when: use_elastic_elasticsearch | default(false) }
 
-    - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
+    - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }, when: use_classyllama_varnish | default(false) }
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }, when: use_classyllama_multi_redis | default(false) }
+    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }, when: use_separate_redis_ses | default(false) }
 
     - { role: classyllama.n98-magerun, tags: toolchain }
     - { role: classyllama.composer, tags: toolchain }

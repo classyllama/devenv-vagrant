@@ -54,7 +54,10 @@ php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 use_classyllama_repo_python_appstream: false
 python_package_name: python3
 
+use_classyllama_multi_redis: true
 redis_version: 32
+use_separate_redis_ses: false
+
 percona_version: 56
 mysqld_memory_percentage: 50
 
@@ -126,3 +129,5 @@ es_api_basic_auth_username: elastic
 es_api_basic_auth_password: changeme
 es_plugins:
   - plugin: ingest-attachment
+
+use_classyllama_varnish: true

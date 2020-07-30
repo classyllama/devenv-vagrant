@@ -24,7 +24,7 @@ redis_config:
   - daemonize: "yes"
   - timeout: "0"
   - loglevel: "notice"
-  - databases: "2"
+  - databases: "3"
   - rdbcompression: "no"
   - dbfilename: "dump.rdb"
   - maxmemory-policy: "volatile-lru"
