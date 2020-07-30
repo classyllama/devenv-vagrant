@@ -13,4 +13,6 @@ magento_demo_config_overrides: {}
 # Example:
 # magento_demo_config_overrides:
 #   MAGENTO_COMPOSER_PROJECT: magento/project-enterprise-edition
+#   MAGENTO_REL_VER: 2.4.0
 #   SHOULD_SETUP_SAMPLE_DATA: false
+#   SHOULD_RUN_CUSTOM_SCRIPT: true
