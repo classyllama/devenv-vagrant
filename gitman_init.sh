@@ -5,11 +5,11 @@ set -eu
 # Move to realpath
 cd $(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
-EXPERIMENT_NAME="${PWD##*/}" # Use the current directory name
+SOURCE_NAME="${PWD##*/}" # Use the current directory name
 GITMAN_ROOT="../../"
 PERSIST_DIR="${GITMAN_ROOT}" # Use gitman root
 GITMAN_LOCATION=$(cd $(pwd -P)/../;echo ${PWD##*/})
-SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
+SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 
 # Link from source directory to persistent directory
 [[ -L persistent ]] || ln -s ${PERSIST_DIR} persistent

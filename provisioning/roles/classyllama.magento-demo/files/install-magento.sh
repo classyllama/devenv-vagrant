@@ -177,7 +177,7 @@ SHELL_COMMAND
 )
 
 # Display command
-echo "${MAGENTO_INSTALL_OPTIONS}"
+echo "bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}"
 # Execute bin/magento setup:install
 bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}
 
@@ -203,8 +203,8 @@ if [[ "${MAGENTO_REL_VER}" != "2.4.0" && "${SEARCH_ENGINE}" != "mysql" ]]; then
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_hostname {ELASTIC_HOST}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_port ${ELASTIC_PORT}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_enable_auth ${ELASTIC_ENABLE_AUTH}
-  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_username ${ELASTIC_USERNAME}
-  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_password ${ELASTIC_PASSWORD}
+  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_username ${ELASTIC_USERNAME}
+  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_password ${ELASTIC_PASSWORD}
 fi
 
 bin/magento config:set --lock-env dev/front_end_development_workflow/type server_side_compilation
