@@ -10,6 +10,7 @@ syseng_access_users:
 www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
+# Force a static mysql root password
 # mysql_root_pw: CHANGEME
 
 app_domain: example.lan
