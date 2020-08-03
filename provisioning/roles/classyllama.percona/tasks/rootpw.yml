@@ -29,7 +29,7 @@
     dest: ~root/.my.cnf
     section: client
     option: "{{ item.key }}"
-    value: "{{ item.value }}"
+    value: "'{{ item.value }}'"
   with_dict: "{{ mycnf_start_root_opts }}"
   # when .my.cnf does not exist and (Percona 5.7+ or (a previously existing install and default password exist))
   when: not root_my_cnf.stat.exists and ( percona_version >= 57 or (mysqld_existing_datadir and (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)) )
