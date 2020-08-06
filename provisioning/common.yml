@@ -13,7 +13,8 @@
     - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(false) }
   
   tasks:
-    - package:
+    - name: Common Software Packages
+      package:
         name: 
           - wget
           - bc
@@ -24,13 +25,22 @@
           - coreutils
     
     # EL7 Packages
-    - package:
+    - name: Software Packages (EL7)
+      package:
         name: 
           - yum-plugin-replace
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version <= '7'
         - use_classyllama_repo_ius == true
+
+    - name: Additional Diagnostics Tools
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nmap-ncat
+        - nmap
 
     # - name: Disable SELinux enforcement
     #   selinux:

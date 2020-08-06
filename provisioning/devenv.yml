@@ -46,34 +46,58 @@
       when: (location_var_www is defined) and (location_var_www|length > 0)
 
   roles:
+    # System Config
     - { role: classyllama.boilerplate }
     - { role: classyllama.python, tags: python}
     - { role: local.timezone }
     - { role: classyllama.hostsfile }
-    - { role: classyllama.www-user }
     
+    # Environment specific services: www-data
+    - { role: classyllama.www-user, www_user_name: www-data }
+    - { role: classyllama.php-fpm, php_fpm_pool: www-data, tags: php-fpm }
+    
+    - role: classyllama.varnish
+      varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }
+      varnish_storage_size: "{{ varnish_data_storage_size }}"
+      tags: varnish
+      when: use_classyllama_varnish | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: obj, port: 6379 }
+      redis_maxmemory: "{{ redis_obj_maxmem }}"
+      tags: redis
+      when: use_classyllama_multi_redis | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: ses, port: 6380, save: yes }
+      redis_maxmemory: "{{ redis_ses_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_ses | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: fpc, port: 6381 }
+      redis_maxmemory: "{{ redis_fpc_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_fpc | default(false)
+    
+    # Global services
     - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
     - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
-    
-    - { role: classyllama.php_fpm, tags: php-fpm }
     - { role: classyllama.nginx, tags: nginx }
-    - { role: elastic.elasticsearch, tags: [ elasticsearch, elastic-stack ], when: use_elastic_elasticsearch | default(false) }
-
-    - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }, when: use_classyllama_varnish | default(false) }
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }, when: use_classyllama_multi_redis | default(false) }
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }, when: use_separate_redis_ses | default(false) }
-
+    
+    - role: elastic.elasticsearch
+      tags: [ elasticsearch, elastic-stack ]
+      when: use_elastic_elasticsearch | default(false)
+    
+    # install additional tools
     - { role: classyllama.n98-magerun, tags: toolchain }
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.php-cachetool, tags: toolchain }
-
-    - { role: classyllama.magento-demo, tags: magento-demo, magento_demo_hostname: "{{ app_domain }}" }
+    - { role: classyllama.magento-demo, tags: magento-demo }
+    
   tasks:
-
-    # - name: Install python-mysqldb
-    #   package:
-    #     name: MySQL-python
-
+    
+    # --- Create Databases
     - include: tasks/database-create.yml
       tags: database
       args:
@@ -91,23 +115,26 @@
       meta: flush_handlers
       tags: database
     
-    # # Install ImageMagick
-    # # verify tool exists: mogrify -version
-    # # For access from PHP code it requires the pecl-imagick extension
-    # - name: Install ImageMagick
-    #   tags: toolchain
-    #   package:
-    #     name:
-    #       - ImageMagick
-    #       - ImageMagick-devel
-    #     state: present
+    # --- Common Tools
+    # Install ImageMagick
+    # verify tool exists: mogrify -version
+    # For access from PHP code it requires the pecl-imagick extension
+    - name: Install ImageMagick
+      tags: toolchain
+      package:
+        name:
+          - ImageMagick
+          - ImageMagick-devel
+        state: present
+      when: use_imagemagick | default(false)
 
     - name: Link cachetool config into /var/www/data
       file:
         src: /home/www-data/.cachetool.yml
         dest: /var/www/data/.cachetool.yml
         state: link
-
+    
+    # --- DevEnv Configuration
     # Enable xDebug
     - name: configure xdebug.ini
       ini_file:
@@ -117,6 +144,16 @@
         value: "{{ item.value }}"
       with_dict: "{{ php_extension_xdebug_ini }}"
       notify: restart php-fpm
+    
+    # Symlink /var/www/data/current to /var/www/data/magento
+    - name: Link shared directory to /data volume
+      file:
+        src: /var/www/data/magento
+        dest: /var/www/data/current
+        owner: www-data
+        group: www-data
+        state: link
+        force: yes
     
     # Copy composer cache files to www-users
     - name: Create remote cache directory (composer)
