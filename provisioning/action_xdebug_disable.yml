@@ -1,0 +1,38 @@
+---
+- hosts: all
+  name: Disable xDebug
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  handlers:
+    - name: restart php-fpm
+      service: name=php-fpm state=restarted
+  
+  tasks:
+    
+    - name: Check for existing xdebug ini file
+      stat:
+        path: "{{ php_xdebug_ini_path }}"
+      register: xdebug_ini_stat
+    
+    - name: Check for disabled xdebug ini file
+      stat:
+        path: "{{ php_xdebug_ini_path }}.disabled"
+      register: xdebug_ini_disabled_stat
+    
+    - name: Backup xdebug ini file as disabled file
+      copy: 
+        remote_src: true 
+        src: "{{ php_xdebug_ini_path }}"
+        dest: "{{ php_xdebug_ini_path }}.disabled"
+      when: xdebug_ini_stat.stat.exists
+    
+    - name: Remove xdebug ini file to disable it
+      file: 
+        path: "{{ php_xdebug_ini_path }}"
+        state: absent
+      notify:
+        - restart php-fpm

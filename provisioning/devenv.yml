@@ -135,10 +135,10 @@
         state: link
     
     # --- DevEnv Configuration
-    # Enable xDebug
+    # xDebug Setup/Configure
     - name: configure xdebug.ini
       ini_file:
-        dest: "{{ php_xdebug_ini_path }}"
+        dest: "{{ php_xdebug_ini_path }}.disabled" # xdebug disabled by default
         section: xdebug
         option: "{{ item.key }}"
         value: "{{ item.value }}"
