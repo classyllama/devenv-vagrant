@@ -1,0 +1,16 @@
+---
+# Package not found on CentOS 8
+# - name: Install python-mysqldb
+#   package:
+#     name: MySQL-python
+
+- name: Install Python Software Packages
+  package:
+    name: "{{ python_software_packages }}"
+
+- name: Install Pip Packages
+  pip:
+    name: "{{ python_pip_packages }}"
+    state: present
+  when: ( python_pip_packages | length > 0 )
+  

@@ -1,0 +1,25 @@
+---
+- name: create {{ dbbackup_data_dir }}
+  file:
+    dest: "{{ dbbackup_data_dir }}"
+    owner: root
+    group: root
+    mode: 0700
+    state: directory
+
+- name: upload {{ dbbackup_bin_dir }}/dbbackup.sh
+  template:
+    src: dbbackup.sh.j2
+    dest: "{{ dbbackup_bin_dir }}/dbbackup.sh"
+    owner: root
+    group: root
+    mode: 0700
+
+- name: configure mysql backup cron worker
+  tags: crontab
+  cron:
+    name: dbbackup_sh
+    job: "{{ dbbackup_bin_dir }}/dbbackup.sh {{ dbbackup_data_dir }}"
+    user: root
+    minute: 0
+    hour: 1

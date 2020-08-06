@@ -13,10 +13,10 @@
     - name: change hostname to myserver
       hostname:
         name: "{{ app_domain }}"
-    
+
     - name: Set location of /var/www
       block:
-        
+
         - name: Check for existing /var/www directory
           stat:
             path: "/var/www"
@@ -31,7 +31,7 @@
         - name: "Remove initial /var/www directory"
           shell: "rm -rf /var/www"
           when: var_www_stat.stat.exists and var_www_stat.stat.islnk is defined and var_www_stat.stat.islnk == False
-        
+
         - name: "Create {{ location_var_www }}"
           file:
             path: "{{ location_var_www }}"
@@ -42,67 +42,62 @@
             src: "{{ location_var_www }}"
             dest: "/var/www"
             state: link
-        
+
       when: (location_var_www is defined) and (location_var_www|length > 0)
-  
+
   roles:
-    - { role: classyllama.percona, mysqld_default_root_password: "{{ mysql_root_pw }}" }
+    # System Config
     - { role: classyllama.boilerplate }
+    - { role: classyllama.python, tags: python}
     - { role: local.timezone }
     - { role: classyllama.hostsfile }
-    - { role: classyllama.www-user }
-
-    - { role: classyllama.varnish, varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }}
-    - { role: classyllama.php_fpm, tags: php-fpm }
-
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: obj, port: 6379 }}
-    - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: ses, port: 6380, save: yes }}
-    # - { role: classyllama.multi_redis, tags: redis, redis_instance: { name: fpc, port: 6381 }}
-
+    
+    # Environment specific services: www-data
+    - { role: classyllama.www-user, www_user_name: www-data }
+    - { role: classyllama.php-fpm, php_fpm_pool: www-data, tags: php-fpm }
+    
+    - role: classyllama.varnish
+      varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }
+      varnish_storage_size: "{{ varnish_data_storage_size }}"
+      tags: varnish
+      when: use_classyllama_varnish | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: obj, port: 6379 }
+      redis_maxmemory: "{{ redis_obj_maxmem }}"
+      tags: redis
+      when: use_classyllama_multi_redis | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: ses, port: 6380, save: yes }
+      redis_maxmemory: "{{ redis_ses_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_ses | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: fpc, port: 6381 }
+      redis_maxmemory: "{{ redis_fpc_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_fpc | default(false)
+    
+    # Global services
+    - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
+    - { role: classyllama.nginx, tags: nginx }
+    
+    - role: elastic.elasticsearch
+      tags: [ elasticsearch, elastic-stack ]
+      when: use_elastic_elasticsearch | default(false)
+    
+    # install additional tools
     - { role: classyllama.n98-magerun, tags: toolchain }
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.php-cachetool, tags: toolchain }
-
-    - { role: classyllama.nginx, tags: nginx }
-
-  tasks:
-    - package:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - yum-plugin-replace
-        - pwgen
-        - jq
-        - unzip
-        - words
-
-    # Install ImageMagick
-    # verify tool exists: mogrify -version
-    # For access from PHP code it requires the pecl-imagick extension
-    - name: Install ImageMagick
-      tags: toolchain
-      package: 
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - ImageMagick
-        - ImageMagick-devel
-
-    # Enable xDebug
-    - name: configure xdebug.ini
-      ini_file:
-        dest: "{{ php_xdebug_ini_path }}"
-        section: xdebug
-        option: "{{ item.key }}"
-        value: "{{ item.value }}"
-      with_dict: "{{ php_extension_xdebug_ini }}"
-      notify: restart php-fpm
-
-    - name: Install Mail Tools
-      package:
-        name: mailx
-        state: present
+    - { role: classyllama.magento-demo, tags: magento-demo }
     
+  tasks:
+    
+    # --- Create Databases
     - include: tasks/database-create.yml
       tags: database
       args:
@@ -119,15 +114,68 @@
     - name: Run all notified handlers
       meta: flush_handlers
       tags: database
+    
+    # --- Common Tools
+    # Install ImageMagick
+    # verify tool exists: mogrify -version
+    # For access from PHP code it requires the pecl-imagick extension
+    - name: Install ImageMagick
+      tags: toolchain
+      package:
+        name:
+          - ImageMagick
+          - ImageMagick-devel
+        state: present
+      when: use_imagemagick | default(false)
 
-    - name: Link cachetool config into /var/www/html
+    - name: Link cachetool config into /var/www/data
       file:
         src: /home/www-data/.cachetool.yml
-        dest: /var/www/html/.cachetool.yml
+        dest: /var/www/data/.cachetool.yml
         state: link
-
-    - name: Disable SELinux enforcement
-      selinux:
-        state: disabled
+    
+    # --- DevEnv Configuration
+    # xDebug Setup/Configure
+    - name: configure xdebug.ini
+      ini_file:
+        dest: "{{ php_xdebug_ini_path }}.disabled" # xdebug disabled by default
+        section: xdebug
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_extension_xdebug_ini }}"
+      notify: restart php-fpm
+    
+    # Symlink /var/www/data/current to /var/www/data/magento
+    - name: Link shared directory to /data volume
+      file:
+        src: /var/www/data/magento
+        dest: /var/www/data/current
+        owner: www-data
+        group: www-data
+        state: link
+        force: yes
+    
+    # Copy composer cache files to www-users
+    - name: Create remote cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        state: directory
+        mode: "755"
+        owner: www-data
+        group: www-data
+    
+    - name: Synchronize remote composer directories for www-data
+      synchronize:
+        src: /root/.composer/cache/
+        dest: /home/www-data/.composer/cache/
+      delegate_to: "{{ inventory_hostname }}"
+      
+    - name: Update user:group ownership on www-data cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        recurse: true
+        owner: www-data
+        group: www-data
+    
 
 - import_playbook: ../persistent/devenv_playbook.config.yml

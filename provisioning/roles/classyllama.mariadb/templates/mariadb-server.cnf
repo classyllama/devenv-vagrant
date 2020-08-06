@@ -1,0 +1,86 @@
+# {{ ansible_managed }}
+
+[mysqld]
+
+## General settings
+ignore-db-dir              = {{ mysqld_ignore_db_dir }}
+datadir                    = {{ mysqld_datadir }}
+tmpdir                     = {{ mysqld_tmpdir }}
+socket                     = {{ mysqld_socket }}
+default-time-zone          = {{ mysqld_default_timezone }}
+local-infile               = {{ mysqld_local_infile }}
+log-error                  = {{ mysqld_log_error }}
+pid-file                   = {{ mysqld_pid_file }}
+explicit-defaults-for-timestamp = {{ mysqld_explicit_defaults_for_timestamp }}
+
+
+## Cache tuning
+thread-cache-size          = {{ mysqld_thread_cache_size }}
+table-open-cache           = {{ mysqld_table_open_cache }}
+table-open-cache-instances = {{ mysqld_table_open_cache_instances }}
+table-definition-cache     = {{ mysqld_table_definition_cache }}
+query-cache-type           = {{ mysqld_query_cache_type }}
+query-cache-size           = {{ mysqld_query_cache_size }}
+query-cache-limit          = {{ mysqld_query_cache_limit }}
+
+## Per-thread buffer sizes
+sort-buffer-size           = {{ mysqld_sort_buffer_size }}
+read-buffer-size           = {{ mysqld_read_buffer_size }}
+read-rnd-buffer-size       = {{ mysqld_read_rnd_buffer_size }}
+join-buffer-size           = {{ mysqld_join_buffer_size }}
+
+## Temp table sizes
+tmp-table-size             = {{ mysqld_tmp_table_size }}
+max-heap-table-size        = {{ mysqld_max_heap_table_size }}
+
+## Networking
+back-log                   = {{ mysqld_back_log }}
+max-connections            = {{ mysqld_max_connections }}
+max-connect-errors         = {{ mysqld_max_connect_errors }}
+max-allowed-packet         = {{ mysqld_max_allowed_packet }}
+interactive-timeout        = {{ mysqld_interactive_timeout }}
+wait-timeout               = {{ mysqld_wait_timeout }}
+net-read-timeout           = {{ mysqld_net_read_timeout }}
+net-write-timeout          = {{ mysqld_net_write_timeout }}
+{% if mysqld_skip_name_resolve %}
+skip-name-resolve
+{% endif %}
+
+### Storage Engines
+default-storage-engine     = {{ mysqld_default_storage_engine }}
+innodb                     = {{ mysqld_innodb }}
+sql-mode                   = {{ mysqld_sql_mode }}
+
+## MyISAM
+key-buffer-size            = {{ mysqld_key_buffer_size }}
+myisam-sort-buffer-size    = {{ mysqld_myisam_sort_buffer_size }}
+
+## InnoDB
+innodb-lock-wait-timeout   = {{ mysqld_innodb_lock_wait_timeout }}
+innodb-buffer-pool-size    = {{ mysqld_innodb_buffer_pool_size }}
+innodb-log-file-size       = {{ mysqld_innodb_log_file_size }}
+innodb-log-buffer-size     = {{ mysqld_innodb_log_buffer_size }}
+innodb-file-per-table      = {{ mysqld_innodb_file_per_table }}
+innodb-open-files          = {{ mysqld_innodb_open_files }}
+
+## Extras
+{% for key, value in mysqld_my_cnf_extras.items()|sort %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+## Logging
+log-error                  = {{ mysqld_log_error }}
+log-output                 = {{ mysqld_log_output }}
+slow-query-log             = {{ mysqld_slow_query_log }}
+slow-query-log-file        = {{ mysqld_slow_query_log_file }}
+long-query-time            = {{ mysqld_long_query_time }}
+
+{% if mysqld_enable_federated_storage_engine %}
+## Enable Federated Storage Engine
+federated
+{% endif %}
+
+[mysql]
+{% if mysql_no_auto_rehash %}
+no-auto-rehash
+{% endif %}

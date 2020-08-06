@@ -10,7 +10,7 @@
         #!/usr/local/bin/runbld
         set -euo pipefail
 
-        export RBENV_VERSION='2.3.0'
+        export RBENV_VERSION='2.5.7'
         export PATH="$HOME/.rbenv/bin:$PATH"
         eval "$(rbenv init -)"
         rbenv local $RBENV_VERSION
@@ -24,3 +24,11 @@
         echo "Finished getting xpack_license from secrets service"
         make setup
         make verify VERSION=$VERSION PATTERN=$TEST_TYPE-$OS
+    publishers:
+    - slack:
+        notify-back-to-normal: True
+        notify-every-failure: True
+        room: infra-release-notify
+        team-domain: elastic
+        auth-token-id: release-slack-integration-token
+        auth-token-credential-id: release-slack-integration-token

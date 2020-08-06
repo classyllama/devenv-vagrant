@@ -9,6 +9,7 @@
 #
 # php_version: 72
 # php_enablerepo: ius
+# percona_version: 56
 # mysql_root_pw: CHANGEME
 
 ##Check to see what your system's timezone is set to
@@ -27,7 +28,7 @@
 #     pool: data
 #     params:
 #       server_name: "{{ app_domain }}"
-#       webroot: /var/www/html/magento/pub
+#       webroot: /var/www/data/magento/pub
 #       #proxy_port: 6081
 #       proxy_port: 8080
 #     includes:
@@ -37,7 +38,7 @@
 #   - name: www-data
 #     pool: data
 #     listen: 8080
-#     webroot: /var/www/html/magento/pub
+#     webroot: /var/www/data/magento/pub
 #     includes:
 #       - default.d/nginx-status.conf
 #       - available.d/realip.conf

@@ -1,0 +1,4 @@
+---
+dependencies:
+  - {role: geerlingguy.repo-epel, when: use_geerlingguy_repo_epel | default(true)}
+

@@ -1,0 +1,7 @@
+---
+filebackup_template: filebackup.sh.j2
+filebackup_bin_dir: /usr/local/bin
+filebackup_data_dir: /var/filebackup
+
+filebackup_backup_items: []
+filebackup_keep_days: "7"

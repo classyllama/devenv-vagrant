@@ -1,0 +1,9 @@
+---
+##############################
+# Python Stream Version
+#
+# Python is distributed via AppStream for RedHat/CentOS official repositories
+# The stream provided directly by RedHat/CentOS has version 2.7, 3.6, and 3.8
+
+python_stream_version: "3.6"
+python_module_name: python36

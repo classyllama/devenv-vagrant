@@ -1,0 +1,44 @@
+---
+
+- name: Install MariaDB Client/Server
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "mariadb-server"
+
+- name: Check for existing datadir
+  stat: 
+    path: "{{ mysqld_datadir }}"
+  register: mysqld_datadir_stat
+- set_fact:
+    mysqld_existing_datadir: yes
+  when: mysqld_datadir != mysqld_default_datadir and mysqld_datadir_stat.stat.exists
+
+- name: create mysqld tmpdir
+  file:
+    path: "{{ mysqld_tmpdir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0775
+  when: mysqld_create_tmpdir
+
+- name: configure mysqld
+  template:
+    src: mariadb-server.cnf
+    dest: /etc/my.cnf.d/mariadb-server.cnf
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  notify: restart mysql
+
+- name: start mariadb service
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+# TODO:
+# - import_tasks: rootpw.yml

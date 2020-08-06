@@ -1,4 +1,32 @@
 ---
+# On RHEL/CentOS 8 the Percona-Server-server-* packages will not show up if 
+# the default mysql stream module is enabled
+# https://www.percona.com/doc/percona-server/5.7/installation/yum_repo.html
+- name: Check dnf module mysql
+  shell:
+    cmd: dnf -q module list mysql | grep mysql | grep '[d]'
+    warn: false
+  register: dnf_module_mysql
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_mysql
+
+- name: Disable mysql module
+  shell:
+    cmd: dnf -y module disable mysql
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_mysql.stdout != ""
+    - not '[x]' in dnf_module_mysql.stdout
+
+
 # repo rpm URL found from https://www.percona.com/doc/percona-server/5.6/installation/yum_repo.html
 
 # repo files can be derrived from rpm file details
@@ -11,7 +39,8 @@
 
 - name: Install Percona Server repo
   yum:
-    name: "https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm"
+    # name: "https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm"
+    name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
     state: present
   when: not percona_repofile_result.stat.exists
 

@@ -1,0 +1,37 @@
+---
+
+# On RHEL/CentOS 8 the packages will not show up if 
+# the default stream module is enabled
+- name: "Check dnf module {{ python_module_name }}"
+  shell:
+    cmd: "dnf -q module list {{ python_module_name }} | grep {{ python_module_name }} | grep '{{ python_stream_version }}'"
+    warn: false
+  register: dnf_module_python
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_python
+
+- name: "Reset {{ python_module_name }} module"
+  shell:
+    cmd: "dnf -y module reset {{ python_module_name }}"
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_python.stdout != ""
+    - not '[e]' in dnf_module_python.stdout
+
+- name: "Enable {{ python_module_name }} module version"
+  shell:
+    cmd: "dnf -y module enable {{ python_module_name }}:{{ python_stream_version }}"
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_python.stdout != ""
+    - not '[e]' in dnf_module_python.stdout

@@ -1,0 +1,8 @@
+---
+##############################
+# PHP Stream Version
+#
+# PHP is distributed via AppStream for RedHat/CentOS official repositories
+# The stream provided directly by RedHat/CentOS has version 7.2 and 7.3
+
+php_stream_version: "7.3"

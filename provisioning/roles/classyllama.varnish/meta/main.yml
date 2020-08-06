@@ -1,3 +1,4 @@
 ---
 dependencies:
   - { role: geerlingguy.repo-epel, when: use_geerlingguy_repo_epel|default(true) }
+  - { role: classyllama.repo-varnish, when: use_classyllama_repo_varnish|default(true) }

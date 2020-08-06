@@ -1,0 +1,42 @@
+---
+
+# On RHEL/CentOS 8 the packages will not show up if 
+# the default stream module is enabled
+- name: Check dnf module nginx
+  shell:
+    cmd: dnf -q module list nginx | grep nginx | grep '[d]'
+    warn: false
+  register: dnf_module_nginx
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_nginx
+
+- name: Disable nginx module
+  shell:
+    cmd: dnf -y module disable nginx
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_nginx.stdout != ""
+    - not '[x]' in dnf_module_nginx.stdout
+
+
+
+
+
+- name: check if nginx repo is already configured
+  stat:
+    path: /etc/yum.repos.d/nginx.repo
+  register: nginx_repofile_result
+
+- name: install nginx repo
+  template:
+    src: nginx.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+  when: not nginx_repofile_result.stat.exists

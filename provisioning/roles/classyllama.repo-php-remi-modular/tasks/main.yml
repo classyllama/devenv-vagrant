@@ -1,0 +1,47 @@
+---
+
+# On RHEL/CentOS 8 the packages will not show up if 
+# the defined stream module is not enabled
+- name: Check dnf module php
+  shell:
+    cmd: "dnf -q module list php | grep php | grep '{{ php_stream_version }}'"
+    warn: false
+  register: dnf_module_php
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_php
+
+- name: Reset php module
+  shell:
+    cmd: dnf -y module reset php
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_php.stdout != ""
+    - not '[e]' in dnf_module_php.stdout
+
+- name: Enable php module version
+  shell:
+    cmd: "dnf -y module enable php:{{ php_stream_version }}"
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_php.stdout != ""
+    - not '[e]' in dnf_module_php.stdout
+
+
+- name: Enable CentOS-8 - PowerTools repo
+  command: dnf config-manager --set-enabled PowerTools
+  register: dnf_enable_powertools
+  changed_when: False
+  check_mode: no
+
+- debug:
+    var: dnf_enable_powertools

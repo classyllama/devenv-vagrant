@@ -1,0 +1,36 @@
+{
+  "CONFIG_NAME": "example",
+  "SITE_HOSTNAME": "example.lan",
+  "ENV_ROOT_DIR": "/var/www/data",
+  "MAGENTO_ROOT_DIR": "/var/www/data/magento",
+  
+  
+  
+  "SITE_ROOT_DIR": "current",
+
+  "MAGENTO_COMPOSER_PROJECT": "magento/project-community-edition",
+  "MAGENTO_REL_VER": "2.4.0",
+  
+  "REDIS_OBJ_HOST": "localhost",
+  "REDIS_OBJ_PORT": "6379",
+  "REDIS_OBJ_DB": "0",
+  "REDIS_SES_HOST": "localhost",
+  "REDIS_SES_PORT": "6379",
+  "REDIS_SES_DB": "1",
+  "REDIS_FPC_HOST": "localhost",
+  "REDIS_FPC_PORT": "6379",
+  "REDIS_FPC_DB": "2",
+  
+  "VARNISH_HOST": "localhost",
+  "VARNISH_PORT": "6081",
+  
+  "SEARCH_ENGINE": "elasticsearch7",
+  "ELASTIC_HOST": "localhost",
+  "ELASTIC_PORT": "9200",
+  "ELASTIC_ENABLE_AUTH": "1",
+  "ELASTIC_USERNAME": "elasticsearch",
+  "ELASTIC_PASSWORD": "changeme",
+  
+  "SHOULD_SETUP_SAMPLE_DATA": "true",
+  "SHOULD_RUN_CUSTOM_SCRIPT": "false"
+}

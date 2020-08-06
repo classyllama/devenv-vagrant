@@ -1,0 +1,12 @@
+[defaults]
+library = ./source/provisioning/modules
+roles_path = ./source/provisioning/roles
+
+retry_files_enabled = False
+
+ansible_managed = DO NOT EDIT - Managed by Ansible in the (git@github.com:classyllama/devenv-vagrant.git) repo
+
+host_key_checking = False
+
+[ssh_connection]
+pipelining = True

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+
+# Usage: filebackup.sh <backup_name> <directory_to_backup> <backup_storage_directory>
+
+set -e
+
+# Set variables
+[ -n "$1" ] && BACKUP_NAME=$1
+[ -n "$2" ] && DIRECTORY_TO_BACKUP=$2
+[ -n "$3" ] && BACKUP_STORAGE_DIRECTORY=$3
+
+TIMESTAMP=$(date --utc +%Y%m%dT%H%M%SZ) # Get ISO 8601 UTC Timestamp
+
+# Set default file permissions 600
+umask 177
+
+# Make sure backup storage directory exists
+mkdir -p ${BACKUP_STORAGE_DIRECTORY}
+
+# Create archive file of directory (storing relative paths inside archive)
+tar -czf ${BACKUP_STORAGE_DIRECTORY}/${BACKUP_NAME}_${TIMESTAMP}.tar.gz -C ${DIRECTORY_TO_BACKUP} ./
+
+# Capture full path of backup files
+# tar -czf ${BACKUP_STORAGE_DIRECTORY}/${BACKUP_NAME}_${TIMESTAMP}.tar.gz -C / ${DIRECTORY_TO_BACKUP}
+
+# Delete files older than {{ filebackup_keep_days }} days
+find ${BACKUP_STORAGE_DIRECTORY}/${BACKUP_NAME}_* -mtime +{{ filebackup_keep_days }} -exec rm {} \;

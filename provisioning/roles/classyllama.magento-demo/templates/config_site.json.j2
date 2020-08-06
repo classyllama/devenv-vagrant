@@ -1,0 +1,12 @@
+{
+  "CONFIG_NAME": "{{ magento_demo_config_name }}",
+  "SITE_HOSTNAME": "{{ magento_demo_hostname }}",
+  "ENV_ROOT_DIR": "{{ magento_demo_env_root }}",
+  "MAGENTO_ROOT_DIR": "{{ magento_demo_magento_root }}"
+  
+{% if magento_demo_config_overrides|length > 0 %}
+{% for key, value in magento_demo_config_overrides.items() | list %}
+  ,"{{ key }}": "{{ value }}"
+{% endfor %}
+{% endif %}
+}

@@ -1,0 +1,124 @@
+---
+##############################
+## Calculation Config
+
+# This is used to specify what percentage of the boxes memory is dedicated to MySQL. When php-fpm is installed on the
+# box for example, you would want to change this to 50, reducing the potential memory footprint of mysqld making space
+# for php-fpm to run on the box.
+# 
+# As used in calculations below, the following is true
+#
+#  - 64 GB of RAM and a memory percentaage of 100 will result in an innodb buffer pool size of 30G
+#  - 32 GB of RAM and a memory percentaage of 100 will result in an innodb buffer pool size of 15G
+#  - 64 GB of RAM and a memory percentaage of 50 will result in an innodb buffer pool size of 15G
+#  - 32 GB of RAM and a memory percentaage of 50 will result in an innodb buffer pool size of 7G
+#
+mysqld_memory_percentage: 100
+
+# Calculate memory values in MB vs GB when box is not greater than 7.5 GB of RAM
+mysqld_memory_divisor: "{{ (ansible_memtotal_mb > 7680) | ternary('1024', '1') }}"
+mysqld_memory_unit: "{{ (ansible_memtotal_mb > 7680) | ternary('G', 'M') }}"
+
+mariadb_version: "10.3"
+
+mysqld_create_tmpdir: yes
+mysqld_existing_datadir: no
+mysqld_default_datadir: /var/lib/mysql
+
+##############################
+## MySQL Configuration
+
+## General settings
+mysqld_ignore_db_dir: lost+found
+mysqld_datadir: /var/lib/mysql
+mysqld_tmpdir: /var/lib/mysqltmp
+mysqld_socket: /var/lib/mysql/mysql.sock
+mysqld_default_timezone: +00:00
+mysqld_local_infile: no
+mysqld_explicit_defaults_for_timestamp: ON
+
+## Cache tuning
+mysqld_thread_cache_size: 16
+mysqld_table_open_cache: 4096
+mysqld_table_open_cache_instances: 8
+mysqld_table_definition_cache: 4096
+mysqld_query_cache_type: 0
+mysqld_query_cache_size: 128M
+mysqld_query_cache_limit: 4M
+
+## Per-thread buffer sizes
+mysqld_sort_buffer_size: 2M
+mysqld_read_buffer_size: 2M
+mysqld_read_rnd_buffer_size: 8M
+mysqld_join_buffer_size: 2M
+
+## Temp table sizes
+mysqld_tmp_table_size: 256M
+mysqld_max_heap_table_size: 256M
+
+## Networking
+mysqld_back_log: 1000
+mysqld_max_connections: 750
+mysqld_max_connect_errors: 10000
+mysqld_max_allowed_packet: 256M
+mysqld_interactive_timeout: 3600
+mysqld_wait_timeout: 1800
+mysqld_net_read_timeout: 30
+mysqld_net_write_timeout: 30
+mysqld_skip_name_resolve: yes
+
+### Storage Engines
+mysqld_default_storage_engine: InnoDB
+mysqld_innodb: FORCE
+mysqld_sql_mode: NO_ENGINE_SUBSTITUTION
+
+## MyISAM
+mysqld_key_buffer_size: 512M
+mysqld_myisam_sort_buffer_size: 128M
+
+## InnoDB
+mysqld_innodb_lock_wait_timeout: 1800
+mysqld_innodb_buffer_pool_size: >-
+  {{ ((mysqld_memory_percentage - 2) / 100 / 2 * ansible_memtotal_mb / (mysqld_memory_divisor|int)) |int }}{{ mysqld_memory_unit }}
+mysqld_innodb_log_file_size: 100M
+mysqld_innodb_log_buffer_size: 8M
+mysqld_innodb_file_per_table: 1
+mysqld_innodb_open_files: 300
+
+## Replication (some of these are currently not used; see templates for details)
+mysqld_server_id: null    # This must be defined in hostvars for replication setup to succeed
+mysqld_log_bin: /var/lib/mysqllogs/{{ ansible_hostname }}-bin-log
+mysqld_relay_log: /var/lib/mysqllogs/{{ ansible_hostname }}-relay-log
+mysqld_relay_log_space_limit: 16G
+mysqld_expire_logs_days: 7
+mysqld_read_only: 1
+mysqld_sync_binlog: 1
+mysqld_log_slave_updates: 1
+mysqld_binlog_format: ROW
+mysqld_auto_increment_offset: 1
+mysqld_auto_increment_increment: 2
+
+# Some applications such as Magento use MEMORY tables which may need to be excluded by setting this to something
+# like `%.catalog%_tmp` to cause the slave to filter data written to these tables to avoid replcation failure as
+# a result of a slave restart while there is data in one of the MEMORY tables on the master mysql server
+mysqld_replicate_wild_ignore_table: false
+
+# Extra MySQL Configs
+mysqld_my_cnf_extras: {}
+
+# Enable Federated Storage Engine
+mysqld_enable_federated_storage_engine: no
+
+## Logging
+mysqld_log_output: FILE
+mysqld_slow_query_log: 0
+mysqld_slow_query_log_file: /var/log/mysql/{{ ansible_hostname }}-slow-log
+mysqld_long_query_time: 2
+
+## [mysqld_safe]
+mysqld_log_error: /var/log/mysqld.log
+mysqld_pid_file: /var/run/mariadb/mariadb.pid
+mysqld_open_files_limit: 65535
+
+## [mysql]
+mysql_no_auto_rehash: yes

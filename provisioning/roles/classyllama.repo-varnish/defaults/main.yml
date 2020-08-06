@@ -1,0 +1,16 @@
+---
+##############################
+# Varnish Version
+#
+# Varnish distributes different versions via different package repositories.
+# To install a different version fo Varnish you need to setup the correct repository.
+
+# List of Official Varnish Repos: https://packagecloud.io/varnishcache/
+
+# Version 4.1 was very common for quite a while
+# varnish_version: 41
+
+# Version 6.0 has an LTS version
+# varnish_version: 60lts
+
+varnish_version: 41

@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: classyllama.repo-python-appstream, when: use_classyllama_repo_python_appstream | default(true) }

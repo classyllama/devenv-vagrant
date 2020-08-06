@@ -2,6 +2,10 @@
 
 This repo provides the necesary pieces needed for setting up a Development Environment for Magento development.
 
+# Reference Test Configs
+
+[iac-test-lab](https://github.com/classyllama/iac-test-lab)
+
 # Setup - Embed in Project
 
 You can embed the devenv repo references and project config files inside a Magento application repo in the `tools/devenv/` directory. You can do this easily with gitman, or follow a few simple commands if you can't or don't want to use gitman. Install devenv files into Magento project
@@ -82,8 +86,8 @@ We are working inside the VM as the `www-data` user NOT the `vagrant` user. The 
     # From within VM
     ~/initialize-magento.sh
 
-Magento installation will be at `/var/www/html/magento`
-Site Root will be at `/var/www/html/project/sitecode/pub` and `/var/www/html/project/sitecode` will be symlinked to `/var/www/html/magento`.
+Magento installation will be at `/var/www/data/magento`
+Site Root will be at `/var/www/data/project/sitecode/pub` and `/var/www/data/project/sitecode` will be symlinked to `/var/www/data/magento`.
 
 There is a `mutagen.yml` file that can be updated to sync files between the local host and the VM. The initial `mutagen.yml` was setup to work from a repo on the host and sync things into the VM for execution, and running a demo install on the VM where it creates all the files is the oposite of that, so I currently have the mutagen sync disabled to work with the demo install.
 

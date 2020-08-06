@@ -1,0 +1,20 @@
+---
+dependencies:
+  - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(true) }
+  
+galaxy_info:
+  role_name: multi_redis
+  author: David Alger
+  description: Multi Redis Deployment on RHEL / CentOS Linux
+  license: MIT
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 6
+
+  galaxy_tags:
+    - system
+    - redis

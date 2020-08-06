@@ -1,0 +1,48 @@
+---
+# This is used in varnish_reload_vcl.j2 to eliminate rhel 6 / 7 dedicated copy of template
+- name: set fact varnish_params_dest
+  set_fact: 
+    varnish_params_dest: "/etc/varnish/varnish-{{ varnish_instance.name }}.params"
+
+- name: Create Varnish Secret File
+  file:
+    path: /etc/varnish/secret
+    state: touch
+    owner: root
+    group: root
+    mode: 0600
+    modification_time: preserve
+    access_time: preserve
+  register: varnish_secret
+  when: varnish_version == 64
+
+- name: Populate random value in Varnish secret file
+  command: dd if=/dev/random of=/etc/varnish/secret count=1
+  when: varnish_version == 64 and varnish_secret.changed
+
+- name: "configure varnish-{{ varnish_instance.name }} service"
+  template: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: "configure/varnish.params{{ varnish_version }}.j2"
+      dest: "{{ varnish_params_dest }}"
+      mode: "0644"
+    - src: "configure/varnish.service{{ varnish_version }}.j2"
+      dest: "/etc/systemd/system/varnish-{{ varnish_instance.name }}.service"
+      mode: "0644"
+    - src: "{{ varnish_vcl_template }}"
+      dest: "/etc/varnish/varnish-{{ varnish_instance.name }}.vcl"
+      mode: "0755"
+    
+    # The varnish_reload_vcl is not needed in newer versions of Varnish 6.0+
+    - src: configure/varnish_reload_vcl.j2
+      dest: "/usr/sbin/varnish_reload_vcl-{{ varnish_instance.name }}"
+      mode: "0755"
+  register: varnish_config
+  notify:
+    - reload systemd configuration
+    - restart varnish
