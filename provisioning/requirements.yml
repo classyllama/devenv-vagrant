@@ -8,11 +8,9 @@
   
 roles:
 
-  # - src: git@github.com:classyllama/ansible-role-boilerplate.git
-  #   name: classyllama.boilerplate
-  #   # testing RHEL/CentOS 8 Support
-  #   version: el8-support
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-boilerplate.git
+    name: classyllama.boilerplate
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-composer.git
     name: classyllama.composer
@@ -29,17 +27,21 @@ roles:
   - src: git@github.com:classyllama/ansible-role-hostsfile.git
     name: classyllama.hostsfile
     scm: git
-
+  
+  - src: git@github.com:classyllama/ansible-role-magento-demo.git
+    name: classyllama.magento-demo
+    scm: git
+  
   - src: git@github.com:classyllama/ansible-role-magento-logrotate.git
     name: classyllama.magento-logrotate
     scm: git
   
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.mariadb
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-mariadb.git
+    name: classyllama.mariadb
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
-    name: classyllama.multi_redis
+    name: classyllama.multi-redis
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-n98-magerun.git
@@ -54,12 +56,16 @@ roles:
     name: classyllama.percona
     scm: git
   
-  - src: git@github.com:classyllama/ansible-role-php-fpm.git  
-    name: classyllama.php_fpm
-    scm: git
-  
   - src: git@github.com:classyllama/ansible-role-php-cachetool.git
     name: classyllama.php-cachetool
+    scm: git
+  
+  - src: git@github.com:classyllama/ansible-role-php-fpm.git  
+    name: classyllama.php-fpm
+    scm: git
+  
+  - src: git@github.com:classyllama/ansible-role-python.git
+    name: classyllama.python
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-rclone.git
@@ -70,41 +76,45 @@ roles:
     name: classyllama.rclone-archiver
     scm: git
   
+  - src: git@github.com:classyllama/ansible-role-repo-nginx.git
+    name: classyllama.repo-nginx
+    scm: git
+  
+  - src: git@github.com:classyllama/ansible-role-repo-nginx-appstream.git
+    name: classyllama.repo-nginx-appstream
+    scm: git
+  
   - src: git@github.com:classyllama/ansible-role-repo-ius.git
     name: classyllama.repo_ius
     scm: git
-  
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.repo-nginx
-  #   scm: git
-  
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.repo-nginx-appstream
-  #   scm: git
   
   - src: git@github.com:classyllama/ansible-role-repo-percona.git
     name: classyllama.repo-percona
     scm: git
   
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.repo-php-appstream
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-repo-php-appstream.git
+    name: classyllama.repo-php-appstream
+    scm: git
   
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.repo-python3-appstream
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-repo-php-remi-modular.git
+    name: classyllama.repo-php-remi-modular
+    scm: git
   
-  # - src: xxxxxxxxxxxxxxxxx
-  #   name: classyllama.repo-varnish
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-repo-python-appstream.git
+    name: classyllama.repo-python-appstream
+    scm: git
+  
+  - src: git@github.com:classyllama/ansible-role-repo-varnish.git
+    name: classyllama.repo-varnish
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-syseng-access.git
     name: classyllama.syseng-access
     scm: git
   
-  # - src: git@github.com:classyllama/ansible-role-varnish.git
-  #   name: classyllama.varnish
-  #   scm: git
+  - src: git@github.com:classyllama/ansible-role-varnish.git
+    name: classyllama.varnish
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-www-user.git
     name: classyllama.www-user
@@ -121,12 +131,15 @@ roles:
   # 3rd Party Ansible Roles
 
   - src: elastic.elasticsearch
-    version: 7.8.0
+    version: 7.8.1
+
   # - src: git@github.com:elastic/ansible-elasticsearch.git
   #   version: 25bd09f # last version to support multi-environment install
   #   name: elastic.elasticsearch
   #   scm: git
 
   - src: geerlingguy.repo-epel
+    # version: 1.2.4
   
   - src: geerlingguy.repo-remi
+    # version: 1.2.0

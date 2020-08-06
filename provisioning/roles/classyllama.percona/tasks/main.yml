@@ -1,5 +1,4 @@
 ---
-
 - name: Install Percona Client/Server
   package:
     name: "{{ item }}"

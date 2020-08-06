@@ -1,6 +1,6 @@
 ---
 
-- name: Install Percona Client/Server
+- name: Install MariaDB Client/Server
   package:
     name: "{{ item }}"
     state: present
@@ -40,4 +40,5 @@
     state: started
     enabled: yes
 
+# TODO:
 # - import_tasks: rootpw.yml

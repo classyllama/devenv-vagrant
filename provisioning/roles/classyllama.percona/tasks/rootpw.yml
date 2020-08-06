@@ -41,7 +41,7 @@
 
 - name: generate password
   command: >
-    pwgen -cnys -r "\"'\!#=" 32 1
+    pwgen -cnys -r "\"'\!#\`=" 32 1
   register: result
   when: not root_my_cnf.stat.exists
 
@@ -108,9 +108,15 @@
 - name: set mysql root 127.0.0.1 user password (tcp connections)
   command: mysql -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
   when: result.changed and percona_version >= 57
+- name: set mysql root 127.0.0.1 permissions (tcp connections)
+  command: mysql -e "GRANT ALL ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;"
+  when: result.changed and percona_version >= 57
 
 - name: set mysql root ::1 user password (tcp connections)
   command: mysql -e "CREATE USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when: result.changed and percona_version >= 57
+- name: set mysql root ::1 user password (tcp connections)
+  command: mysql -e "GRANT ALL ON *.* TO 'root'@'::1' WITH GRANT OPTION;"
   when: result.changed and percona_version >= 57
 
 

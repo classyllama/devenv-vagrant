@@ -25,7 +25,6 @@ percona_version: 56
 mysqld_create_tmpdir: yes
 mysqld_existing_datadir: no
 mysqld_default_root_password: ""
-mysql_root_pw: ""
 mysqld_default_datadir: /var/lib/mysql
 
 # Set these to "yes" on the master/slave servers of a replicated setup to enable replication setup

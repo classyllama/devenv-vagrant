@@ -5,7 +5,7 @@
   args:
     creates: ~root/.my.cnf
   register: start_password
-  when: percona_version >= 57
+  when: mariadb_version >= 57
 
 - stat:
     path: ~root/.my.cnf
@@ -15,7 +15,7 @@
     mycnf_start_root_opts:
       user: root
       password: "{{ start_password.stdout }}"
-  when: not root_my_cnf.stat.exists and percona_version >= 57
+  when: not root_my_cnf.stat.exists and mariadb_version >= 57
 
 - name: Override root password when a data directory exists on install
   set_fact:
@@ -31,8 +31,8 @@
     option: "{{ item.key }}"
     value: "{{ item.value }}"
   with_dict: "{{ mycnf_start_root_opts }}"
-  # when .my.cnf does not exist and (Percona 5.7+ or (a previously existing install and default password exist))
-  when: not root_my_cnf.stat.exists and ( percona_version >= 57 or (mysqld_existing_datadir and (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)) )
+  # when .my.cnf does not exist and (mariadb 5.7+ or (a previously existing install and default password exist))
+  when: not root_my_cnf.stat.exists and ( mariadb_version >= 57 or (mysqld_existing_datadir and (mysqld_default_root_password is defined) and (mysqld_default_root_password|length > 0)) )
 
 - name: Install pwgen
   package:
@@ -60,11 +60,11 @@
 
 - name: set mysql root localhost user password (socket connections)
   command: mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('{{ mycnf_root_opts.password }}');"
-  when: result.changed and percona_version < 57
+  when: result.changed and mariadb_version < 57
   
 - name: set mysql root localhost user password (socket connections)
   command: mysql --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: result.changed and percona_version >= 57
+  when: result.changed and mariadb_version >= 57
 
 
 
@@ -81,15 +81,15 @@
 # MySQL 5.6 specific permission initialization
 - name: set mysql root 127.0.0.1 user password (tcp connections)
   command: mysql -e "SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('{{ mycnf_root_opts.password }}');"
-  when: result.changed and percona_version < 57
+  when: result.changed and mariadb_version < 57
 
 - name: set mysql root ::1 user password (tcp connections)
   command: mysql -e "SET PASSWORD FOR 'root'@'::1' = PASSWORD('{{ mycnf_root_opts.password }}');"
-  when: result.changed and percona_version < 57
+  when: result.changed and mariadb_version < 57
 
 - name: drop mysql anonymous localhost user
   command: mysql -e "DROP USER ''@'localhost';"
-  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
+  when: result.changed and mariadb_version < 57 and not mysqld_existing_datadir
 
 - name: get system hostname
   command: hostname
@@ -98,20 +98,20 @@
 
 - name: drop mysql anonymous {{ local_hostname.stdout }} user
   command: mysql -e "DROP USER ''@'{{ local_hostname.stdout }}';"
-  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
+  when: result.changed and mariadb_version < 57 and not mysqld_existing_datadir
 
 - name: drop mysql root {{ local_hostname.stdout }} user
   command: mysql -e "DROP USER 'root'@'{{ local_hostname.stdout }}';"
-  when: result.changed and percona_version < 57 and not mysqld_existing_datadir
+  when: result.changed and mariadb_version < 57 and not mysqld_existing_datadir
 
 # MySQL 5.7 specific permission initialization
 - name: set mysql root 127.0.0.1 user password (tcp connections)
   command: mysql -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: result.changed and percona_version >= 57
+  when: result.changed and mariadb_version >= 57
 
 - name: set mysql root ::1 user password (tcp connections)
   command: mysql -e "CREATE USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: result.changed and percona_version >= 57
+  when: result.changed and mariadb_version >= 57
 
 
 
@@ -119,27 +119,27 @@
   command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where password is null or password = '';"
   register: mysql_users_with_no_password_count
   changed_when: False
-  when: percona_version < 57
+  when: mariadb_version < 57
 
 - debug: var=mysql_users_with_no_password_count
-  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version < 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - name: list mysql user account without passwords
   command: mysql -e "select user, host, password from mysql.user where password is null or password = '';"
   register: mysql_users_with_no_password_list
-  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - debug: var=mysql_users_with_no_password_list
-  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - fail: 
     msg: Mysql users exist that have no password
-  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 
 
 
-# Percona 5.7 - To test creating a user without a password:
+# mariadb 5.7 - To test creating a user without a password:
 # UNINSTALL PLUGIN validate_password;
 # CREATE USER 'asdf'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
 # FLUSH PRIVILEGES;
@@ -149,19 +149,19 @@
   command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where authentication_string is null or authentication_string = '';"
   register: mysql_users_with_no_password_count
   changed_when: False
-  when: percona_version >= 57
+  when: mariadb_version >= 57
 
 - debug: var=mysql_users_with_no_password_count
-  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version >= 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - name: list mysql user account without passwords
   command: mysql -e "select user, host, authentication_string, password_expired, password_last_changed, account_locked from mysql.user where authentication_string is null or authentication_string = '';"
   register: mysql_users_with_no_password_list
-  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - debug: var=mysql_users_with_no_password_list
-  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
 
 - fail: 
     msg: Mysql users exist that have no password
-  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+  when: mariadb_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)

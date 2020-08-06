@@ -1,18 +1,32 @@
-# Ansible Nginx
+# Ansible Role: Nginx Yum/Dnf Repo
 
-* Installs nginx latest stable from official nginx repo
-* Can install a specific AppStream version on EL8
-* Supports RHEL/CentOS 6 / 7 / 8
+Installs the official Nginx (stable) yum/dnf repo on RHEL/CentOS 7/8.
 
-## Example Usage
+On CentOS 8 this will take care of disabling the default stream module so that nginx can be installed from a different repository.
 
-* Install from official nginx repo (default)
+## Requirements
 
-        use_classyllama_repo_nginx: true
-        use_classyllama_repo_nginx_appstream: false
+None.
 
-* Install from EL8 AppStream
+## Role Variables
 
-        use_classyllama_repo_nginx: false
-        use_classyllama_repo_nginx_appstream: true
-        nginx_stream_version: "1.18"
+None.
+
+## Dependencies
+
+None.
+
+## Example Playbook
+
+    - hosts: all
+      vars:
+      roles:
+        - { role: classyllama.repo-nginx }
+
+## License
+
+This work is licensed under the MIT license. See LICENSE file for details.
+
+## Author Information
+
+This role was created in 2020 by [Matt Johnson](https://github.com/mttjohnson/).
