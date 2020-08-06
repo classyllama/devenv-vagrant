@@ -1,0 +1,26 @@
+---
+- hosts: all
+  name: Ansible Inventory Creation
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  roles:
+    
+  tasks:
+    
+    - name: Create Ansible Inventory directory
+      local_action:
+        module: file
+        path: ../persistent/inventory
+        state: directory
+      become: false
+    
+    - name: Create Ansible Inventory file
+      local_action:
+        module: template
+        src: ansible/inventory.j2
+        dest: "../persistent/inventory/{{ inventory_group }}"
+      become: false

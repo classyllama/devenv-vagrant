@@ -18,6 +18,9 @@ app_domain: example.lan
 # ls -la /etc/localtime
 timezone_name: America/Chicago
 
+inventory_group: devenv
+app_user: www-data
+
 virtualhost_disks: []
 
 location_var_www: ""
