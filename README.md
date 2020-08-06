@@ -2,6 +2,10 @@
 
 This repo provides the necesary pieces needed for setting up a Development Environment for Magento development.
 
+# Reference Test Configs
+
+[iac-test-lab](https://github.com/classyllama/iac-test-lab)
+
 # Setup - Embed in Project
 
 You can embed the devenv repo references and project config files inside a Magento application repo in the `tools/devenv/` directory. You can do this easily with gitman, or follow a few simple commands if you can't or don't want to use gitman. Install devenv files into Magento project
