@@ -1,6 +1,7 @@
 /repo_sources/*
 /*.vmdk
 /.vagrant/*
+/.cache/*
 /mutagen.yml.lock
 /Vagrantfile.local.rb
-/inventory
+/inventory/*
