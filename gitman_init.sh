@@ -19,6 +19,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 
 # Create symlinks in persistent to source files
 [[ -L persistent/Vagrantfile ]] || ln -s source/Vagrantfile persistent/Vagrantfile
+[[ -L persistent/devenv ]] || ln -s source/devenv_shortcuts.sh persistent/devenv
 
 # Copy sample files to persistent directory if they do not exist yet.
 [[ -f persistent/.gitignore ]] || cp .gitignore.sample persistent/.gitignore
