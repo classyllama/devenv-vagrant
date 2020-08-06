@@ -3,3 +3,4 @@
 /.vagrant/*
 /mutagen.yml.lock
 /Vagrantfile.local.rb
+/inventory
