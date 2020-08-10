@@ -90,10 +90,10 @@
       when: use_elastic_elasticsearch | default(false)
     
     # install additional tools
-    - { role: classyllama.n98-magerun, tags: toolchain }
-    - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.php-cachetool, tags: toolchain }
-    - { role: classyllama.magento-demo, tags: magento-demo }
+    - { role: classyllama.composer, tags: toolchain }
+    - { role: classyllama.n98-magerun, tags: toolchain, when: use_classyllama_n98_magerun | default(false) }
+    - { role: classyllama.magento-demo, tags: magento-demo, when: use_classyllama_magento_demo | default(false) }
     
   tasks:
     
@@ -101,15 +101,15 @@
     - include: tasks/database-create.yml
       tags: database
       args:
-        mysql_db: "demo_data"
+        mysql_db: "{{ database_create_db }}"
         mysql_host: "%"
-        mysql_user: magento_data
+        mysql_user: "{{ database_create_user }}"
 
     - include: tasks/database-mycnf.yml
       tags: database
       args:
         mycnf_file: /home/www-data/.my.cnf
-        mycnf_opts: "{{ mysql_user_info['magento_data'] }}"
+        mycnf_opts: "{{ mysql_user_info[database_create_user] }}"
 
     - name: Run all notified handlers
       meta: flush_handlers
@@ -145,15 +145,16 @@
       with_dict: "{{ php_extension_xdebug_ini }}"
       notify: restart php-fpm
     
-    # Symlink /var/www/data/current to /var/www/data/magento
-    - name: Link shared directory to /data volume
+    # Symlink for nginx site root
+    - name: Link www current directory to app install dir
       file:
-        src: /var/www/data/magento
-        dest: /var/www/data/current
+        src: "{{ app_root_install_dir }}"
+        dest: "{{ app_root_dir }}/current"
         owner: www-data
         group: www-data
         state: link
         force: yes
+      when: use_current_to_app_install_symlink | default(false)
     
     # Copy composer cache files to www-users
     - name: Create remote cache directory (composer)

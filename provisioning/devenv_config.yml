@@ -14,20 +14,22 @@
     # TODO: Discuss using /var/www/projects by default instead for shared devenv on multiple projects
     - name: Create projects directory for codebase roots
       file:
-        path: /var/www/data/projects
+        path: "{{ app_root_dir }}/projects"
         state: directory
         owner: www-data
         group: www-data
         mode: '775'
+      when: use_create_www_projects_dir | default(false)
     
     # TODO: Discuss using /var/www/data by default instead for embedding devenv in project repo
     - name: Create projects directory for codebase roots
       file:
-        path: /var/www/data/magento
+        path: "{{ app_root_install_dir }}"
         state: directory
         owner: www-data
         group: www-data
         mode: '775'
+      when: use_create_www_app_install_dir | default(false)
 
     - name: Reset root mysql PW to fixed value
       block:

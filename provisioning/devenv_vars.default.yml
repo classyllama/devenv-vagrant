@@ -13,6 +13,8 @@ www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
 app_domain: example.lan
+app_root_dir: /var/www/data
+app_root_install_dir: "{{ app_root_dir }}/magento"
 
 # Check to see what your system's timezone is set to
 # ls -la /etc/localtime
@@ -28,8 +30,8 @@ location_var_www: ""
 
 # --- Magento Demo Configs
 magento_demo_hostname: "{{ app_domain }}"
-magento_demo_env_root: /var/www/data
-magento_demo_magento_root: /var/www/data/magento
+magento_demo_env_root: "{{ app_root_dir }}"
+magento_demo_magento_root: "{{ app_root_install_dir }}"
 magento_demo_user: www-data
 magento_demo_group: www-data
 magento_demo_config_overrides:
@@ -134,7 +136,7 @@ nginx_vhosts:
     pool: data
     params:
       server_name: "{{ app_domain }}"
-      webroot: /var/www/data/current/pub
+      webroot: "{{ app_root_dir }}/current/pub"
       #proxy_port: 6081
       proxy_port: 8080
     includes:
@@ -143,7 +145,7 @@ nginx_backends:
   - name: www-data
     pool: data
     listen: 8080
-    webroot: /var/www/data/current/pub
+    webroot: "{{ app_root_dir }}/current/pub"
     includes:
       - default.d/nginx-status.conf
       - available.d/realip.conf
@@ -195,8 +197,15 @@ es_plugins:
 
 # --- Additional Tools Configuration
 www_user_use_default_html: false # this allows the www-data user to use /var/www/data/
-
 use_imagemagick: false
+use_classyllama_n98_magerun: true
+use_classyllama_magento_demo: true
+use_current_to_app_install_symlink: true
+use_create_www_projects_dir: true
+use_create_www_app_install_dir: true
+database_create_user: magento_data
+database_create_db: demo_data
+load_magento_composer_auth_from_host: true
 
 cachetool_config:
   - path: /home/www-data

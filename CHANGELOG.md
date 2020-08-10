@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.2 - 2020-08
+
+Notable Changes/Improvements
+
+- Changes to allow non Magento uses for purpose of Laravel development
+- Conditional variables for multiple tasks and roles - added to defaults
+  use_classyllama_n98_magerun: true
+  use_classyllama_magento_demo: true
+  use_current_to_app_install_symlink: true
+  use_create_www_projects_dir: true
+  use_create_www_app_install_dir: true
+  load_magento_composer_auth_from_host: true
+- New variables defined for database creation
+  database_create_user: magento_data
+  database_create_db: demo_data
+
 ## 0.1 - 2020-08
 
 Notable Changes/Improvements
