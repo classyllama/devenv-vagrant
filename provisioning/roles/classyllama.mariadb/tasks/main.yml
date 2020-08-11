@@ -15,6 +15,15 @@
     mysqld_existing_datadir: yes
   when: mysqld_datadir != mysqld_default_datadir and mysqld_datadir_stat.stat.exists
 
+- name: create mysqld datadir
+  file:
+    path: "{{ mysqld_datadir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+  when: not mysqld_datadir_stat.stat.exists
+
 - name: create mysqld tmpdir
   file:
     path: "{{ mysqld_tmpdir }}"
@@ -40,5 +49,5 @@
     state: started
     enabled: yes
 
-# TODO:
-# - import_tasks: rootpw.yml
+- import_tasks: root_user_setup.yml
+- import_tasks: user_check.yml

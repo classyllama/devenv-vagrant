@@ -103,6 +103,12 @@ When you are done, you will want to stop Mutagen and halt Vagrant
     mutagen sync terminate magento
     vagrant halt
 
+# Updating Environment
+
+To update an environment you can ensure the correct targetted version in the `gitman.yml` file and then run:
+
+    gitman update devenv
+
 # Setup - Host - Trusting Root CA
 
 When the devenv is provisioned it will either use the root CA certificate/key files in `~/.devenv/rootca/` or if the do not exist when it provisions the VM, it will create new root CA files and copy them to your host's `~/.devenv/rootca/` directory.

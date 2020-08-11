@@ -1,0 +1,31 @@
+---
+
+# Confirm no invalid accounts exist
+# mysql -e 'select user, host, password, authentication_string, password_expired from mysql.user'
+- name: get count of mysql users with no password
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_count
+  changed_when: False
+
+- debug: var=mysql_users_with_no_password_count
+  when: 
+    - ('stdout' in mysql_users_with_no_password_count)
+    - (mysql_users_with_no_password_count.stdout|int > 0)
+
+- name: list mysql user account without passwords
+  command: mysql -e "select user, host, password from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_list
+  when: 
+    - ('stdout' in mysql_users_with_no_password_count)
+    - (mysql_users_with_no_password_count.stdout|int > 0)
+
+- debug: var=mysql_users_with_no_password_list
+  when: 
+    - ('stdout' in mysql_users_with_no_password_count)
+    - (mysql_users_with_no_password_count.stdout|int > 0)
+
+- fail: 
+    msg: Mysql users exist that have no password
+  when: 
+    - ('stdout' in mysql_users_with_no_password_count)
+    - (mysql_users_with_no_password_count.stdout|int > 0)

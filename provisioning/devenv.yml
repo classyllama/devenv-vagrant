@@ -44,6 +44,33 @@
             state: link
 
       when: (location_var_www is defined) and (location_var_www|length > 0)
+    
+    
+    # --- DevEnv Initialize Persisted MySQL Root Credentials
+    - name: Check if root .my.cnf exists
+      stat:
+        path: ~root/.my.cnf
+      register: root_my_cnf
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+    - name: Check if persisted root .my.cnf exists
+      stat:
+        path: "{{ mysqld_cred_persist }}"
+      register: persist_root_my_cnf
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+    - name: Copy MySQL Root Credentials from Persistent Location
+      synchronize:
+        src: "{{ mysqld_cred_persist }}"
+        dest: /root/.my.cnf
+      delegate_to: "{{ inventory_hostname }}"
+      when:
+        - persist_root_my_cnf.stat.exists
+        - not root_my_cnf.stat.exists
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
 
   roles:
     # System Config
@@ -133,6 +160,19 @@
         src: /home/www-data/.cachetool.yml
         dest: /var/www/data/.cachetool.yml
         state: link
+    
+    # --- DevEnv Persist MySQL Root Credentials
+    - name: Copy MySQL Root Credentials to Persistent Location
+      synchronize:
+        src: /root/.my.cnf
+        dest: "{{ mysqld_cred_persist }}"
+        perms: yes
+        owner: yes
+        group: yes
+      delegate_to: "{{ inventory_hostname }}"
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
     
     # --- DevEnv Configuration
     # xDebug Setup/Configure
