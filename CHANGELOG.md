@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.x - 2020-08
+
+MariaDB Improvements / Persisting root .my.cnf
+
+- Updates to MariaDB role for more secure db root user
+- Persisting root mysql credentials to persistent disk and restoring on rebuild
+- Updates to Percona role with some reorganization of files and better .my.cnf file permissions
+
 ## 0.2 - 2020-08
 
 Notable Changes/Improvements
