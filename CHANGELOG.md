@@ -7,6 +7,9 @@ MariaDB Improvements / Persisting root .my.cnf
 - Updates to MariaDB role for more secure db root user
 - Persisting root mysql credentials to persistent disk and restoring on rebuild
 - Updates to Percona role with some reorganization of files and better .my.cnf file permissions
+- Correct magento-demo install when using elasticsearch configs
+- Ensure default php-fpm config file does not remain in nginx default.d directory
+- Fixes problems with dynamic static file generation in Magento developer mode
 
 ## 0.2 - 2020-08
 

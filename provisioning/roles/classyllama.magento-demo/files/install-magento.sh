@@ -200,7 +200,7 @@ bin/magento config:set --lock-env system/full_page_cache/ttl 604800
 if [[ "${MAGENTO_REL_VER}" != "2.4.0" && "${SEARCH_ENGINE}" != "mysql" ]]; then
   echo "----: Magento Configuration Settings (elasticsearch)"
   bin/magento config:set --lock-env catalog/search/engine ${SEARCH_ENGINE}
-  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_hostname {ELASTIC_HOST}
+  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_hostname ${ELASTIC_HOST}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_port ${ELASTIC_PORT}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_enable_auth ${ELASTIC_ENABLE_AUTH}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_username ${ELASTIC_USERNAME}

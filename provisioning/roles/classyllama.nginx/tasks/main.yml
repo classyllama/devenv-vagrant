@@ -53,6 +53,11 @@
 - name: install httpd-tools
   package: name=httpd-tools
 
+- name: Ensure default php-fpm config file is not in nginx/default.d directory
+  file:
+    path: /etc/nginx/default.d/php.conf
+    state: absent
+
 - import_tasks: configure-nginx.yml
 - import_tasks: configure-ssl.yml
 - import_tasks: configure-logrotate.yml
