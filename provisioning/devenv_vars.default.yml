@@ -179,7 +179,7 @@ use_dedicated_redis_fpc: false
 redis_fpc_maxmem: 512mb
 
 use_elastic_elasticsearch: true
-es_version: 7.8.0
+es_version: 7.8.1
 es_config:
   node.name: "node1"
   cluster.name: "test-cluster"
@@ -207,6 +207,7 @@ use_create_www_projects_dir: true
 use_create_www_app_install_dir: true
 database_create_user: magento_data
 database_create_db: demo_data
+#mysqld_cred_persist: /datadb/.my.cnf
 load_magento_composer_auth_from_host: true
 
 cachetool_config:

@@ -2,9 +2,16 @@
 
 ## 0.2.x - 2020-08
 
+- Provide reference variable for persisting root .my.cnf
+- Update default elasticsearch version
+
+## 0.2.2 - 2020-08
+
 Magento Demo Install
 
 - Automatic initialization of example TFA during demo install for simplifying quick access to demo install
+
+## 0.2.1 - 2020-08
 
 MariaDB Improvements / Persisting root .my.cnf
 
