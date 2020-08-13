@@ -2,6 +2,10 @@
 
 ## 0.2.x - 2020-08
 
+Magento Demo Install
+
+- Automatic initialization of example TFA during demo install for simplifying quick access to demo install
+
 MariaDB Improvements / Persisting root .my.cnf
 
 - Updates to MariaDB role for more secure db root user

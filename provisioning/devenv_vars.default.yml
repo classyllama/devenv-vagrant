@@ -51,6 +51,7 @@ magento_demo_config_overrides:
   ELASTIC_ENABLE_AUTH: "1"
   ELASTIC_USERNAME: "elastic"
   ELASTIC_PASSWORD: "changeme"
+  SHOULD_SETUP_TFA: "true"
 
 
 # --- Tech Stack (Services) Configuration

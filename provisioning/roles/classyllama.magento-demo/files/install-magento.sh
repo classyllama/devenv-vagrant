@@ -74,6 +74,7 @@ declare ELASTIC_PASSWORD=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add 
 
 declare SHOULD_SETUP_SAMPLE_DATA=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_SETUP_SAMPLE_DATA')
 declare SHOULD_RUN_CUSTOM_SCRIPT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_RUN_CUSTOM_SCRIPT')
+declare SHOULD_SETUP_TFA=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_SETUP_TFA')
 
 
 # Dynamic Variables
@@ -90,7 +91,7 @@ BACKEND_FRONTNAME="backend"
 
 ADMIN_USER="admin_$(printf "%s%s%s" \
     $(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-z0-9' | fold -w 6 | head -n1))"
-ADMIN_EMAIL=demouser@example.com
+ADMIN_EMAIL=demouser@example.lan
 ADMIN_FIRST=Demo
 ADMIN_LAST=User
 ADMIN_PASS="$(printf "%s%s%s%s%s" \
@@ -227,6 +228,29 @@ echo "----: Magento Deployment Mode"
 bin/magento deploy:mode:set production
 bin/magento cache:flush
 
+# Two Factor Auth Support
+TFA_SECRET=""
+OTPAUTH_URL=""
+if [[ "${SHOULD_SETUP_TFA}" == "true" ]]; then
+  echo "----: Initialize TFA for admin user"
+  
+  # Generate random secret for OTP use
+  SECRET=$(pwgen -1 -s -n 32)
+  # Detect Python version available - base32 encode and strip padding
+  if command -v python3 >/dev/null 2>&1; then
+    TFA_SECRET=$(python3 -c "import base64; print(base64.b32encode(bytearray('${SECRET}', 'ascii')).decode('utf-8'))" | sed 's/=*$//')
+  else
+    TFA_SECRET=$(python -c "import base64; print base64.b32encode('${SECRET}')" | sed 's/=*$//')
+  fi
+  # Build otpauth URI
+  OTPAUTH_URL="otpauth://totp/${SITE_HOSTNAME}:${ADMIN_USER}?secret=${TFA_SECRET}&issuer=${SITE_HOSTNAME}&algorithm=SHA1&digits=6&period=30"
+  
+  # Set Google TFA as the forced provider
+  bin/magento config:set twofactorauth/general/force_providers google
+
+  # Set the TFA secret for admin user
+  bin/magento security:tfa:google:set-secret "${ADMIN_USER}" "${TFA_SECRET}"
+fi
 
 
 # Create SymLink for site root
@@ -237,10 +261,13 @@ ln -s ${MAGENTO_ROOT_DIR} ${SITE_ROOT_DIR}
 echo "----: Saving Magento Credentials"
 ADMIN_CREDENTIALS=$(cat <<CONTENTS_HEREDOC
 {
+  "install_path": "${MAGENTO_ROOT_DIR}",
   "base_url": "${BASE_URL}",
   "admin_url": "${BASE_URL}/${BACKEND_FRONTNAME}",
   "admin_user": "${ADMIN_USER}",
-  "admin_pass": "${ADMIN_PASS}"
+  "admin_pass": "${ADMIN_PASS}",
+  "admin_tfa_secret": "${TFA_SECRET}",
+  "admin_tfa_optauth_url": "${OTPAUTH_URL}"
 }
 CONTENTS_HEREDOC
 )
