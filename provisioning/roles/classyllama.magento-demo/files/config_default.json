@@ -33,5 +33,5 @@
   
   "SHOULD_SETUP_SAMPLE_DATA": "true",
   "SHOULD_RUN_CUSTOM_SCRIPT": "false",
-  "SHOULD_SETUP_TFA": "true"
+  "SHOULD_SETUP_TFA": "false"
 }

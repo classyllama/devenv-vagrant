@@ -4,6 +4,8 @@
 
 - Provide reference variable for persisting root .my.cnf
 - Update default elasticsearch version
+- Fixing order of variable evaluation in conditional for persisting root mysql credentials
+- Defaulting magento-demo install to false since configs are merged not entirely replaced
 
 ## 0.2.2 - 2020-08
 
