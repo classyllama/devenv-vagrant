@@ -67,10 +67,10 @@
         dest: /root/.my.cnf
       delegate_to: "{{ inventory_hostname }}"
       when:
-        - persist_root_my_cnf.stat.exists
-        - not root_my_cnf.stat.exists
         - mysqld_cred_persist is defined 
         - mysqld_cred_persist|length > 0
+        - not root_my_cnf.stat.exists
+        - persist_root_my_cnf.stat.exists
 
   roles:
     # System Config
