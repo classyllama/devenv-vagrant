@@ -288,6 +288,28 @@ vagrant up
 
 
 
+# TODO:
+# [ ] fix hosts entry IP address (host only interface used instead of nat interface)
+#     10.0.2.15 dev-laravel.lan dev-laravel
+#     vs
+#     172.28.128.5 dev-laravel.lan dev-laravel
+# [ ] Had to run dos2unix on demo install .sh files
+#     Should look into git translating files to Windows line endings on checkout
+# [ ] vagrant-hostmanager only modifying WSL hosts file
+#     Need to get hosts updated on Windows
+# [ ] simplify project setup
+# [ ] add root ca key to windows
+# [ ] test magento demo install
+#     [ ] composer repo.magento.com credentials
+# [ ] test persistent disk use
+# [ ] test actual project setup
+
+# From within wsl
+cat /etc/hosts
+
+# From Windows
+code C:\Windows\System32\drivers\etc\hosts
+
 
 
 
