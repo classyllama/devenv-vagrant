@@ -1,6 +1,6 @@
 ---
 # Define the supported ansible version requirements of these playbooks
-ansible_version_require_min: "2.6"          # Example "2.9" or "2"
+ansible_version_require_min: "2.9"          # Example "2.9" or "2"
 ansible_version_require_min_operator: ">="  # Example ">=" or ">"
 ansible_version_require_max: "3"            # Example "2.10" or "3"
 ansible_version_require_max_operator: "<"   # Example "<=" or "<"
@@ -113,7 +113,7 @@ php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
 use_classyllama_repo_python_appstream: false
 python_package_name: python # CentOS 7 uses Python 2.7
-python_software_packages: 
+python_software_packages:
   - "{{ python_package_name }}"
   - "{{ python_package_name }}-pip"
   - "{{ python_package_name }}-devel"
