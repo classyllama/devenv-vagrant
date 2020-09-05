@@ -210,7 +210,7 @@ FILE_CONTENTS=$(cat <<'HEREDOC_CONTENTS'
 enabled = true
 mountFsTab = false
 root = /mnt/
-options = "metadata"
+options = "metadata,umask=007,fmask=007"
 
 #[network]
 #generateHosts = true
