@@ -9,6 +9,15 @@
 
 
 
+# System Info and WSL (Windows Subsystem for Linux) List
+Get-ComputerInfo | select WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
+
+# Check if using WSL v2
+# Windows build 18917 or higher only
+# This may only work with WSL v1 (WSL v2 may conflict with VirtualBox)
+wsl --list --verbose 
+
+
 # Start Terminal Powershell (as administrator)
 
 # Install NuGet
@@ -84,6 +93,17 @@ Add-WindowsCapability -Name "OpenSSH.Client~~~~0.0.1.0" -Online
 Set-Service ssh-agent -StartupType Automatic
 Start-Service ssh-agent
 Get-Service ssh-agent
+
+# Update permissions on Windows hosts file to allow for user changes without Admin UAC permissions
+$myPath = "$env:windir\System32\drivers\etc\hosts"
+$curUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$myAcl = Get-Acl "$myPath"
+$myAclEntry = "$curUser","FullControl","Allow"
+$myAccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($myAclEntry)
+$myAcl.SetAccessRule($myAccessRule)
+$myAcl | Set-Acl "$MyPath"
+Get-Acl "$myPath" | fl
+
 
 # ----------------------------
 # Manual GUI Step
@@ -212,8 +232,8 @@ mountFsTab = false
 root = /mnt/
 options = "metadata,umask=007,fmask=007"
 
-#[network]
-#generateHosts = true
+[network]
+generateHosts = false
 #generateResolvConf = true
 HEREDOC_CONTENTS
 )
@@ -255,6 +275,7 @@ source ~/.bash_profile
 exit
 wsl --list --verbose 
 wsl --terminate CentOS8
+wsl --list --verbose 
 wsl
 
 
@@ -288,15 +309,129 @@ vagrant up
 
 
 
+
+
+
+# Updating hosts files
+
+# Find powershell exe path
+(Get-Process powershell | select -First 1).Path
+(Get-Command powershell.exe).Definition
+
+# display hosts file details from various environments
+# From Cmd Prompt
+powershell -nologo "& Get-Content C:\Windows\System32\drivers\etc\hosts"
+powershell "Get-Content C:\Windows\System32\drivers\etc\hosts"
+
+# From within powershell
+get-content C:\Windows\System32\drivers\etc\hosts
+get-content \\wsl$\CentOS8\etc\hosts
+Test-Path "C:\Windows\System32\drivers\etc\hosts"
+"10.10.10.100 Myhost" | Out-File C:\Windows\System32\drivers\etc\hosts -encoding ASCII -append 
+
+$hostsFilePath = "$($Env:WinDir)\system32\Drivers\etc\hosts"
+$hostsFile = Get-Content $hostsFilePath
+$DesiredIP = "10.10.10.100"
+$Hostname = "Myhost"
+
+$escapedHostname = [Regex]::Escape($Hostname)
+$patternToMatch = ".*$DesiredIP\s+$escapedHostname.*"
+($hostsFile) -match $patternToMatch
+
+Add-Content -Encoding UTF8  $hostsFilePath ("$DesiredIP".PadRight(20, " ") + "$Hostname")
+
+If ((Get-Content "$($env:windir)\system32\Drivers\etc\hosts" ) -notcontains "127.0.0.1 hostname1")   
+ { Add-Content -Encoding UTF8  "$($env:windir)\system32\Drivers\etc\hosts" "127.0.0.1 hostname1" -Force }
+
+(Get-Content C:\Windows\System32\drivers\etc\hosts -Raw) -replace '10.3.4.53','#10.3.4.53' | Set-Content -Path C:\Windows\System32\drivers\etc\hosts
+
+Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated -action "{1}"' -f ($myinvocation.MyCommand.Definition,$action))
+
+function Test-Admin {
+   $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+   $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+ }
+ 
+ if ((Test-Admin) -eq $false)  {
+   Write-Host " done" 
+}
+
+$file = "$env:windir\System32\drivers\etc\hosts"
+"192.168.1.1 bob" | Add-Content -PassThru $file
+"192.168.1.2 john" | Add-Content -PassThru $file
+
+
+$passwd = Read-Host "Enter password" -AsSecureString
+$encpwd = ConvertFrom-SecureString $passwd
+$encpwd > $path\password.bin
+
+# Afterwards always use this to start the script
+$curUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$encpwd = Get-Content $path\password.bin
+$passwd = ConvertTo-SecureString $encpwd
+$cred = new-object System.Management.Automation.PSCredential $curUser, $passwd
+Add-Content -Encoding UTF8  $hostsFilePath ("$DesiredIP".PadRight(20, " ") + "$Hostname")
+
+Start-Process -NoNewWindow -Credential $cred -FilePath 'powershell.exe' -ArgumentList 'noprofile','-Command',"Add-Content -Encoding UTF8 C:\Windows\System32\drivers\etc\hosts '192.168.1.99 appleseed'"
+Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated -action "{1}"' -f ($myinvocation.MyCommand.Definition,$action))
+Start-Process PowerShell -NoNewWindow -Cred $cred -ArgumentList "Add-Content -Encoding UTF8 C:\Windows\System32\drivers\etc\hosts '192.168.1.99 appleseed'"
+powershell -Cred $cred "Add-Content -Encoding UTF8 C:\Windows\System32\drivers\etc\hosts '192.168.1.99 appleseed'"
+Invoke-Expression
+Start-Process -Wait -NoNewWindow -Credential $cred -FilePath 'powershell.exe' -ArgumentList 'noprofile','-Command',"Get-Content C:\Windows\System32\drivers\etc\hosts"
+
+.\script.ps1 -action 'activate'
+
+
+# To avoid the UAC prompt, open %WINDIR%\System32\drivers\etc\ in Explorer, right-click the hosts file, go to 
+# Properties > Security > Edit and give your user Modify permission.
+
+
+# Update permissions on Windows hosts file to allow for user changes without Admin UAC permissions
+$myPath = "$env:windir\System32\drivers\etc\hosts"
+$curUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+$myAcl = Get-Acl "$myPath"
+$myAclEntry = "$curUser","FullControl","Allow"
+$myAccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($myAclEntry)
+$myAcl.SetAccessRule($myAccessRule)
+$myAcl | Set-Acl "$MyPath"
+Get-Acl "$myPath" | fl
+
+
+
+wsl
+# From within wsl
+cat /etc/hosts
+cat /mnt/c/Windows/System32/drivers/etc/hosts
+/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -nologo "& Get-Content C:\Windows\System32\drivers\etc\hosts"
+echo "5.6.7.8 whatever" >> /mnt/c/Windows/System32/drivers/etc/hosts
+
+# Update Windows hosts file with vagrant-hostmanager entries
+VAGRANTHOSTS=$(echo -e "\n""$(awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/' /etc/hosts)""\n")
+WINHOSTS_NOVAGRANTHOSTS=$(awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/{next}{print}' /mnt/c/Windows/System32/drivers/etc/hosts)
+echo "${WINHOSTS_NOVAGRANTHOSTS}${VAGRANTHOSTS}" > /mnt/c/Windows/System32/drivers/etc/hosts
+
+
+vagrant ssh
+# From within vagrant machine
+cat /etc/hosts
+
+
+
+
+
 # TODO:
-# [ ] fix hosts entry IP address (host only interface used instead of nat interface)
+# [x] fix hosts entry IP address (host only interface used instead of nat interface)
 #     10.0.2.15 dev-laravel.lan dev-laravel
 #     vs
 #     172.28.128.5 dev-laravel.lan dev-laravel
-# [ ] Had to run dos2unix on demo install .sh files
+# [x] Had to run dos2unix on demo install .sh files
 #     Should look into git translating files to Windows line endings on checkout
-# [ ] vagrant-hostmanager only modifying WSL hosts file
+# [x] vagrant-hostmanager only modifying WSL hosts file
 #     Need to get hosts updated on Windows
+# [x] Improve excessive hostmanager plugin execution for wsl
+#     workaround is that it runs several times unnecessarily
+# [x] Remove Hostmanager entries on destroy
+#     workaround is that it will do this on next vagrant execution
 # [ ] simplify project setup
 # [ ] add root ca key to windows
 # [ ] test magento demo install

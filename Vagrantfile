@@ -65,7 +65,8 @@ Vagrant.configure('2') do |config|
         PluginHostmanagerHelper.vbIpResolver(vm, cached_addresses)
       end
       PluginHostmanagerHelper.vmUpTrigger(config, $dev_machine_name)
-    
+      PluginHostmanagerHelper.vmDestroyTrigger(config)
+
       # After provisioning change vagrant ssh to connect via
       # the hostname on the host_only network and use the 
       # www-data user when logging into the box
