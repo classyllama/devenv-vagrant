@@ -147,8 +147,12 @@ dnf -y install epel-release
 dnf -y update
 dnf -y install ansible
 dnf -y install python-pip wget
-dnf -y dos2unix
+dnf -y install dos2unix
+dnf -y install git
+dnf -y install php php-json
+dnf -y install jq
 pip3 install --upgrade pip
+pip3 install gitman
 pip3 install python-vagrant
 
 # Get latest URLs from https://www.vagrantup.com/downloads
@@ -157,6 +161,20 @@ yum -y install https://releases.hashicorp.com/vagrant/2.2.9/vagrant_2.2.9_x86_64
 
 vagrant plugin install vagrant-hostmanager
 vagrant plugin install vagrant-digitalocean
+
+# Install Composer
+# Reference commands at: https://getcomposer.org/download/
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('sha384', 'composer-setup.php') === '795f976fe0ebd8b75f26a6dd68f78fd3453ce79f32ecb33e7fd087d39bfeb978342fb73ac986cd4f54edd0dc902601dc') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php composer-setup.php
+php -r "unlink('composer-setup.php');"
+mv composer.phar /usr/bin/composer
+
+# Add Magento Marketplace Credentails to Composer Global Config
+# https://devdocs.magento.com/guides/v2.4/install-gde/prereq/connect-auth.html
+MAGENTO_ACCESS_KEY_USER="xxxxxxxxxxxxxxxxxxxxxxxx"
+MAGENTO_ACCESS_KEY_PASS="xxxxxxxxxxxxxxxxxxxxxxxx"
+composer config -g http-basic.repo.magento.com ${MAGENTO_ACCESS_KEY_USER} ${MAGENTO_ACCESS_KEY_PASS}
 
 # ----------------------------
 # Exit as root user inside WSL, but remain as your user in WSL
@@ -305,7 +323,8 @@ dos2unix ./gitman_init.sh
 
 # From within wsl
 vagrant up
-
+vagrant ssh -c "~/laravel-demo/install-laravel.sh config_site.json" -- -q
+vagrant ssh -c "~/magento-demo/install-magento.sh config_site.json" -- -q
 
 
 
