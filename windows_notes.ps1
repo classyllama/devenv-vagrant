@@ -10,13 +10,16 @@
 
 
 # System Info and WSL (Windows Subsystem for Linux) List
-Get-ComputerInfo | select WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
+Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
 
 # Check if using WSL v2
 # Windows build 18917 or higher only
 # This may only work with WSL v1 (WSL v2 may conflict with VirtualBox)
 wsl --list --verbose 
+#Start-Process -FilePath "wsl" -ArgumentList "--list" -Wait -NoNewWindow | Write-Output
 
+# Disable Hyper-V
+#Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
 
 # Start Terminal Powershell (as administrator)
 
@@ -24,7 +27,7 @@ wsl --list --verbose
 Find-PackageProvider -Name 'Nuget' -ForceBootstrap -IncludeDependencies
 
 # Install chocolatey if it isn't installed yet
-Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
 
 # Make sure Chocolatey is up to date
@@ -125,6 +128,8 @@ $path = "$Env:USERPROFILE\WSL\CentOS8"
 If(!(test-path $path)) { New-Item -ItemType Directory -Force -Path $path }
 Expand-Archive $destination $path
 Start-Process "$path\CentOS8.exe" -Verb runAs -Wait
+#Start-Process -FilePath "$path\CentOS8.exe" -Verb runAs -ArgumentList "run `"cat /etc/os-release && sleep 5`"" -Wait
+#wsl cat /etc/os-release
 
 # Initialize Distro User
 wsl adduser $Env:UserName
@@ -136,7 +141,6 @@ wsl
 
 # Change the default login user wsl will use
 Start-Process -FilePath "$path\CentOS8.exe" -ArgumentList "config --default-user $Env:UserName"
-#Start-Process -FilePath "$path\CentOS8.exe" -ArgumentList "config --default-user root"
 
 # Launch CentOS8 WSL Container
 wsl
@@ -437,33 +441,22 @@ cat /etc/hosts
 
 
 
+# Trusting Generated Root CA for DevEnv
+# view contents of generated root ca from powershell
+get-content \\wsl$\CentOS8\home\$Env:UserName\.devenv\rootca\devenv_ca.crt
+# view contents of generated root ca from wsl
+cat ~/.devenv/rootca/devenv_ca.crt
+# Add generated root ca to trusted certs in Windows (from powershell running as administrator)
+certutil –addstore -enterprise –f "Root" \\wsl$\CentOS8\home\$Env:UserName\.devenv\rootca\devenv_ca.crt
+
+
+
 
 # TODO:
-# [x] fix hosts entry IP address (host only interface used instead of nat interface)
-#     10.0.2.15 dev-laravel.lan dev-laravel
-#     vs
-#     172.28.128.5 dev-laravel.lan dev-laravel
-# [x] Had to run dos2unix on demo install .sh files
-#     Should look into git translating files to Windows line endings on checkout
-# [x] vagrant-hostmanager only modifying WSL hosts file
-#     Need to get hosts updated on Windows
-# [x] Improve excessive hostmanager plugin execution for wsl
-#     workaround is that it runs several times unnecessarily
-# [x] Remove Hostmanager entries on destroy
-#     workaround is that it will do this on next vagrant execution
+# [ ] symlinks from wsl usable in Windows
 # [ ] simplify project setup
-# [ ] add root ca key to windows
-# [ ] test magento demo install
-#     [ ] composer repo.magento.com credentials
 # [ ] test persistent disk use
 # [ ] test actual project setup
-
-# From within wsl
-cat /etc/hosts
-
-# From Windows
-code C:\Windows\System32\drivers\etc\hosts
-
 
 
 
@@ -475,18 +468,15 @@ code C:\Windows\System32\drivers\etc\hosts
 # Install GUI SourceTree git repo client tool
 choco install SourceTree -y
 
-
-
-
-
-
-
-
+# Extra Packages
+choco install powershell-core putty jre8 openvpn terraform nmap rsync SublimeText3 notepadplusplus postman jmeter sqlyog -y
+choco install firefox slack 1password curl ruby
+choco install filezilla mysql.workbench beyondcompare -y
 
 # Add to path this session
-#Set-Item -Path Env:Path -Value ($Env:Path + ";C:\Python38")
+Set-Item -Path Env:Path -Value ($Env:Path + ";C:\Python38")
 # Add to path permanently
-#Add-Path -String 'C:\Python38','bla' -Verbose
+Add-Path -String 'C:\Python38','bla' -Verbose
 
 # Get session's path environment variable
 Get-Content -Path Env:Path
@@ -494,10 +484,6 @@ Get-Content -Path Env:Path
 Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH 
 
 
-# Extra Packages
-choco install powershell-core putty jre8 openvpn terraform nmap rsync SublimeText3 notepadplusplus postman jmeter sqlyog -y
-choco install firefox slack 1password curl ruby
-choco install filezilla mysql.workbench beyondcompare -y
 
 
 
@@ -505,12 +491,8 @@ choco install filezilla mysql.workbench beyondcompare -y
 # This installs Ubuntu for use only as root user
 # Install from Microsoft store for using as unprivileged user
 #choco install wsl-ubuntu-1804 -y
-
-
-# List Chocolatey installed packages
 #choco list --localonly
 #choco uninstall wsl-ubuntu-1804 -y
-
 
 #$download = 'https://aka.ms/wsl-ubuntu-1804'
 #$destination = "$Env:USERPROFILE\Downloads\Ubuntu-1804.appx"
@@ -522,168 +504,13 @@ choco install filezilla mysql.workbench beyondcompare -y
 #Get-AppxPackage *ubuntu*
 #Get-AppxPackage CanonicalGroupLimited.Ubuntu18.04onWindows | Remove-AppxPackage
 
-
-
-
-# Download CentOS7 WSL Distro Launcher and rootfs
-#https://github.com/Microsoft/WSL-DistroLauncher
-#https://github.com/yuk7/wsldl
-#https://github.com/yuk7/CentWSL/releases/latest
-$download = 'https://github.com/yuk7/CentWSL/releases/download/8.1.1911.1/CentOS8.zip'
-$download = 'https://github.com/yuk7/CentWSL/releases/download/7.0.1907.3/CentOS7.zip'
-$download = 'https://github.com/mishamosher/CentOS-WSL/releases/download/8.2-2004/CentOS8.zip'
-$destination = "$Env:USERPROFILE\Downloads\CentOS7.zip"
-Invoke-WebRequest -Uri $download -OutFile $destination -UseBasicParsing
-
-# Extract and Install WSL Distro
-$path = "$Env:USERPROFILE\WSL\CentOS7"
-If(!(test-path $path)) { New-Item -ItemType Directory -Force -Path $path }
-Expand-Archive $destination $path
-Start-Process "$path\CentOS7.exe" -Verb runAs -Wait
-
-# Initialize Distro User
-wsl adduser $Env:UserName
-wsl usermod -a -G wheel $Env:UserName
-# Change sudoers file to allow wheel group sudo access without password
-Start-Process -FilePath "$path\CentOS7.exe" -ArgumentList "config --default-user $Env:UserName"
-
-# Start-Process -FilePath "$Env:USERPROFILE\WSL\CentOS7.exe" -Verb runAs -ArgumentList "run `"cat /etc/os-release && sleep 5`"" -Wait
-# wsl cat /etc/os-release
-
-
-
-
-
-
-# Launch Ubuntu to configure WSL Ubuntu 1804
-
-# Launch CentOS to configure WSL CentOS 
-
-# Run inside WSL Container
-yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y update
-yum -y install ansible
-yum -y install python-pip wget
-pip install --upgrade pip
-pip install python-vagrant
-
-# https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.msi
-yum -y install https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.rpm
-
-
-yum -y install vagrant
-#vagrant plugin install vagrant-libvirt
-vagrant plugin install vagrant-hostmanager
-vagrant plugin install vagrant-digitalocean
-
-# Include into user bash profile
-export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
-export PATH=$PATH:/mnt/c/Windows/System32
-export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
-
-
-
-
-
-
-
-
-# Refresh environment variables
-refreshenv
-
-# System Info and WSL (Windows Subsystem for Linux) List
-Get-ComputerInfo | select WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
-wsl --list
-Start-Process -FilePath "wsl" -ArgumentList "--list" -Wait -NoNewWindow | Write-Output
-
-# Disable Hyper-V
-Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
-
-# Check if using WSL v2
-# Windows build 18917 or higher only
-# This may only work with WSL v1 (WSL v2 may conflict with VirtualBox)
-wsl --list --verbose 
-
-# Launch WSL
-Start-Process wsl
-
 # Unregister WSL Distribution
-wsl --unregister centos7
+wsl --list
+wsl --unregister CentOS8
 
 
 
-
-
-# install Win32-OpenSSH and setup ssh-agent (deprecated)
-# https://github.com/PowerShell/Win32-OpenSSH
-# Remove Windows Capability OpenSSH if it exists
-Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'
-Remove-WindowsCapability -Name "OpenSSH.Client~~~~0.0.1.0" -Online
-if (Get-Service ssh-agent -ErrorAction SilentlyContinue) 
-{
-   Stop-Service ssh-agent
-   sc.exe delete ssh-agent 1>$null
-}
-choco install openssh -params "/SSHAgentFeature" -y
-
-# Install Libraries/Language/CLI Tools, Development Apps, and editors.
-choco install powershell-core putty jre8 git openssh python pip curl ruby jq openvpn terraform nmap
-choco install notepadplusplus SublimeText3 filezilla postman mysql.workbench SourceTree beyondcompare jmeter sqlyog
-choco install vscode --params "/NoDesktopIcon"
-choco install xxxxxxxxxxx
-
-# Refresh en
-refreshenv
-
-# Install Gitman 
-pip install gitman
-
-
-
-
-choco install firefox slack 1password
-
-
-
-
-
-# Install Git VirtualBox and Vagrant
-choco install vagrant 
-
-# Install Vagrant Plugins
-vagrant plugin install vagrant-hostmanager
-vagrant plugin install vagrant-vbguest
-vagrant plugin install vagrant-digitalocean
-
-
-
-
-
-# Create profile and add git
-#If (-Not (Test-Path $profile)) {New-Item -path $profile -type file –force}
-#Set-ExecutionPolicy Unrestricted -Scope CurrentUser
-#
-#If ( ($profile | %{$_ -match [Regex]::Escape("$env:LOCALAPPDATA\GitHub\shell.ps1")} ) -contains $false) {
-#    Add-Content $profile "`n. (Resolve-Path `"$env:LOCALAPPDATA\GitHub\shell.ps1`")"
-#}
-#If ( ($profile | %{$_ -match [Regex]::Escape("$env:github_posh_git\profile.example.ps1")} ) -contains $false) {
-#    Add-Content $profile "`n. `"$env:github_posh_git\profile.example.ps1`"`n"
-#}
-#If ( ($profile | %{$_ -match [Regex]::Escape("C:\Program Files\Oracle\VirtualBox")} ) -contains $false) {
-#    Add-Content $profile "`n`$env:Path += `";C:\Program Files\Oracle\VirtualBox`"`n"
-#}
-#. $profile
-
-# Clone DevEnv Repository
-$devEnvRepo = 'https://github.com/classyllama/devenv-vagrant.git'
-git clone $devEnvRepo server
-cd C:\server
-git checkout develop
-
-
-
-
-
+# Experimenting with Windows Package Managers (OneGet)
 Find-PackageProvider
 
 get-packageprovider
