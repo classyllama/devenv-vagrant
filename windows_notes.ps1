@@ -480,12 +480,8 @@ New-Item -ItemType SymbolicLink -Path "source_ps" -Target "repo_sources/devenv"
 # Testing From wsl
 ln -s repo_sources/devenv source_wsl
 
-# Prevent Windows based git operations from altering file contents which need to work properly on Linux environments
-# On Windows (from powershell)
-git config --global core.autocrlf input
-git config --global core.eol lf
 
-
+# Experimenting with WSL needing elevated permissions for sybolic link creation
 # Run WSL with elevated permissions
 # wsl --list --verbose
 # wsl --terminate CentOS8
@@ -498,6 +494,41 @@ git config --global core.eol lf
 # Check to see if running as elevated permissions
 # $principal = new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())
 # $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+
+
+
+# Prevent Windows based git operations from altering file contents which need to work properly on Linux environments
+# On Windows (from powershell)
+git config --global core.autocrlf input
+git config --global core.eol lf
+
+
+
+# current issue when checking out repo inside WSL and then attempting to interact with it from Windows (via powershell and git CLI)
+# error: object directory /home/username/.gitcache/devenv-vagrant.reference/objects does not exist; check .git/objects/info/alternates
+# On branch windows
+# Your branch is up to date with 'origin/windows'.
+
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git restore <file>..." to discard changes in working directory)
+#         modified:   devenv_shortcuts.sh
+#         modified:   gitman_init.sh
+#         modified:   provisioning/roles/classyllama.boilerplate/templates/profile.d/boilerplate.sh
+#         modified:   provisioning/roles/classyllama.dbbackup/templates/dbbackup.sh.j2
+#         modified:   provisioning/roles/classyllama.filebackup/templates/filebackup.sh.j2
+#         modified:   provisioning/roles/classyllama.magento-demo/files/install-magento.sh
+#         modified:   provisioning/roles/classyllama.magento-demo/files/uninstall-magento.sh
+#         modified:   provisioning/roles/classyllama.multi-redis/templates/redis.service.j2
+#         modified:   provisioning/roles/classyllama.rclone-archiver/templates/rclone_archiver.sh.j2
+#         modified:   provisioning/roles/classyllama.varnish/templates/configure-el6/init.d/varnish.j2
+#         modified:   provisioning/roles/classyllama.varnish/templates/configure/varnish_reload_vcl.j2
+#         modified:   provisioning/roles/elastic.elasticsearch/helpers/bumper.py
+#         modified:   provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial
+
+
+
+
 
 
 
