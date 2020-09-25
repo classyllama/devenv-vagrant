@@ -480,7 +480,10 @@ New-Item -ItemType SymbolicLink -Path "source_ps" -Target "repo_sources/devenv"
 # Testing From wsl
 ln -s repo_sources/devenv source_wsl
 
-
+# Prevent Windows based git operations from altering file contents which need to work properly on Linux environments
+# On Windows (from powershell)
+git config --global core.autocrlf input
+git config --global core.eol lf
 
 
 # Run WSL with elevated permissions
