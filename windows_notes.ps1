@@ -452,6 +452,55 @@ certutil –addstore -enterprise –f "Root" \\wsl$\CentOS8\home\$Env:UserName\.
 
 
 
+
+
+
+# Enable Developer Mode (from Powershell)
+# https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowAllTrustedApps" /d "1"
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+
+# Providing SeCreateSymbolicLinkPrivilege to normal user
+# List existing privileges
+whoami /priv
+# Install Carbon (from administrator terminal)
+choco install Carbon -y
+refreshenv
+Get-ExecutionPolicy
+# Default execution policy is "Restricted"
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+Import-Module 'Carbon'
+# Grant SeCreateSymbolicLinkPrivilege Privilegen (from administrator terminal)
+Grant-Privilege -Identity $Env:UserName -Privilege SeCreateSymbolicLinkPrivilege
+# Test SeCreateSymbolicLinkPrivilege Privilege (from administrator terminal)
+Test-Privilege -Identity $Env:UserName -Privilege SeCreateSymbolicLinkPrivilege
+
+# Testing From Powershell
+New-Item -ItemType SymbolicLink -Path "source_ps" -Target "repo_sources/devenv"
+# Testing From wsl
+ln -s repo_sources/devenv source_wsl
+
+
+
+
+# Run WSL with elevated permissions
+# wsl --list --verbose
+# wsl --terminate CentOS8
+# Start-Process -Verb runas -FilePath wsl
+# powershell.exe Start-Process -Verb runas -FilePath wsl
+
+# From within WSL
+# whoami.exe /groups /fo csv | fgrep -q '"S-1-16-12288"' && echo "Running as elevated"
+
+# Check to see if running as elevated permissions
+# $principal = new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())
+# $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+
+
+
+
+
+
 # TODO:
 # [ ] symlinks from wsl usable in Windows
 # [ ] simplify project setup
