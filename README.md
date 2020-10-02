@@ -195,7 +195,7 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
     vagrant plugin install vagrant-hostmanager
     vagrant plugin install vagrant-digitalocean
     brew install ansible
-    brew install mutagen
+    brew install mutagen-io/mutagen/mutagen
     
     # Allow vagrant-hostmanager to update hosts file without requiring password prompt
 ```
