@@ -66,8 +66,30 @@ choco install microsoft-windows-terminal -y
 # Install Libraries/Language/CLI Tools, Development Apps, and editors.
 choco install git jq -y
 
+# Install PHP 7.3
+# Find latest 7.3.x version https://chocolatey.org/packages/php/#versionhistory
+choco install php --version=7.3.23 -y
+# Installs to C:\tools\php73\
+
 # Install VSCode as IDE and editor
 choco install vscode --params "/NoDesktopIcon" -y
+
+# Launch VSCode from the command line
+code
+
+# Disable builtin vscode extensions
+get-content $env:APPDATA\Code\User\settings.json
+# If the file doesn't exist, you can create a new file
+set-Content -Encoding UTF8  $env:APPDATA\Code\User\settings.json ('{"php.suggest.basic": false}')
+
+# Install VSCode Extensions for Magento (PHP) Development
+# https://code.visualstudio.com/docs/editor/extension-gallery
+code --install-extension felixfbecker.php-intellisense
+code --install-extension felixfbecker.php-debug
+code --install-extension neilbrayfield.php-docblocker
+# code --install-extension ikappas.phpcs
+# code --install-extension junstyle.php-cs-fixer
+
 
 # ----------------------------
 # Manual GUI Step
@@ -77,6 +99,10 @@ choco install vscode --params "/NoDesktopIcon" -y
 
 # Install Gitman 
 choco install python -y
+
+# Install xDebug helper for Edge
+https://microsoftedge.microsoft.com/addons/detail/xdebug-helper/ggnngifabofaddiejjeagbaebkejomen
+
 
 # Refresh env or restart terminal
 refreshenv
@@ -106,6 +132,28 @@ $myAccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($m
 $myAcl.SetAccessRule($myAccessRule)
 $myAcl | Set-Acl "$MyPath"
 Get-Acl "$myPath" | fl
+
+# Download and install Mutagen
+# https://mutagen.io/documentation/introduction/installation
+# https://github.com/mutagen-io/mutagen/releases/latest
+$download = 'https://github.com/mutagen-io/mutagen/releases/download/v0.11.7/mutagen_windows_amd64_v0.11.7.zip'
+$destination = "$Env:USERPROFILE\Downloads\mutagen_windows_amd64_v0.11.7.zip"
+# $checksum = "D8AC387034F1DC5B2906E2158DAEE55FA2A8B96268D6C955F40D364F65F20CAB"
+Invoke-WebRequest -Uri $download -OutFile $destination
+# if ((Get-FileHash $destination -Algorithm SHA256 | Select-Object -ExpandProperty Hash) -ne $checksum) { throw "Error: Downloaded file does not match known hash." }
+# Extract exe binary to program directory
+$mutagenPath = "$Env:PROGRAMFILES\Mutagen"
+If(!(test-path $mutagenPath)) { New-Item -ItemType Directory -Force -Path $mutagenPath }
+Expand-Archive $destination $mutagenPath
+# add exe location to this session's path
+Set-Item -Path Env:Path -Value ($Env:Path + ";$Env:PROGRAMFILES\Mutagen")
+# Set in path permanently
+$oldpath = (Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH).path 
+$newpath = "$oldpath;$Env:PROGRAMFILES\Mutagen"
+Set-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH -Value $newPath
+# Get session's path environment variable
+Get-Content -Path Env:Path
+mutagen version
 
 
 # ----------------------------
@@ -190,6 +238,8 @@ ADD_TO_PROFILE=$(cat <<'HEREDOC_CONTENTS'
 export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 export PATH=$PATH:/mnt/c/Windows/System32
 export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
+export PATH="$PATH:/mnt/c/Program Files/Mutagen"
+alias mutagen="mutagen.exe"
 HEREDOC_CONTENTS
 )
 echo "${ADD_TO_PROFILE}" >> ~/.bash_profile
@@ -533,13 +583,51 @@ git config --global core.eol lf
 
 
 
+# Enable xdebug in devenv (from wsl)
+./devenv xdebug enable
+
+
+# https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug
+
+# To make VS Code map the files on the server to the right files on your local machine, you have to set the pathMappings 
+# settings in your launch.json. Example:
+
+# // server -> local
+# "pathMappings": {
+#   "/data/www/data/magento": "${workspaceRoot}"
+# }
+
+# Like this: .vscode\launch.json
+# {
+#   // Use IntelliSense to learn about possible attributes.
+#   // Hover to view descriptions of existing attributes.
+#   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+#   "version": "0.2.0",
+#   "configurations": [
+#       {
+#           "name": "Listen for XDebug",
+#           "type": "php",
+#           "request": "launch",
+#           "port": 9000,
+#           "pathMappings": {
+#               "/data/www/data/magento": "${workspaceRoot}"
+#           }
+#       }
+#   ]
+# }
+
+
 
 
 # TODO:
-# [ ] symlinks from wsl usable in Windows
+# [x] test actual project setup
+#   [x] Mutagen Setup
+#   [x] VPN Setup
+#   [x] DB/File Sync from Stage
+# [x] remote debugging in VSCode
+# [/] symlinks from wsl usable in Windows
 # [ ] simplify project setup
 # [ ] test persistent disk use
-# [ ] test actual project setup
 
 
 
@@ -547,6 +635,12 @@ git config --global core.eol lf
 
 
 
+
+
+
+# ----------------------------
+# Other Misc References
+# ----------------------------
 
 # Install GUI SourceTree git repo client tool
 choco install SourceTree -y
@@ -555,17 +649,6 @@ choco install SourceTree -y
 choco install powershell-core putty jre8 openvpn terraform nmap rsync SublimeText3 notepadplusplus postman jmeter sqlyog -y
 choco install firefox slack 1password curl ruby
 choco install filezilla mysql.workbench beyondcompare -y
-
-# Add to path this session
-Set-Item -Path Env:Path -Value ($Env:Path + ";C:\Python38")
-# Add to path permanently
-Add-Path -String 'C:\Python38','bla' -Verbose
-
-# Get session's path environment variable
-Get-Content -Path Env:Path
-# Get the global path environment variable
-Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH 
-
 
 
 
@@ -605,19 +688,6 @@ find-module xjea
 
 
 
-# Download and install Mutagen
-# https://mutagen.io/documentation/introduction/installation
-# https://github.com/mutagen-io/mutagen/releases/latest
-$download = 'https://github.com/mutagen-io/mutagen/releases/download/v0.11.2/mutagen_windows_amd64_v0.11.2.zip'
-$destination = "$Env:USERPROFILE\Downloads\mutagen_windows_amd64_v0.11.2.zip"
-$checksum = "D8AC387034F1DC5B2906E2158DAEE55FA2A8B96268D6C955F40D364F65F20CAB"
-Invoke-WebRequest -Uri $download -OutFile $destination
-if ((Get-FileHash $destination -Algorithm SHA256 | Select-Object -ExpandProperty Hash) -ne $checksum) { throw "Error: Downloaded file does not match known hash." }
-
-# Copy exe binary to program directory
-# add exe binary path to profile
-
-#msiexec.exe /package $destination /quiet ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1
 
 
 
