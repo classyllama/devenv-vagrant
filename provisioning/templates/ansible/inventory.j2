@@ -1,0 +1,2 @@
+[{{ inventory_group }}]
+{{ app_domain }}    ansible_host={{ app_ip | default(app_domain) }} {% if app_user is defined %}ansible_user={{ app_user }}{% endif %}

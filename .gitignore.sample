@@ -1,5 +1,10 @@
 /repo_sources/*
+/source
+/Vagrantfile
+/Vagrantfile.local.rb
 /*.vmdk
 /.vagrant/*
+/.cache/*
 /mutagen.yml.lock
-/Vagrantfile.local.rb
+/inventory/*
+/devenv

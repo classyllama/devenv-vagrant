@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+
+# Usage: rclone_archiver.sh <source_directory> <remote> <bucket> <destination_directory> <log_file>
+
+set -e
+
+# Set variables
+[ -n "$1" ] && SOURCE_DIRECTORY=$1
+[ -n "$2" ] && REMOTE=$2
+[ -n "$3" ] && BUCKET=$3
+[ -n "$4" ] && DESTINATION_DIRECTORY=$4
+[ -n "$5" ] && LOG_FILE=$5
+
+# Set default file permissions 600
+umask 177
+
+# Make sure log directory exists
+mkdir -p $(dirname "${LOG_FILE}")
+
+echo "
+------------------------------
+Starting rclone sync"
+echo "Local Time: $(date)"
+echo "UTC Time: $(date -u)"
+echo "rclone sync ${SOURCE_DIRECTORY} ${REMOTE}:${BUCKET}/${DESTINATION_DIRECTORY} \
+  --bwlimit 0 --tpslimit 10 --transfers 4 --checkers 8 \
+  --ignore-checksum --update --create-empty-src-dirs --immutable \
+  --log-level INFO --stats-one-line --stats 5s --stats-unit=bits --progress \
+  --log-file ${LOG_FILE}
+"
+
+# Archive/Sync files to remote storage
+rclone sync ${SOURCE_DIRECTORY} ${REMOTE}:${BUCKET}/${DESTINATION_DIRECTORY} \
+  --bwlimit 0 --tpslimit 10 --transfers 4 --checkers 8 \
+  --ignore-checksum --update --create-empty-src-dirs --immutable \
+  --log-level INFO --stats-one-line --stats 5s --stats-unit=bits --progress \
+  --log-file ${LOG_FILE}

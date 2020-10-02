@@ -1,35 +1,95 @@
 ---
 # Define the supported ansible version requirements of these playbooks
-ansible_version_require_min: "2.6"          # Example "2.9" or "2"
+ansible_version_require_min: "2.9"          # Example "2.9" or "2"
 ansible_version_require_min_operator: ">="  # Example ">=" or ">"
 ansible_version_require_max: "3"            # Example "2.10" or "3"
 ansible_version_require_max_operator: "<"   # Example "<=" or "<"
 
+
+# --- System Configs
 syseng_access_users:
   - { username: www-data, pubkey: ~/.ssh/id_rsa.pub }
 www_user_ssh_keys:
   - ~/.ssh/id_rsa.pub
 
-
-mysql_root_pw: CHANGEME
-
 app_domain: example.lan
+app_root_dir: /var/www/data
+app_root_install_dir: "{{ app_root_dir }}/magento"
 
 # Check to see what your system's timezone is set to
 # ls -la /etc/localtime
 timezone_name: America/Chicago
 
+inventory_group: devenv
+app_user: www-data
+
 virtualhost_disks: []
 
 location_var_www: ""
 
+
+# --- Magento Demo Configs
+magento_demo_hostname: "{{ app_domain }}"
+magento_demo_env_root: "{{ app_root_dir }}"
+magento_demo_magento_root: "{{ app_root_install_dir }}"
+magento_demo_user: www-data
+magento_demo_group: www-data
+magento_demo_config_overrides:
+  MAGENTO_COMPOSER_PROJECT: magento/project-community-edition
+  MAGENTO_REL_VER: 2.4.0
+  REDIS_OBJ_HOST: "localhost"
+  REDIS_OBJ_PORT: "6379"
+  REDIS_OBJ_DB: "0"
+  REDIS_SES_HOST: "localhost"
+  REDIS_SES_PORT: "6379"
+  REDIS_SES_DB: "1"
+  VARNISH_HOST: "localhost"
+  VARNISH_PORT: "6081"
+  SEARCH_ENGINE: "elasticsearch7"
+  ELASTIC_HOST: "localhost"
+  ELASTIC_PORT: "9200"
+  ELASTIC_ENABLE_AUTH: "1"
+  ELASTIC_USERNAME: "elastic"
+  ELASTIC_PASSWORD: "changeme"
+  SHOULD_SETUP_TFA: "true"
+
+
+# --- Tech Stack (Services) Configuration
+use_classyllama_repo_ius: true
+use_geerlingguy_repo_remi: true
+use_classyllama_repo_php_appstream: false
+use_classyllama_repo_php_remi_modular: false
+php_version: 74
+php_enablerepo: "remi-php{{ php_version }}"
+php_package_name_extra: ""
 php_fpm_pm: ondemand
 php_fpm_pm_max_children: 10
-php_version: 72
+php_fpm_memory_percentage: 50
+php_default_modules:
+  - bcmath
+  - cli
+  - common
+  - devel
+  - fpm
+  - gd
+  - intl
+  - json
+  - mbstring
+  # - mcrypt      # installed on 7.1 and prior
+  - sodium      # installed on 7.2 and later
+  - mysqlnd
+  - opcache
+  - pdo
+  - pecl-redis # Not required
+  - process
+  - soap
+  - xml
+  - xmlrpc
+  - pecl-zip
+  - pear # Requirement for PECL
 php_additional_modules:
   - xdebug
   - pecl-imagick
-
 php_fpm_global_additional_ini:
   display_errors: "on"
   html_errors: "on"
@@ -38,7 +98,6 @@ php_fpm_global_additional_ini:
   date.timezone: "{{ timezone_name }}"
   session.gc_maxlifetime: 7200
   openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
-
 php_extension_xdebug_ini:
   xdebug.remote_enable: "on"
   xdebug.remote_host: 172.28.128.1
@@ -52,10 +111,104 @@ php_extension_xdebug_ini:
   xdebug.profiler_output_name: cachegrind.out.%s.%t
 php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
+use_classyllama_repo_python_appstream: false
+python_package_name: python # CentOS 7 uses Python 2.7
+python_software_packages:
+  - "{{ python_package_name }}"
+  - "{{ python_package_name }}-pip"
+  - "{{ python_package_name }}-devel"
+  - "MySQL-python" # Python 2.7 MySQL library package
+
+use_classyllama_mariadb: false
+use_classyllama_percona: true
+percona_version: 57
+mysqld_memory_percentage: 25
+mysqld_max_connections: 15
+
+use_classyllama_repo_varnish: true
+use_classyllama_varnish: true
+varnish_version: 64
+varnish_data_storage_size: 512M
+
+use_classyllama_repo_nginx: true
+use_classyllama_repo_nginx_appstream: false
+nginx_stream_version: "1.18"
+nginx_vhosts:
+  - name: "{{ app_domain }}"
+    pool: data
+    params:
+      server_name: "{{ app_domain }}"
+      webroot: "{{ app_root_dir }}/current/pub"
+      #proxy_port: 6081
+      proxy_port: 8080
+    includes:
+      - available.d/magento2-static.conf
+nginx_backends:
+  - name: www-data
+    pool: data
+    listen: 8080
+    webroot: "{{ app_root_dir }}/current/pub"
+    includes:
+      - default.d/nginx-status.conf
+      - available.d/realip.conf
+      - available.d/magento2.conf
+nginx_extras:
+  - conf.d/map.conf
+  - available.d/realip.conf
+  - { src: nginx/magento2-static.conf, dest: available.d/magento2-static.conf }
+  - { src: nginx/magento2.conf, dest: available.d/magento2.conf }
+nginx_groups: [ www-data ]
+nginx_logrotate_users: [ www-data ]
+nginx_conf_auth_allow: []
+nginx_http_additional_config:
+  map_hash_bucket_size: "2048"
+nginx_diffie_hellman_bits: 1024 # Optimized this for build speed. Production environments should use 4096
+nginx_config_hsts: no
+nginx_sign_task: tasks/devenv_ssl-sign.yml
+nginx_ssl_cert_dir: /etc/nginx/ssl
+
+# use_classyllama_repo_ius: true
+use_classyllama_multi_redis: true
+redis_package_name: "redis5"
+redis_enablerepo: ""
+redis_version: 50
+redis_obj_maxmem: 1gb
+use_dedicated_redis_ses: false
+redis_ses_maxmem: 256mb
+use_dedicated_redis_fpc: false
+redis_fpc_maxmem: 512mb
+
+use_elastic_elasticsearch: true
+es_version: 7.8.1
+es_config:
+  node.name: "node1"
+  cluster.name: "test-cluster"
+  http.host: 0.0.0.0,
+  http.port: 9200
+  transport.tcp.port: 9300
+  node.data: true
+  node.master: true
+  bootstrap.memory_lock: true
+es_heap_size: "512m"
+# es_enable_xpack: false
+es_api_basic_auth_username: elastic
+es_api_basic_auth_password: changeme
+es_plugins:
+  - plugin: ingest-attachment
 
 
-redis_version: 32
-mysqld_memory_percentage: 50
+# --- Additional Tools Configuration
+www_user_use_default_html: false # this allows the www-data user to use /var/www/data/
+use_imagemagick: false
+use_classyllama_n98_magerun: true
+use_classyllama_magento_demo: true
+use_current_to_app_install_symlink: true
+use_create_www_projects_dir: true
+use_create_www_app_install_dir: true
+database_create_user: magento_data
+database_create_db: demo_data
+#mysqld_cred_persist: /datadb/.my.cnf
+load_magento_composer_auth_from_host: true
 
 cachetool_config:
   - path: /home/www-data
@@ -63,42 +216,6 @@ cachetool_config:
     fastcgi: /var/run/php-fpm/www-data.sock
     temp_dir: /dev/shm/cachetool
     extensions: [ opcache ]
-
-nginx_vhosts:
-  - name: "{{ app_domain }}"
-    pool: data
-    params:
-      server_name: "{{ app_domain }}"
-      webroot: /var/www/html/magento/pub
-      #proxy_port: 6081
-      proxy_port: 8080
-    includes:
-      - available.d/magento2-static.conf
-
-nginx_backends:
-  - name: www-data
-    pool: data
-    listen: 8080
-    webroot: /var/www/html/magento/pub
-    includes:
-      - default.d/nginx-status.conf
-      - available.d/realip.conf
-      - available.d/magento2.conf
-
-nginx_extras:
-  - conf.d/map.conf
-  - available.d/realip.conf
-  - { src: nginx/magento2-static.conf, dest: available.d/magento2-static.conf }
-  - { src: nginx/magento2.conf, dest: available.d/magento2.conf }
-
-nginx_groups: [ www-data ]
-nginx_conf_auth_allow: []
-
-# The backend servers are not hanlding SSL termination; optimize this for build speed
-nginx_diffie_hellman_bits: 1024
-nginx_config_hsts: no
-nginx_sign_task: tasks/devenv_ssl-sign.yml
-nginx_ssl_cert_dir: /etc/nginx/ssl
 
 devenv_openssl_rootca_dir: /etc/openssl/rootca
 devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config

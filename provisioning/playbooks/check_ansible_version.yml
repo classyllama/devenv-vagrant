@@ -1,6 +1,6 @@
 ---
 - name: check ansible version
-  hosts: localhost
+  hosts: all
   connection: local
   gather_facts: no
 
@@ -9,7 +9,7 @@
     - ../devenv_vars.config.yml
   
   tasks:
-    - name: check ansible version
+    - name: fail if wrong ansible version
       when: 
         ansible_version.string is not version(ansible_version_require_min, ansible_version_require_min_operator) or
         ansible_version.string is not version(ansible_version_require_max, ansible_version_require_max_operator)

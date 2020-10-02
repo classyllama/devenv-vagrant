@@ -1,0 +1,53 @@
+---
+
+# Confirm no invalid accounts exist
+- name: get count of mysql users with no password
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_count
+  changed_when: False
+  when: percona_version < 57
+
+- debug: var=mysql_users_with_no_password_count
+  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- name: list mysql user account without passwords
+  command: mysql -e "select user, host, password from mysql.user where password is null or password = '';"
+  register: mysql_users_with_no_password_list
+  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- debug: var=mysql_users_with_no_password_list
+  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- fail: 
+    msg: Mysql users exist that have no password
+  when: percona_version < 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+
+
+
+# Percona 5.7 - To test creating a user without a password:
+# UNINSTALL PLUGIN validate_password;
+# CREATE USER 'asdf'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+# FLUSH PRIVILEGES;
+# INSTALL PLUGIN validate_password SONAME 'validate_password.so';
+
+- name: get count of mysql users with no password
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where authentication_string is null or authentication_string = '';"
+  register: mysql_users_with_no_password_count
+  changed_when: False
+  when: percona_version >= 57
+
+- debug: var=mysql_users_with_no_password_count
+  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- name: list mysql user account without passwords
+  command: mysql -e "select user, host, authentication_string, password_expired, password_last_changed, account_locked from mysql.user where authentication_string is null or authentication_string = '';"
+  register: mysql_users_with_no_password_list
+  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- debug: var=mysql_users_with_no_password_list
+  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)
+
+- fail: 
+    msg: Mysql users exist that have no password
+  when: percona_version >= 57 and ('stdout' in mysql_users_with_no_password_count ) and (mysql_users_with_no_password_count.stdout|int > 0)

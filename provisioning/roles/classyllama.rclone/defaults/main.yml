@@ -1,0 +1,3 @@
+---
+# The location to install the config file if configured
+rclone_config_location: "/root/.config/rclone/rclone.conf"

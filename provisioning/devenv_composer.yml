@@ -23,6 +23,7 @@
       become_user: www-data
       register: remote_user
       changed_when: False
+      when: load_magento_composer_auth_from_host | default(false)
     
     - name: Get remote composer password
       shell: /usr/local/bin/composer config -g http-basic.repo.magento.com | jq -r '.password'
@@ -30,26 +31,32 @@
       become_user: www-data
       register: remote_pass
       changed_when: False
+      when: load_magento_composer_auth_from_host | default(false)
     
     - name: Get local composer user
       shell: composer config -g http-basic.repo.magento.com | jq -r '.username'
       become: no
       delegate_to: localhost
       register: local_user
-      when: remote_user and remote_user.stdout is defined and remote_user.stdout == ""
+      when: 
+        - load_magento_composer_auth_from_host | default(false)
+        - remote_user and remote_user.stdout is defined and remote_user.stdout == ""
     
     - name: Get local composer password
       shell: composer config -g http-basic.repo.magento.com | jq -r '.password'
       become: no
       delegate_to: localhost
       register: local_pass
-      when: remote_user and remote_user.stdout is defined and remote_user.stdout == ""
+      when: 
+        - load_magento_composer_auth_from_host | default(false)
+        - remote_user and remote_user.stdout is defined and remote_user.stdout == ""
     
     - name: Initialize Composer Magento Repo Auth
       shell: /usr/local/bin/composer config -g http-basic.repo.magento.com {{ local_user.stdout }} {{ local_pass.stdout }}
       become: yes
       become_user: www-data
       when: 
+        - load_magento_composer_auth_from_host | default(false)
         - remote_user and remote_user.stdout is defined and remote_user.stdout == ""
         - local_user and local_user.stdout is defined and local_user.stdout != ""
         - local_pass and local_pass.stdout is defined and local_pass.stdout != ""

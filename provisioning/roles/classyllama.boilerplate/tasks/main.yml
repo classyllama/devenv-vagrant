@@ -1,59 +1,41 @@
-- package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - perl
-    - man
-    - bash-completion
-    - pv
-    - git
-    - tree
-    - lsof
-    - mailx
-    - patch
-    - jq
-
-- name: yara package
+---
+- name: install packages
   package:
-    name: yara
+    name:
+      - ack
+      - bash-completion
+      - git
+      - htop      # requires epel-release
+      - iftop     # requires epel-release
+      - jq
+      - lsof
+      - mailx
+      - man
+      - patch
+      - perl
+      - ps_mem
+      - pv        # requires epel-release
+      - pwgen
+      - tree
     state: present
-  failed_when: false    # ignore errors on this one since it might not exist everywhere
 
-- name: rhel packages
+- name: installing chrony
   package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - ack
-    - ps_mem
-  when: ansible_os_family == 'RedHat'
-
-- name: debian packages
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - ack-grep
-  when: ansible_os_family == 'Debian'
-
-- name: installing ntp
-  package:
-    name: ntp
+    name: chrony
     state: present
   notify:
-    - ntpd started (rhel)
-    - ntp started (debian)
+    - chronyd started
   
-- name: verify ntpd service started/enabled
+- name: verify chronyd service started/enabled
   service:
-    name: ntpd
+    name: chronyd
     state: started
     enabled: yes
 
-- name: installing syseng bash profile
+- name: installing boilerplate bash profile
   template:
-    src: profile.d/syseng.sh
-    dest: /etc/profile.d/syseng.sh
+    src: profile.d/boilerplate.sh
+    dest: /etc/profile.d/boilerplate.sh
     owner: root
     group: root
     mode: 0755

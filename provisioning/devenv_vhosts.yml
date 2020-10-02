@@ -8,7 +8,7 @@
     - ./devenv_vars.config.yml
   
   vars:
-    vhosts_parent_dir: /var/www/html/projects
+    vhosts_parent_dir: /var/www/data/projects
     vhosts_dir_pattern: "*.dev"
     nginx_ssl_dir: /etc/nginx/ssl/
     ssl_config_dir: /etc/openssl/

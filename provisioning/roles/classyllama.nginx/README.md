@@ -10,6 +10,11 @@ Currently this role installs nginx pre-configured with defaults tuned for Magent
 
 None.
 
+You might need some firewall configuration changes made
+
+    sudo firewall-cmd --permanent --zone=public --add-service=https --add-service=http
+    sudo firewall-cmd --reload
+
 ## Role Variables
 
 See `defaults/main.yml` for details.

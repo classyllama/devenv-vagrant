@@ -1,13 +1,5 @@
-- name: ntpd started (rhel)
+- name: chronyd started
   service:
-    name: ntpd
+    name: chronyd
     state: started
     enabled: yes
-  when: ansible_os_family == 'RedHat'
-
-- name: ntp started (debian)
-  service:
-    name: ntp
-    state: started
-    enabled: yes
-  when: ansible_os_family == 'Debian'

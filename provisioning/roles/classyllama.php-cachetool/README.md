@@ -20,10 +20,10 @@ None.
       roles:
         - { role: classyllama.php-cachetool, tags: toolchain }
       tasks:
-        - name: Link cachetool config into /var/www/html
+        - name: Link cachetool config into /var/www/data
           file:
             src: /home/www-data/.cachetool.yml
-            dest: /var/www/html/.cachetool.yml
+            dest: /var/www/data/.cachetool.yml
             state: link
 
 ## License

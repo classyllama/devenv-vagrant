@@ -1,0 +1,18 @@
+---
+# Required variables
+magento_demo_hostname: example.lan
+magento_demo_env_root: /var/www/data
+magento_demo_magento_root: /var/www/data/magento
+magento_demo_user: www-data
+magento_demo_group: www-data
+magento_demo_scripts_dir: "/home/{{ magento_demo_user }}/magento-demo"
+magento_demo_config_name: "site"
+
+# Optional list of additional configs from config_default.json to override
+magento_demo_config_overrides: {}
+# Example:
+# magento_demo_config_overrides:
+#   MAGENTO_COMPOSER_PROJECT: magento/project-enterprise-edition
+#   MAGENTO_REL_VER: 2.4.0
+#   SHOULD_SETUP_SAMPLE_DATA: false
+#   SHOULD_RUN_CUSTOM_SCRIPT: true

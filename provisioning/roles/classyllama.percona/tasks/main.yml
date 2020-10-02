@@ -50,4 +50,5 @@
     state: started
     enabled: yes
 
-- import_tasks: rootpw.yml
+- import_tasks: root_user_setup.yml
+- import_tasks: user_check.yml

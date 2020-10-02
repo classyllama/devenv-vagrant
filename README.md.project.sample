@@ -69,13 +69,13 @@ Install Gitman (v1.7+)
 
   Initialize files if needed
 
-    cd /var/www/html/magento
+    cd /var/www/data/magento
 
     composer install
 
   Setup configs for env.php
 
-    cd /var/www/html/magento
+    cd /var/www/data/magento
 
     mkdir pub/media
     mkdir pub/static
@@ -148,11 +148,11 @@ Install Gitman (v1.7+)
       --exclude="captcha/*" \
       --exclude="tmp/*" \
       www-stage@stage.example.com:/var/www/stage/shared/pub/media/ \
-      /var/www/html/magento/pub/media/
+      /var/www/data/magento/pub/media/
 
   Setup configs for devenv
 
-    cd /var/www/html/magento
+    cd /var/www/data/magento
 
     # Initialize setup
     bin/magento setup:upgrade

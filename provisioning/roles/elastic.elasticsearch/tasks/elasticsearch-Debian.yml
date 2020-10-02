@@ -17,9 +17,16 @@
     changed_when: False
     check_mode: no
 
+  - name: unhold elasticsearch package when switching to a different package type
+    become: yes
+    dpkg_selections:
+      name: "{{ es_other_package_name }}"
+      selection: "install"
+    when: elasticsearch_package.stdout == 'install ok installed'
+
   - name: stop elasticsearch
     service:
-      name: '{{ instance_init_script | basename }}'
+      name: 'elasticsearch'
       state: stopped
     when: elasticsearch_package.stdout == 'install ok installed'
 
@@ -42,18 +49,37 @@
   - name: Debian - Add Elasticsearch repository key
     apt_key:
       url: '{{ es_apt_key }}'
+      id: '{{ es_apt_key_id }}'
       state: present
-    when: es_apt_key | string
+    when: es_add_repository and es_apt_key | string
 
   - name: Debian - Add elasticsearch repository
     apt_repository:
       repo: '{{ item.repo }}'
       state: '{{ item.state }}'
+    when: es_add_repository
     with_items:
       - { repo: "{{ es_apt_url_old }}", state: "absent" }
       - { repo: "{{ es_apt_url }}", state: "present" }
       - { repo: "{{ es_other_apt_url }}", state: "absent" }
 
+- name: Include optional user and group creation.
+  when: (es_user_id is defined) and (es_group_id is defined)
+  include: elasticsearch-optional-user.yml
+
+- name: Debian - Get installed elasticsearch version
+  command: dpkg-query --showformat='${Version}' --show {{ es_package_name }}
+  register: installed_es_version
+  failed_when: False
+  changed_when: False
+  check_mode: no
+
+- name: Debian - unhold elasticsearch version
+  become: yes
+  dpkg_selections:
+    name: "{{ es_package_name }}"
+    selection: "install"
+  when: not es_version_lock or (installed_es_version.stdout and installed_es_version.stdout != es_version)
 
 - name: Debian - Ensure elasticsearch is installed
   become: yes
@@ -67,10 +93,13 @@
   register: debian_elasticsearch_install_from_repo
   notify: restart elasticsearch
   environment:
-    ES_PATH_CONF: "/etc/elasticsearch"
+    ES_PATH_CONF: "{{ es_conf_dir }}"
 
-- name: Debian - Include versionlock
-  include: elasticsearch-Debian-version-lock.yml
+- name: Debian - hold elasticsearch version
+  become: yes
+  dpkg_selections:
+    name: "{{ es_package_name }}"
+    selection: "hold"
   when: es_version_lock
 
 - name: Debian - Download elasticsearch from url
@@ -84,4 +113,4 @@
   register: elasticsearch_install_from_package
   notify: restart elasticsearch
   environment:
-    ES_PATH_CONF: "/etc/elasticsearch"
+    ES_PATH_CONF: "{{ es_conf_dir }}"

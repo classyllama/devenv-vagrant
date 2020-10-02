@@ -1,6 +1,8 @@
 ---
 dependencies:
   - {role: geerlingguy.repo-epel, when: use_geerlingguy_repo_epel | default(true) }
+  - {role: classyllama.repo-nginx, when: use_classyllama_repo_nginx | default(true) }
+  - {role: classyllama.repo-nginx-appstream, when: use_classyllama_repo_nginx_appstream | default(false) }
 
 galaxy_info:
   role_name: nginx

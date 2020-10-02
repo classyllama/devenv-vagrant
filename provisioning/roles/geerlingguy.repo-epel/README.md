@@ -17,6 +17,10 @@ Available variables are listed below, along with default values (see `defaults/m
 
 The EPEL repo URL and GPG key URL. Generally, these should not be changed, but if this role is out of date, or if you need a very specific version, these can both be overridden.
 
+    epel_repo_disable: false
+
+Set to `true` to disable the EPEL repo (even if already installed).
+
 ## Dependencies
 
 None.

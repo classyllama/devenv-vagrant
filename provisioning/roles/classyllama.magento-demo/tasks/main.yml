@@ -1,0 +1,38 @@
+---
+
+- name: Create Magento Demo script directory
+  file:
+    path: "{{ magento_demo_scripts_dir }}"
+    state: directory
+    owner: "{{ magento_demo_user }}"
+    group: "{{ magento_demo_group }}"
+    mode: 0750
+
+- name: Copy Magento Demo install/uninstall scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ magento_demo_scripts_dir }}/{{ item }}"
+    owner: "{{ magento_demo_user }}"
+    group: "{{ magento_demo_group }}"
+    mode: 0750
+  with_items:
+    - install-magento.sh
+    - uninstall-magento.sh
+
+- name: Copy Magento Demo default config
+  copy:
+    src: "{{ item }}"
+    dest: "{{ magento_demo_scripts_dir }}/{{ item }}"
+    owner: "{{ magento_demo_user }}"
+    group: "{{ magento_demo_group }}"
+    mode: 0640
+  with_items:
+    - config_default.json
+
+- name: Create Magento Demo site config file
+  template:
+    src: config_site.json.j2
+    dest: "{{ magento_demo_scripts_dir }}/config_{{ magento_demo_config_name }}.json"
+    owner: "{{ magento_demo_user }}"
+    group: "{{ magento_demo_group }}"
+    mode: 0640

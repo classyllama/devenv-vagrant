@@ -1,0 +1,73 @@
+---
+# Official Varnish Installation Instructions:
+# https://varnish-cache.org/docs/trunk/installation/install_redhat.html
+
+# List of Official Varnish Repos: https://packagecloud.io/varnishcache/
+# https://packagecloud.io/varnishcache/varnish60lts/install#manual-rpm
+
+
+
+# On RHEL/CentOS 8 the packages will not show up if 
+# the default stream module is enabled
+# https://www.percona.com/doc/percona-server/5.7/installation/yum_repo.html
+- name: Check dnf module varnish
+  shell:
+    cmd: dnf -q module list varnish | grep varnish | grep '[d]'
+    warn: false
+  register: dnf_module_varnish
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_varnish
+
+- name: Disable varnish module
+  shell:
+    cmd: dnf -y module disable varnish
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_varnish.stdout != ""
+    - not '[x]' in dnf_module_varnish.stdout
+
+
+
+- name: Install varnish repo dependency yum-utils
+  package:
+    name: 
+      - yum-utils
+- name: Install varnish repo dependency pygpgme
+  package:
+    name:
+      - pygpgme
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version < '8'
+
+- name: Remove deprecated varnish41 repo config
+  file:
+    path: /etc/yum.repos.d/varnish-4.1.repo
+    state: absent
+
+
+
+- name: Check if varnish repo is already configured
+  stat:
+    path: "/etc/yum.repos.d/varnishcache_varnish{{ varnish_version }}.repo"
+  register: varnish_repofile_result
+
+- name: Install varnish repo
+  template:
+    src: "varnishcache_varnish.repo"
+    dest: "/etc/yum.repos.d/varnishcache_varnish{{ varnish_version }}.repo"
+  when: not varnish_repofile_result.stat.exists
+
+- name: Generate yum cache for varnish repo
+  command: "yum -q makecache -y --disablerepo='*' --enablerepo='varnishcache_varnish{{ varnish_version }}*'"
+  args:
+    warn: no
+  when: not varnish_repofile_result.stat.exists

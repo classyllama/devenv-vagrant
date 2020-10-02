@@ -1,0 +1,24 @@
+---
+dependencies:
+  - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(true) }
+  - { role: geerlingguy.repo-remi, when: use_geerlingguy_repo_remi | default(false) }
+  - { role: classyllama.repo-php-appstream, when: use_classyllama_repo_php_appstream | default(false) }
+  - { role: classyllama.repo-php-remi-modular, when: use_classyllama_repo_php_remi_modular | default(false) }
+
+galaxy_info:
+  role_name: php_fpm
+  author: David Alger
+  description: PHP-FPM from IUS RPMs on RHEL / CentOS Linux
+  license: MIT
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 6
+
+  galaxy_tags:
+    - system
+    - php-fpm
+    - php

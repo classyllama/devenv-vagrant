@@ -3,13 +3,13 @@
 set -eu
 
 # Move to realpath
-cd $(pwd -P)
+cd $(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
-EXPERIMENT_NAME="${PWD##*/}" # Use the current directory name
+SOURCE_NAME="${PWD##*/}" # Use the current directory name
 GITMAN_ROOT="../../"
 PERSIST_DIR="${GITMAN_ROOT}" # Use gitman root
 GITMAN_LOCATION=$(cd $(pwd -P)/../;echo ${PWD##*/})
-SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
+SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 
 # Link from source directory to persistent directory
 [[ -L persistent ]] || ln -s ${PERSIST_DIR} persistent
@@ -19,6 +19,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 
 # Create symlinks in persistent to source files
 [[ -L persistent/Vagrantfile ]] || ln -s source/Vagrantfile persistent/Vagrantfile
+[[ -L persistent/devenv ]] || ln -s source/devenv_shortcuts.sh persistent/devenv
 
 # Copy sample files to persistent directory if they do not exist yet.
 [[ -f persistent/.gitignore ]] || cp .gitignore.sample persistent/.gitignore
@@ -28,6 +29,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${EXPERIMENT_NAME}"
 [[ -f persistent/mutagen.yml ]] || cp mutagen.yml.sample persistent/mutagen.yml
 [[ -f persistent/devenv_playbook.config.yml ]] || cp provisioning/devenv_playbook.config.yml.sample persistent/devenv_playbook.config.yml
 [[ -f persistent/README.md ]] || cp README.md.project.sample persistent/README.md
+[[ -f persistent/ansible.cfg ]] || cp provisioning/ansible.cfg.sample persistent/ansible.cfg
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml

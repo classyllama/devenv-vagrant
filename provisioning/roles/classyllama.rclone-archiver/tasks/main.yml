@@ -1,0 +1,26 @@
+---
+- name: upload {{ filebackup_bin_dir }}/rclone_archiver.sh
+  template:
+    src: "{{ rclone_archiver_template }}"
+    dest: "{{ rclone_archiver_bin_dir }}/rclone_archiver.sh"
+    owner: root
+    group: root
+    mode: 0700
+
+- name: configure daily file backup cron workers
+  tags: crontab
+  cron:
+    name: "rclone_archiver.sh {{ item.source_directory }} {{ item.remote }} {{ item.bucket }} {{ item.destination_directory }}"
+    job: "{{ rclone_archiver_bin_dir }}/rclone_archiver.sh {{ item.source_directory }} {{ item.remote }} {{ item.bucket }} {{ item.destination_directory }} {{ item.log_file }}"
+    user: root
+    minute: "{{ item.cron_minute }}"
+    hour: "{{ item.cron_hour }}"
+  with_items: "{{ rclone_archiver_items }}"
+
+- name: configure logrotate.d/rclone_archiver
+  template:
+    src: logrotate
+    dest: /etc/logrotate.d/rclone_archiver
+    owner: root
+    group: root
+    mode: 0644

@@ -1,0 +1,16 @@
+---
+python_package_name: python3
+python_software_packages: 
+  - "{{ python_package_name }}"
+  - "{{ python_package_name }}-pip"
+  - "{{ python_package_name }}-devel"
+  - "{{ python_package_name }}-PyMySQL"
+python_pip_packages: []
+
+# Example for CentOS 7 (running Python 2.7)
+# python_package_name: python
+# python_software_packages:
+#   - "{{ python_package_name }}"
+#   - "{{ python_package_name }}-pip"
+#   - "{{ python_package_name }}-devel"
+#   - "MySQL-python"

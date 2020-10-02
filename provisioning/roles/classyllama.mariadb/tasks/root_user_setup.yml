@@ -1,0 +1,94 @@
+---
+- name: Install pwgen
+  package:
+    name: pwgen
+    state: present
+
+
+# Determine existing/initial root password
+- stat:
+    path: ~root/.my.cnf
+  register: root_my_cnf
+
+- set_fact:
+    mycnf_start_root_opts:
+      user: root
+      password: ""
+  when: not root_my_cnf.stat.exists
+
+- name: initial creation of ~root/.my.cnf after mysqld install
+  ini_file:
+    dest: ~root/.my.cnf
+    mode: "600"
+    section: client
+    option: "{{ item.key }}"
+    value: "'{{ item.value }}'"
+  with_dict: "{{ mycnf_start_root_opts }}"
+  when: not root_my_cnf.stat.exists
+
+
+
+# Generate new or use existing preset password
+- name: generate password
+  command: >
+    pwgen -cnys -r "\"'\!#\`=" 32 1
+  register: gen_new_passwd
+  when: not root_my_cnf.stat.exists
+  no_log: true
+
+- set_fact:
+    mycnf_root_opts:
+      user: root
+      password: "{{ gen_new_passwd.stdout }}"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: Override root password when a default password is set
+  set_fact:
+    mycnf_root_opts:
+      user: root
+      password: "{{ mysqld_default_root_password }}"
+  when: 
+    - mysqld_default_root_password is defined 
+    - mysqld_default_root_password|length > 0
+  no_log: true
+
+
+
+# Change root password
+# MySQL 5.7.6 / MariaDB 10.1.20 and later
+- name: set mysql root localhost user password ('root'@'localhost' - socket)
+  command: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: update ~root/.my.cnf
+  ini_file:
+    dest: ~root/.my.cnf
+    mode: "600"
+    section: client
+    option: "{{ item.key }}"
+    value: "'{{ item.value }}'"
+  with_dict: "{{ mycnf_root_opts }}"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: set mysql root localhost user password ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: set mysql root localhost user password ('root'@'::1' - TCP/IP)
+  command: mysql -e "ALTER USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: get system hostname
+  command: hostname
+  register: local_hostname
+  when: gen_new_passwd.changed
+
+- name: "set mysql root localhost user password ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
+  command: mysql -e "ALTER USER 'root'@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when: gen_new_passwd.changed
+  no_log: true

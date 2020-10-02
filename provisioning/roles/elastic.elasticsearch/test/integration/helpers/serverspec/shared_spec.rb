@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'json'
 vars = JSON.parse(File.read('/tmp/vars.json'))
 
-families = {
+$families = {
   'Debian' => {
     'shell'    => '/bin/false',
     'password' => '*',
@@ -15,9 +15,9 @@ families = {
   }
 }
 
-family = families[vars['ansible_os_family']]
+$family = $families[vars['ansible_os_family']]
 
-es_api_url = "http://localhost:#{vars['es_api_port']}"
+es_api_url = "#{vars['es_api_scheme']}://localhost:#{vars['es_api_port']}"
 username = vars['es_api_basic_auth_username']
 password = vars['es_api_basic_auth_password']
 
@@ -44,42 +44,12 @@ shared_examples 'shared::init' do |vars|
     end
   end
   describe 'xpack checks' do
-    if vars['es_enable_xpack']
-      it 'should be be running the xpack version' do
+    if not vars['oss_version']
+      it 'should be be running the basic version' do
         expect(curl_json("#{es_api_url}/_xpack", username=username, password=password)['tagline']).to eq('You know, for X')
       end
       it 'xpack should be activated' do
         expect(curl_json("#{es_api_url}/_license", username=username, password=password)['license']['status']).to eq('active')
-      end
-      if vars.key?('es_xpack_features')
-        curl_json("#{es_api_url}/_xpack", username=username, password=password)['features'].each do |feature,values|
-          enabled = vars['es_xpack_features'].include? feature
-          status = if enabled then 'enabled' else 'disabled' end
-          it "the xpack feature '#{feature}' to be #{status}" do
-            expect(values['enabled'] = enabled)
-          end
-        end
-      else
-        features.each do |feature, status|
-          feature_available = curl_json("#{es_api_url}/_xpack", username=username, password=password)['features'][feature]['available']
-          if feature_available == "true"
-            status = "available"
-          else
-            status = "unavailable"
-          end
-          it "the xpack feature '#{feature}' to be #{status}" do
-            expect(feature_available = status['available'])
-          end
-          feature_enabled = curl_json("#{es_api_url}/_xpack", username=username, password=password)['features'][feature]['enabled']
-          if feature_enabled == "true"
-            status = "enabled"
-          else
-            status = "disabled"
-          end
-          it "the xpack feature '#{feature}' to be #{status}" do
-            expect(feature_available = status['enabled'])
-          end
-        end
       end
     end
   end
@@ -88,16 +58,16 @@ shared_examples 'shared::init' do |vars|
     it { should belong_to_group vars['es_group'] }
     it { should have_uid vars['es_user_id'] } if vars.key?('es_user_id')
 
-    it { should have_login_shell family['shell'] }
+    it { should have_login_shell $family['shell'] }
 
-    its(:encrypted_password) { should eq(family['password']) }
+    its(:encrypted_password) { should eq($family['password']) }
   end
 
   describe package(vars['es_package_name']) do
     it { should be_installed }
   end
 
-  describe service("#{vars['es_instance_name']}_elasticsearch") do
+  describe service("elasticsearch") do
     it { should be_running }
   end
 
@@ -108,11 +78,11 @@ shared_examples 'shared::init' do |vars|
   if vars['es_templates']
     describe file('/etc/elasticsearch/templates') do
       it { should be_directory }
-      it { should be_owned_by vars['es_user'] }
+      it { should be_owned_by 'root' }
     end
     describe file('/etc/elasticsearch/templates/basic.json') do
       it { should be_file }
-      it { should be_owned_by vars['es_user'] }
+      it { should be_owned_by 'root' }
     end
     #This is possibly subject to format changes in the response across versions so may fail in the future
     describe 'Template Contents Correct' do
@@ -128,20 +98,9 @@ shared_examples 'shared::init' do |vars|
       end
     end
   end
-  describe file('/etc/init.d/elasticsearch') do
-    it { should_not exist }
-  end
 
-  describe file(family['defaults_path']) do
+  describe file($family['defaults_path']) do
     its(:content) { should match '' }
-  end
-
-  describe file('/etc/elasticsearch/elasticsearch.yml') do
-    it { should_not exist }
-  end
-
-  describe file('/etc/elasticsearch/logging.yml') do
-    it { should_not exist }
   end
 
   if vars.key?('es_plugins')
@@ -149,7 +108,7 @@ shared_examples 'shared::init' do |vars|
       name = plugin['plugin']
       describe file('/usr/share/elasticsearch/plugins/'+name) do
         it { should be_directory }
-        it { should be_owned_by vars['es_user'] }
+        it { should be_owned_by 'root' }
       end
       it 'should be installed and the right version' do
         plugins = curl_json("#{es_api_url}/_nodes/plugins", username=username, password=password)
@@ -162,12 +121,13 @@ shared_examples 'shared::init' do |vars|
       end
     end
   end
-  describe file("/etc/elasticsearch/#{vars['es_instance_name']}/elasticsearch.yml") do
-    it { should contain "node.name: localhost-#{vars['es_instance_name']}" }
+  describe file("/etc/elasticsearch/elasticsearch.yml") do
+    it { should be_owned_by 'root' }
+    it { should contain "node.name: localhost" }
     it { should contain 'cluster.name: elasticsearch' }
-    it { should_not contain "path.conf: /etc/elasticsearch/#{vars['es_instance_name']}" }
-    its(:content) { should match "path.data: #{vars['data_dirs'].join(',')}" }
-    its(:content) { should match "path.logs: /var/log/elasticsearch/localhost-#{vars['es_instance_name']}" }
+    it { should_not contain "path.conf: /etc/elasticsearch" }
+    its(:content) { should match "path.data: #{vars['es_data_dirs'].join(',')}" }
+    its(:content) { should match "path.logs: /var/log/elasticsearch" }
   end
 
   if vars['es_use_repository']
