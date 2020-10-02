@@ -27,6 +27,7 @@ wsl --list --verbose
 Find-PackageProvider -Name 'Nuget' -ForceBootstrap -IncludeDependencies
 
 # Install chocolatey if it isn't installed yet
+# https://chocolatey.org/install
 Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 choco feature enable -n allowGlobalConfirmation
 
@@ -100,7 +101,7 @@ code --install-extension neilbrayfield.php-docblocker
 # Install Gitman 
 choco install python -y
 
-# Install xDebug helper for Edge
+# Install xDebug helper for Edge Web Browser
 https://microsoftedge.microsoft.com/addons/detail/xdebug-helper/ggnngifabofaddiejjeagbaebkejomen
 
 
@@ -349,6 +350,10 @@ wsl --list --verbose
 wsl --terminate CentOS8
 wsl --list --verbose 
 wsl
+
+
+
+
 
 
 
