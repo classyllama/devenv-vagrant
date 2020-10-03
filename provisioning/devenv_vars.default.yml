@@ -99,6 +99,7 @@ php_fpm_global_additional_ini:
   session.gc_maxlifetime: 7200
   openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
 php_extension_xdebug_ini:
+  zend_extension: xdebug.so
   xdebug.remote_enable: "on"
   xdebug.remote_host: 172.28.128.1
   xdebug.idekey: PHPSTORM

@@ -24,15 +24,28 @@
       register: xdebug_ini_disabled_stat
     
     - name: Copy disabled xdebug ini file to enable it
-      copy: 
-        remote_src: true 
+      copy:
+        remote_src: true
         src: "{{ php_xdebug_ini_path }}.disabled"
         dest: "{{ php_xdebug_ini_path }}"
       when: xdebug_ini_disabled_stat.stat.exists
       notify:
         - restart php-fpm
-    
+
     - name: Remove disabled xdebug ini file
-      file: 
+      file:
         path: "{{ php_xdebug_ini_path }}.disabled"
         state: absent
+    
+    - name: Check if xdebug is listed among php module list
+      shell: php -m | grep -i xdebug | head -1
+      register: php_module_xdebug_match
+      changed_when: false
+      check_mode: no
+    
+    - debug: 
+        var: php_module_xdebug_match.stdout
+    
+    - fail:
+        msg: "ERROR: Xdebug still seems to be disabled somehow!"
+      when: not ansible_check_mode and php_module_xdebug_match is defined and php_module_xdebug_match.stdout == ""
