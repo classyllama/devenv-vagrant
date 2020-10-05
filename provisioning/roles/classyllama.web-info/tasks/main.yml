@@ -1,0 +1,36 @@
+---
+- name: web-info config templates
+  template:
+    src: "{{ item.src }}"
+    dest: /etc/nginx/{{ item.dest }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ web_info_config_templates }}"
+  notify: reload nginx
+
+- name: web-info vhost template
+  template:
+    src: "{{ web_info_vhost_template }}"
+    dest: /etc/nginx/conf.d/web-info.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
+
+- name: create web-info web root directory
+  file:
+    path: "{{ web_info_vhost_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: web-info web files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ web_info_vhost_root }}/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ web_info_web_files }}"

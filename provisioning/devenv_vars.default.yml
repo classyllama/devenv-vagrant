@@ -210,6 +210,7 @@ database_create_user: magento_data
 database_create_db: demo_data
 #mysqld_cred_persist: /datadb/.my.cnf
 load_magento_composer_auth_from_host: true
+use_classyllama_web_info: true
 
 cachetool_config:
   - path: /home/www-data

@@ -116,6 +116,10 @@ roles:
     name: classyllama.varnish
     scm: git
   
+  - src: git@github.com:classyllama/ansible-role-web-info.git
+    name: classyllama.web-info
+    scm: git
+  
   - src: git@github.com:classyllama/ansible-role-www-user.git
     name: classyllama.www-user
     scm: git

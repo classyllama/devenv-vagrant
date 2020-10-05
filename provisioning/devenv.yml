@@ -121,6 +121,7 @@
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.n98-magerun, tags: toolchain, when: use_classyllama_n98_magerun | default(false) }
     - { role: classyllama.magento-demo, tags: magento-demo, when: use_classyllama_magento_demo | default(false) }
+    - { role: classyllama.web-info, tags: web-info, when: use_classyllama_web_info | default(false) }
     
   tasks:
     
