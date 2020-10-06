@@ -121,6 +121,7 @@
     - { role: classyllama.composer, tags: toolchain }
     - { role: classyllama.n98-magerun, tags: toolchain, when: use_classyllama_n98_magerun | default(false) }
     - { role: classyllama.magento-demo, tags: magento-demo, when: use_classyllama_magento_demo | default(false) }
+    - { role: classyllama.web-info, tags: web-info, when: use_classyllama_web_info | default(false) }
     
   tasks:
     
@@ -175,15 +176,43 @@
         - mysqld_cred_persist|length > 0
     
     # --- DevEnv Configuration
-    # xDebug Setup/Configure
-    - name: configure xdebug.ini
+    # Make sure any existing default xdebug ini file from installation is backed up
+    - name: Check for existing xdebug ini install file
+      tags: xdebug
+      stat:
+        path: "{{ php_xdebug_ini_path }}"
+      register: xdebug_ini_stat
+    - name: Backup xdebug ini file as install_default file
+      tags: xdebug
+      copy: 
+        remote_src: true 
+        src: "{{ php_xdebug_ini_path }}"
+        dest: "{{ php_xdebug_ini_path }}.install_default"
+      when: xdebug_ini_stat.stat.exists
+    - name: Remove xdebug ini file to ensure it is disabled
+      tags: xdebug
+      file: 
+        path: "{{ php_xdebug_ini_path }}"
+        state: absent
+    # Created configured xdebug.ini file that is disabled
+    - name: configure xdebug.ini.disabled
+      tags: xdebug
       ini_file:
+        section: null
         dest: "{{ php_xdebug_ini_path }}.disabled" # xdebug disabled by default
-        section: xdebug
         option: "{{ item.key }}"
         value: "{{ item.value }}"
       with_dict: "{{ php_extension_xdebug_ini }}"
       notify: restart php-fpm
+    # Detect if php xdebug module is actually disabled
+    - name: Check if xdebug is listed among php module list
+      shell: php -m | grep -i xdebug | head -1
+      register: php_module_xdebug_match
+    - debug: 
+        var: php_module_xdebug_match.stdout
+    - fail:
+        msg: "ERROR: Xdebug still seems to be enabled somehow!"
+      when: php_module_xdebug_match is defined and php_module_xdebug_match.stdout != ""
     
     # Symlink for nginx site root
     - name: Link www current directory to app install dir

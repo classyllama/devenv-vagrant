@@ -1,17 +1,9 @@
 # TODO  
-[ ] Ability to disable/enable xdebug
-    [ ] built-in info page (special path) for checking devenv details like if xdebug is enabled or not
+[ ] built-in info page (special path) for checking devenv details like if xdebug is enabled or not
 [ ] Mutagen auto start/stop
 [ ] Windows VirtualBox Support
-    [ ] WSL (Ubuntu/CentOS)
-    [ ] x64/ARM
     [ ] VirtualBox
         [ ] Persistent Disk
-    [ ] Vagrant (within WSL)
-        [ ] Hostmanager
-    [ ] Ansible (within WSL)
-        [ ] Trust RootCA
-    [ ] Mutagen (within Windows)
 [ ] Windows ARM DigitalOcean Support
     [ ] Detatch/Reattach Data Disk
     [ ] Use Data Disk for different VMs?
@@ -21,10 +13,7 @@
     [ ] Define instructions in README for moving project files
     [ ] Consider locating persistent disk volume files in separate location from project files
 
-[ ] Redis 5 on CentOS 7 (currently installs 3.2) (Redis 5 is installed on CentOS 8)
-[ ] Varnish 6.x on CentOS 7 (currently installs 4.1) (Varnish 6.x is installed on CentOS 8)
 [ ] MariaDB 10.4 (MariaDB 10.3 is installed on CentOS 8)
-[ ] ElasticSearch 7.x on CentOS 7 (ElasticSearch 7.x is installed on CentOS 8)
 [ ] RabitMQ 3.8.x
 
 [ ] Fix RootCA SSL file syncing

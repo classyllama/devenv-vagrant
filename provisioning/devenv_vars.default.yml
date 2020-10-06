@@ -99,6 +99,7 @@ php_fpm_global_additional_ini:
   session.gc_maxlifetime: 7200
   openssl.cafile: /etc/pki/tls/certs/ca-bundle.crt
 php_extension_xdebug_ini:
+  zend_extension: xdebug.so
   xdebug.remote_enable: "on"
   xdebug.remote_host: 172.28.128.1
   xdebug.idekey: PHPSTORM
@@ -193,8 +194,8 @@ es_heap_size: "512m"
 # es_enable_xpack: false
 es_api_basic_auth_username: elastic
 es_api_basic_auth_password: changeme
-es_plugins:
-  - plugin: ingest-attachment
+es_plugins: []
+#  - plugin: ingest-attachment
 
 
 # --- Additional Tools Configuration
@@ -209,6 +210,7 @@ database_create_user: magento_data
 database_create_db: demo_data
 #mysqld_cred_persist: /datadb/.my.cnf
 load_magento_composer_auth_from_host: true
+use_classyllama_web_info: true
 
 cachetool_config:
   - path: /home/www-data

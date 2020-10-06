@@ -1,0 +1,14 @@
+---
+web_info_vhost_template: vhost_web-info.conf
+web_info_vhost_server_name: "{{ app_domain|default('example.lan') }}"
+web_info_vhost_root: /var/www/web-info
+web_info_vhost_phpfpm_socket: www-data
+web_info_vhost_phpfpm_pool: data
+web_info_vhost_backend_includes: 
+  - available.d/web-info.conf
+web_info_config_templates:
+  - { src: available.d/web-info.conf, dest: available.d/web-info.conf }
+web_info_web_files:
+  - { src: web-info/index.php, dest: index.php }
+  - { src: web-info/phpinfo.php, dest: phpinfo.php }
+  - { src: web-info/sodium.php, dest: sodium.php }
