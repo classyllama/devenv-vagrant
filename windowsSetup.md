@@ -196,6 +196,7 @@
     #git config --global core.autocrlf false
     git config --global core.autocrlf input
     git config --global core.eol lf
+    git config --global core.filemode false
 
 #### Manual GUI Step
 
@@ -367,19 +368,20 @@
 
     # Include into user bash profile
     ADD_TO_PROFILE=$(cat <<'HEREDOC_CONTENTS'
-
+    
+    export GITMAN_CACHE_DISABLE=true
     export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
     export PATH=$PATH:/mnt/c/Windows/System32
     export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
     export PATH="$PATH:/mnt/c/Program Files/Mutagen"
     alias mutagen="mutagen.exe"
-
+    
     ### START-Keychain ###
     # Let  re-use ssh-agent and/or gpg-agent between logins
     /usr/bin/keychain $HOME/.ssh/id_rsa
     source $HOME/.keychain/$HOSTNAME-sh
     ### End-Keychain ###
-
+    
     HEREDOC_CONTENTS
     )
     echo "${ADD_TO_PROFILE}" >> ~/.bash_profile
