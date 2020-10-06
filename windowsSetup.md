@@ -7,7 +7,7 @@
 - python git gitman
 - Windows for OpenSSH
 
-#### Check system requirements (Powershell)
+### Check system requirements (Powershell)
 
   Tested on WindowsProductName Windows 10 Pro, WindowsVersion 2004
 
@@ -20,7 +20,7 @@
 
 # Installation
 
-#### Manual GUI Step
+### Manual GUI Step
 
     # ----------------------------
     # Install xDebug helper for Edge Web Browser
@@ -31,7 +31,7 @@
     # Disable python and python3 in "Manage App Execution Aliases"
     # ----------------------------
 
-#### Chocolatey (Powershell as Administrator)
+### Chocolatey (Powershell as Administrator)
 
   Install chocolatey (Windows software package manager)
   https://chocolatey.org/install
@@ -61,7 +61,7 @@
     # List all available PowerShell modules that can be installed
     Get-Module -ListAvailable
 
-#### Tools (Powershell as Administrator)
+### Tools (Powershell as Administrator)
 
   Virtualbox and Vagrant
 
@@ -198,14 +198,14 @@
     git config --global core.eol lf
     git config --global core.filemode false
 
-#### Manual GUI Step
+### Manual GUI Step
 
     # ----------------------------
     # Close and Restart Terminal Application
     # This reloads environment variables necessary for the next steps
     # ----------------------------
 
-#### Tools (Powershell as Administrator)
+### Tools (Powershell as Administrator)
 
   Install Gitman
   https://gitman.readthedocs.io/
@@ -216,13 +216,13 @@
 
     pip install gitman
 
-#### Manual GUI Step
+### Manual GUI Step
 
     # ----------------------------
     # Reboot Windows
     # ----------------------------
 
-#### WSL (Powershell as Administrator)
+### WSL (Powershell as Administrator)
 
   Download CentOS8 WSL Distro Launcher and rootfs
   https://github.com/Microsoft/WSL-DistroLauncher
@@ -254,7 +254,7 @@
     # Change the default login user wsl will use
     Start-Process -FilePath "$path\CentOS8.exe" -ArgumentList "config --default-user $Env:UserName"
 
-#### SSH Keys (Powershell)
+### SSH Keys (Powershell)
 
   Create new ssh keypair (ssh-keygen) or import existing keys into $Env:USERPROFILE\.ssh\
 
@@ -271,7 +271,7 @@
 
     ssh user@hostname
 
-#### WSL Environment Setup (WSL)
+### WSL Environment Setup (WSL)
 
     wsl
 
@@ -389,7 +389,7 @@
     # Reload bash profile
     source ~/.bash_profile
 
-#### Restart WSL Container (Powershell)
+### Restart WSL Container (Powershell)
 
     wsl --list --verbose 
     wsl --terminate CentOS8

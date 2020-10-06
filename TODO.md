@@ -4,6 +4,7 @@
 [ ] Windows VirtualBox Support
     [ ] VirtualBox
         [ ] Persistent Disk
+    [ ] Running Mutagen from WSL takes forever to scan files and sync
 [ ] Windows ARM DigitalOcean Support
     [ ] Detatch/Reattach Data Disk
     [ ] Use Data Disk for different VMs?
