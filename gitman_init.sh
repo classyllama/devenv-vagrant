@@ -33,3 +33,9 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml
+
+# Rebuild all symlinks inside repo (for Windows/WSL support)
+# find . -type l -ls
+[[ -L provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial ]] 
+    && rm provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial 
+    && ln -s xpack-upgrade provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial
