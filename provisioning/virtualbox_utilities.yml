@@ -1,0 +1,16 @@
+---
+- name: Common
+  hosts: all
+  become: true
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+  
+  tasks:
+    - name: import user ssh-keys
+      authorized_key:
+        user: vagrant
+        key: "{{ lookup('file', '{{ item.pubkey }}') }}"
+        exclusive: no
+      with_items: "{{ syseng_access_users }}"

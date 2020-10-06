@@ -12,112 +12,117 @@
   
   tasks:
     
-    - name: Create ansible remote temp directory
-      file:
-        path: /root/.ansible/tmp
-        state: directory
-        mode: "700"
+    - name: use use_vm_cache
+      block:
+        
+        - name: Create ansible remote temp directory
+          file:
+            path: /root/.ansible/tmp
+            state: directory
+            mode: "700"
     
-    - name: Create local cache directory
-      file:
-        path: ../persistent/.cache/dnf
-        state: directory
-        mode: "755"
-      delegate_to: localhost
-      become: false
+        - name: Create local cache directory
+          file:
+            path: ../persistent/.cache/dnf
+            state: directory
+            mode: "755"
+          delegate_to: localhost
+          become: false
     
-    - name: Create remote cache directory
-      file:
-        path: /var/cache/dnf
-        state: directory
-        mode: "755"
+        - name: Create remote cache directory
+          file:
+            path: /var/cache/dnf
+            state: directory
+            mode: "755"
 
-    - name: Send prepopulated cache directory to the remote (only .rpm files)
-      synchronize:
-        mode: push
-        src: ../persistent/.cache/dnf/
-        dest: /var/cache/dnf/
-        owner: no
-        group: no
-        recursive: yes
-        rsync_opts:
-          - '--prune-empty-dirs'
-          - "--include=*/"
-          - "--include=*.rpm"
-          - "--exclude=*"
-    
-    
-    
-
-    
-    - name: Create local cache directory (yum)
-      file:
-        path: ../persistent/.cache/yum
-        state: directory
-        mode: "755"
-      delegate_to: localhost
-      become: false
-    
-    - name: Create remote cache directory (yum)
-      file:
-        path: /var/cache/yum
-        state: directory
-        mode: "755"
-
-    - name: Send prepopulated cache directory to the remote (only .rpm files) (yum)
-      synchronize:
-        mode: push
-        src: ../persistent/.cache/yum/
-        dest: /var/cache/yum/
-        owner: no
-        group: no
-        recursive: yes
-        rsync_opts:
-          - '--prune-empty-dirs'
-          - "--include=*/"
-          - "--include=*.rpm"
-          - "--exclude=*"
+        - name: Send prepopulated cache directory to the remote (only .rpm files)
+          synchronize:
+            mode: push
+            src: ../persistent/.cache/dnf/
+            dest: /var/cache/dnf/
+            owner: no
+            group: no
+            recursive: yes
+            rsync_opts:
+              - '--prune-empty-dirs'
+              - "--include=*/"
+              - "--include=*.rpm"
+              - "--exclude=*"
     
     
     
 
     
-    - name: Create local cache directory (composer)
-      file:
-        path: ../persistent/.cache/composer
-        state: directory
-        mode: "755"
-      delegate_to: localhost
-      become: false
+        - name: Create local cache directory (yum)
+          file:
+            path: ../persistent/.cache/yum
+            state: directory
+            mode: "755"
+          delegate_to: localhost
+          become: false
     
-    - name: Create remote cache directory composer
-      file:
-        path: /root/.composer/cache
-        state: directory
-        mode: "755"
+        - name: Create remote cache directory (yum)
+          file:
+            path: /var/cache/yum
+            state: directory
+            mode: "755"
 
-    - name: Send prepopulated cache directory to the remote (composer)
-      synchronize:
-        mode: push
-        src: ../persistent/.cache/composer/
-        dest: /root/.composer/cache/
-        owner: no
-        group: no
-        recursive: yes
+        - name: Send prepopulated cache directory to the remote (only .rpm files) (yum)
+          synchronize:
+            mode: push
+            src: ../persistent/.cache/yum/
+            dest: /var/cache/yum/
+            owner: no
+            group: no
+            recursive: yes
+            rsync_opts:
+              - '--prune-empty-dirs'
+              - "--include=*/"
+              - "--include=*.rpm"
+              - "--exclude=*"
     
     
     
-    
-    - name: Ensure yum cache is enabled so that packages are kept in cache directory
-      ini_file:
-        path: /etc/yum.conf
-        section: main
-        option: keepcache
-        value: "1"
 
-    - name: Ensure dnf cache is enabled so that packages are kept in cache directory
-      ini_file:
-        path: /etc/dnf/dnf.conf
-        section: main
-        option: keepcache
-        value: "1"
+    
+        - name: Create local cache directory (composer)
+          file:
+            path: ../persistent/.cache/composer
+            state: directory
+            mode: "755"
+          delegate_to: localhost
+          become: false
+    
+        - name: Create remote cache directory composer
+          file:
+            path: /root/.composer/cache
+            state: directory
+            mode: "755"
+
+        - name: Send prepopulated cache directory to the remote (composer)
+          synchronize:
+            mode: push
+            src: ../persistent/.cache/composer/
+            dest: /root/.composer/cache/
+            owner: no
+            group: no
+            recursive: yes
+    
+    
+    
+    
+        - name: Ensure yum cache is enabled so that packages are kept in cache directory
+          ini_file:
+            path: /etc/yum.conf
+            section: main
+            option: keepcache
+            value: "1"
+
+        - name: Ensure dnf cache is enabled so that packages are kept in cache directory
+          ini_file:
+            path: /etc/dnf/dnf.conf
+            section: main
+            option: keepcache
+            value: "1"
+      
+      when: use_vm_cache | default(false)

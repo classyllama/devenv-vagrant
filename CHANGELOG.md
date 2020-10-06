@@ -1,5 +1,22 @@
 # Change Log
 
+## 0.2.5 - 2020-10
+
+- Bug - dnf sync error
+- Bug - Authorize additional key on vagrant user
+- Bug - persist_root_my_cnf not defined
+
+## 0.2.4 - 2020-10
+
+- Updates to ansible roles geerlingguy.repo-epel and geerlingguy.repo-remi
+- Updates instructions for installing mutagen on macos
+- xdebug - resolve issue of missing zend_extension key in ini file
+- xdebug - verify if php module is enabled/disabled correctly
+- disable default plugin install
+- cleanup todo list
+- new ansible role for environment info
+- adding exclusion for $ character in mysql generated passwords
+
 ## 0.2.3 - 2020-09
 
 - Provide reference variable for persisting root .my.cnf

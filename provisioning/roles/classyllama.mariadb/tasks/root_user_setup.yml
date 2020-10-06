@@ -31,7 +31,7 @@
 # Generate new or use existing preset password
 - name: generate password
   command: >
-    pwgen -cnys -r "\"'\!#\`=" 32 1
+    pwgen -cnys -r "\"'\!#\`=\$" 32 1
   register: gen_new_passwd
   when: not root_my_cnf.stat.exists
   no_log: true
