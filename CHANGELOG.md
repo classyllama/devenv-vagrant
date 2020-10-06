@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.2.x - 2020-08
+## 0.2.3 - 2020-09
 
 - Provide reference variable for persisting root .my.cnf
 - Update default elasticsearch version
