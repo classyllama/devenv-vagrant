@@ -1,6 +1,7 @@
 ---
 - import_playbook: playbooks/check_ansible_version.yml
 
+- import_playbook: virtualbox_utilities.yml
 - import_playbook: preload_cache.yml
 
 - import_playbook: devenv_inventory.yml
