@@ -70,6 +70,7 @@
         - mysqld_cred_persist is defined 
         - mysqld_cred_persist|length > 0
         - not root_my_cnf.stat.exists
+        - persist_root_my_cnf.stat is defined
         - persist_root_my_cnf.stat.exists
 
   roles:
