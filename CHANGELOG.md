@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.5 - 2020-10
+
+- Bug - dnf sync error
+- Bug - Authorize additional key on vagrant user
+- Bug - persist_root_my_cnf not defined
+
 ## 0.2.4 - 2020-10
 
 - Updates to ansible roles geerlingguy.repo-epel and geerlingguy.repo-remi
