@@ -7,7 +7,7 @@
 - python git gitman
 - Windows for OpenSSH
 
-Check system requirements (Powershell)
+#### Check system requirements (Powershell)
 
     Tested on WindowsProductName Windows 10 Pro, WindowsVersion 2004
 
@@ -20,7 +20,7 @@ Check system requirements (Powershell)
 
 # Installation
 
-Manual GUI Step
+#### Manual GUI Step
 
         # ----------------------------
         # Install xDebug helper for Edge Web Browser
@@ -31,7 +31,7 @@ Manual GUI Step
         # Disable python and python3 in "Manage App Execution Aliases"
         # ----------------------------
 
-Chocolatey (Powershell as Administrator)
+#### Chocolatey (Powershell as Administrator)
 
     Install chocolatey (Windows software package manager)
     https://chocolatey.org/install
@@ -61,7 +61,7 @@ Chocolatey (Powershell as Administrator)
         # List all available PowerShell modules that can be installed
         Get-Module -ListAvailable
 
-Tools (Powershell as Administrator)
+#### Tools (Powershell as Administrator)
 
     Virtualbox and Vagrant
 
@@ -159,15 +159,52 @@ Tools (Powershell as Administrator)
         # Get session's path environment variable
         Get-Content -Path Env:Path
         mutagen version
+    
+    Windows Symlink Support
+    Configure Windows user to allow symbolic link creation for compatibility with WSL use of symlinks
 
-Manual GUI Step
+        # Enable Developer Mode (from Powershell)
+        # https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowAllTrustedApps" /d "1"
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+
+        # Providing SeCreateSymbolicLinkPrivilege to normal user
+        # List existing privileges
+        whoami /priv
+        # Install Carbon (from administrator terminal)
+        choco install Carbon -y
+        refreshenv
+        Get-ExecutionPolicy
+        # Default execution policy is "Restricted"
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+        Import-Module 'Carbon'
+        # Grant SeCreateSymbolicLinkPrivilege Privilegen (from administrator terminal)
+        Grant-Privilege -Identity $Env:UserName -Privilege SeCreateSymbolicLinkPrivilege
+        # Test SeCreateSymbolicLinkPrivilege Privilege (from administrator terminal)
+        Test-Privilege -Identity $Env:UserName -Privilege SeCreateSymbolicLinkPrivilege
+
+    Git Config
+    
+        # Set name and email in git config
+        git config --global user.name "First Last"
+        git config --global user.email name@example.com
+
+        # Make sure git is configured to use the Windows for OpenSSH binaries
+        git config --global core.sshCommand (get-command ssh).Source.Replace('\','/')
+
+        # Prevent Windows based git operations from altering file contents which need to work properly on Linux environments
+        #git config --global core.autocrlf false
+        git config --global core.autocrlf input
+        git config --global core.eol lf
+
+#### Manual GUI Step
 
         # ----------------------------
         # Close and Restart Terminal Application
         # This reloads environment variables necessary for the next steps
         # ----------------------------
 
-Tools (Powershell as Administrator)
+#### Tools (Powershell as Administrator)
 
     Install Gitman
     https://gitman.readthedocs.io/
@@ -178,18 +215,13 @@ Tools (Powershell as Administrator)
 
         pip install gitman
 
-    Git Config
-    
-        # Make sure git is configured to use the Windows for OpenSSH binaries
-        git config --global core.sshCommand (get-command ssh).Source.Replace('\','/')
-
-Manual GUI Step
+#### Manual GUI Step
 
         # ----------------------------
         # Reboot Windows
         # ----------------------------
 
-WSL (Powershell as Administrator)
+#### WSL (Powershell as Administrator)
 
     Download CentOS8 WSL Distro Launcher and rootfs
     https://github.com/Microsoft/WSL-DistroLauncher
@@ -221,7 +253,7 @@ WSL (Powershell as Administrator)
         # Change the default login user wsl will use
         Start-Process -FilePath "$path\CentOS8.exe" -ArgumentList "config --default-user $Env:UserName"
 
-SSH Keys (Powershell)
+#### SSH Keys (Powershell)
 
     Create new ssh keypair (ssh-keygen) or import existing keys into $Env:USERPROFILE\.ssh\
 
@@ -238,7 +270,7 @@ SSH Keys (Powershell)
 
         ssh user@hostname
 
-WSL Environment Setup (WSL)
+#### WSL Environment Setup (WSL)
 
         wsl
 
@@ -355,7 +387,7 @@ WSL Environment Setup (WSL)
         # Reload bash profile
         source ~/.bash_profile
 
-Restart WSL Container (Powershell)
+#### Restart WSL Container (Powershell)
 
         wsl --list --verbose 
         wsl --terminate CentOS8
