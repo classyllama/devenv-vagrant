@@ -3,8 +3,11 @@
 For any system requirements or troubleshooting there are references in the [devenv-vagrant README.md](https://github.com/classyllama/devenv-vagrant/blob/master/README.md).
 
 [macOS Setup](https://github.com/classyllama/devenv-vagrant/blob/master/macOsSetup.md)
+
 [Windows Setup](https://github.com/classyllama/devenv-vagrant/blob/master/windowsSetup.md)
+
 [Project Setup](https://github.com/classyllama/devenv-vagrant/blob/master/projectSetup.md)
+
 [Troubleshooting](https://github.com/classyllama/devenv-vagrant/blob/master/troubleshooting.md)
 
 # Initialize DevEnv

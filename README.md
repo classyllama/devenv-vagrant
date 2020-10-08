@@ -9,6 +9,7 @@ A goal of this dev env is to avoid as many host assumptions as possible in order
 # Host Requirement Installation
 
 [macOS Setup](macOsSetup.md)
+
 [Windows Setup](windowsSetup.md)
 
 ### Hard Requirements

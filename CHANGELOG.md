@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.2.6 - 2020-10
+
+- Windows Support
+- Organization of documentation and references
+
 ## 0.2.5 - 2020-10
 
 - Bug - dnf sync error
