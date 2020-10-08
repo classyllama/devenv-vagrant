@@ -1,62 +1,17 @@
 # Requirements
 
-### MacOS
+For any system requirements or troubleshooting there are references in the [devenv-vagrant README.md](https://github.com/classyllama/devenv-vagrant/blob/master/README.md).
 
-Install tools needed for DevEnv
-
-    brew cask install virtualbox
-    brew cask install vagrant
-    vagrant plugin list
-    vagrant plugin install vagrant-hostmanager
-    vagrant plugin install vagrant-digitalocean
-    brew install ansible
-    brew install mutagen
-    brew install python
-
-Allow vagrant-hostmanager to update hosts file without requiring password prompt
-
-```
-HOME_DIR="${HOME}"
-USER_GROUP_NAME="$(id -gn $(whoami))"
-echo "
-HOME_DIR: ${HOME_DIR}
-USER_GROUP_NAME: ${USER_GROUP_NAME}
-VAGRANT_HOME: ${VAGRANT_HOME}
-"
-echo "
-Cmnd_Alias VAGRANT_HOSTMANAGER_UPDATE = /bin/cp ${VAGRANT_HOME}/tmp/hosts.local /etc/hosts
-%${USER_GROUP_NAME} ALL=(root) NOPASSWD: VAGRANT_HOSTMANAGER_UPDATE
-" | sudo tee /etc/sudoers.d/vagrant_hostmanager
-```
-
-Add this to your bash profile `~/.bash_profile` to make sure python 3.x is default for shell commands.
-For zsh you should put this in `~/.zshrc`
-
-    export PATH="/usr/local/opt/python/libexec/bin:$PATH"
-
-Check default python version
-
-    python --version
-
-Install Gitman (v1.7+)
-
-    pip install gitman
+[macOS Setup](https://github.com/classyllama/devenv-vagrant/blob/master/macOsSetup.md)
+[Windows Setup](https://github.com/classyllama/devenv-vagrant/blob/master/windowsSetup.md)
+[Project Setup](https://github.com/classyllama/devenv-vagrant/blob/master/projectSetup.md)
+[Troubleshooting](https://github.com/classyllama/devenv-vagrant/blob/master/troubleshooting.md)
 
 # Initialize DevEnv
 
   Initialize DevEnv repo source files
 
     gitman install
-  
-  or
-  
-    mkdir -p repo_sources
-    cd repo_sources
-    git clone git@github.com:alpacaglue/exp-vagrant-m2.git devenv
-    cd devenv
-    git checkout feature/project-attempt
-    bash gitman_init.sh
-    cd ../../
 
   Build machine
   
@@ -67,6 +22,8 @@ Install Gitman (v1.7+)
     mutagen project start
     mutagen sync monitor
 
+  Run from within the VM
+  
   Initialize files if needed
 
     cd /var/www/data/magento
@@ -108,9 +65,7 @@ Install Gitman (v1.7+)
     ;
 
   Import Database from stage
-
-  If you want to keep the database dump file from stage in your project directory it may be best to store it in the `tools/devenv` directory so that it doesn't get synced down to the VM as mutagen ignores the `tools/devenv` directory.
-
+  
     echo "
     mysql -e 'show databases'
     " | ssh -o StrictHostKeyChecking=no \
@@ -118,7 +73,7 @@ Install Gitman (v1.7+)
         -o LogLevel=ERROR \
         www-stage@stage.example.com
 
-    echo "show databases" | vagrant ssh -c "mysql" -- -q
+    echo "show databases" | mysql
 
     # About X minute (XX.XMiB)
     echo "
@@ -135,12 +90,9 @@ Install Gitman (v1.7+)
         www-stage@stage.example.com \
       | pv | gunzip \
       | LC_ALL=C sed 's/\/\*[^*]*DEFINER=[^*]*\*\///g' \
-      | vagrant ssh -c \
-      "mysql -D demo_data --default-character-set=utf8" -- -q
+      | mysql -D demo_data --default-character-set=utf8
 
   Sync Media Files
-
-  Run from within the VM
 
     rsync -avz --progress \
       -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR" \
@@ -193,7 +145,7 @@ Install Gitman (v1.7+)
 
   Monitor Mutagen
 
-      mutagen sync monitor
+    mutagen sync monitor
 
   Open in browser
 

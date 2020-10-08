@@ -30,7 +30,7 @@ class PluginHostmanagerHelper
       end
     end
   end
-  
+
   # Check to make sure hostname of machine resolves
   def self.vmUpTrigger(node, machineName)
     node.trigger.after :up do |trigger|
@@ -48,8 +48,65 @@ class PluginHostmanagerHelper
         else
           #print "machine_name_resolves: #{machine_name_resolves}\n"
         end
+
+        # Hostmanager Sync on Up
+        if ( self.isRunningInWsl() )
+          print "vmUpTrigger\n"
+          self.syncWindowsHostsFromWsl()
+        end
       end
       
     end
   end
+  
+  # Hostmanager Sync on Destroy
+  def self.vmDestroyTrigger(node)
+    node.trigger.after :destroy do |trigger|
+      trigger.name = "Hostmanager Sync"
+      trigger.ruby do |env,machine|
+        if ( self.isRunningInWsl() )
+          print "vmDestroyTrigger\n"
+          self.syncWindowsHostsFromWsl()
+        end
+      end
+    end
+  end
+  
+  # Check to see if vagrant is being executed from WSL
+  def self.isRunningInWsl()
+
+    if (RbConfig::CONFIG['host_os'] =~ /linux/)
+      print "\e[33m"+"--- Running within Linux --- Checking for WSL"+"\e[0m\n"
+      if (%x( uname -r ) =~ /Microsoft/ )
+        print "\e[33m"+"--- Running within WSL Detected."+"\e[0m\n"
+        return true
+      end
+    end
+
+  end
+
+  # Update Windows Hosts form WSL environment
+  def self.syncWindowsHostsFromWsl()
+
+    # Update Windows hosts file with vagrant-hostmanager entries
+    # VAGRANTHOSTS=$(echo -e "\n""$(awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/' /etc/hosts)""\n")
+    # WINHOSTS_NOVAGRANTHOSTS=$(awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/{next}{print}' /mnt/c/Windows/System32/drivers/etc/hosts)
+    # echo -e "${WINHOSTS_NOVAGRANTHOSTS}${VAGRANTHOSTS}" > /mnt/c/Windows/System32/drivers/etc/hosts
+    
+    linuxHostsFile = "/etc/hosts"
+    windowsHostsFile = "/mnt/c/Windows/System32/drivers/etc/hosts"
+
+    print "\e[33m"+"Getting vagrant-hostmanager entries from Linux to rebuild Windows hosts file."+"\e[0m\n"
+    vagrantHosts = %x( awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/' #{linuxHostsFile} )
+    winHostsWithoutVagrantHosts = %x( awk '/^## vagrant-hostmanager-start/,/^## vagrant-hostmanager-end$/{next}{print}' #{windowsHostsFile} )
+    #print "#{winHostsWithoutVagrantHosts}"
+    #print "#{vagrantHosts}"
+
+    print "\e[33m"+"Writing to Windows hosts file with vagrant-hostmanager entries."+"\e[0m\n"
+    newWinHosts = "#{winHostsWithoutVagrantHosts}#{vagrantHosts}"
+    file = Pathname.new(windowsHostsFile)
+    file.open('wb') { |io| io.write(newWinHosts) }
+
+  end
+
 end

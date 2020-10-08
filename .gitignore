@@ -4,6 +4,7 @@
 /mutagen.yml.lock
 /Vagrantfile.local.rb
 /Vagrantfile.config.rb
+/provisioning/devenv_vars.config.yml
 
 /local
 /projects/*
