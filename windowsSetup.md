@@ -1,11 +1,45 @@
 # Requirements
-- Virtualbox
-- Vagrant
-- WSL (Windows Subsystem for Linux v1)
-- Ansible (inside WSL)
-- Mutagen
-- python git gitman
-- Windows for OpenSSH
+
+- [Vagrant] Windows / WSL
+- [Vagrant-Hostmanager] WSL
+- [VirtualBox] Windows
+- [Ansible] WSL
+- [Git] Windows / WSL
+- [Mutagen] Windows
+- [Python] + [Gitman] Windows / WSL
+- [PHP] + [Composer] + [jq] Windows / WSL
+- Ability to sync root CA to local filesystem and trust it
+- Ability to create predefined hosts entries for dev VMs.
+
+### Additional Windows Requirements
+
+- [WSL (Windows Subsystem for Linux v1)] Windows
+    * Requirement: critical to utilize Ansible with Vagrant
+    * Implications: without WSL, Vagrant can not build and configure the VM
+- [WSL Distribution Image - CentOS8] Windows
+    * Requirement: critical to utilize WSL
+    * Implications: without a CentOS8 WSL distribution, the user will need to setup their own distribution and translate commands for that distribution
+- [Windows for OpenSSH] Windows
+    * Requirement: important for standard operation
+    * Implications: without Windows for OpenSSH, Mutagen may not be able to properly connect to the DevEnv to sync files
+- [Windows Developer Mode] Windows
+    * Requirement: convenient
+    * Implications: Allow symbolic link creation in WSL to also work in Windows
+- [Carbon Powershell Module] Windows
+    * Requirement: convenient
+    * Implications: Allow symbolic link creation in WSL to also work in Windows
+- [Microsoft Windows Terminal] Windows
+    * Requirement: convenient
+    * Implications: without Microsoft Windows Terminal, the user will need to use PowerShell or the Command Prompt directly
+- [VSCode] Windows
+    * Requirement: convenient
+    * Implications: without VSCode, the user will need to setup and configure their own IDE
+- [Chocolatey] Windows
+    * Requirement: convenient
+    * Implications: without a Chocolatey, the user will have to install applications manually
+- [keychain] WSL
+    * Requirement: convenient
+    * Implications: without keychain, the user will need to enter private key passwords on each WSL shell that is opened
 
 ### Check system requirements (Powershell)
 
@@ -193,8 +227,7 @@
     git config --global core.sshCommand (get-command ssh).Source.Replace('\','/')
 
     # Prevent Windows based git operations from altering file contents which need to work properly on Linux environments
-    #git config --global core.autocrlf false
-    git config --global core.autocrlf input
+    git config --global core.autocrlf false
     git config --global core.eol lf
     git config --global core.filemode false
 
@@ -396,3 +429,122 @@
     wsl --list --verbose
     wsl
     exit
+
+
+
+
+
+
+
+
+
+
+
+# Project Setup Example Overview
+
+### Local Project Files (Powershell)
+
+    # Create project directory
+    cd ~/projects
+    mkdir example_project
+    cd example_project
+
+    # Clone project repo (this could optionally be done from within WSL)
+    git clone git@bitbucket.org:organization/reponame.git
+    cd reponame
+
+    # Enter WSL for DevEnv Initialization
+    wsl
+
+### Project DevEnv Initialization (WSL)
+
+  Clone DevEnv Environment Repo for Project
+
+    # You should be in the project repo directory
+    # /mnt/c/Users/$(whoami)/projects/example_project/reponame
+    # change to the tools/devenv directory
+    cd tools/devenv
+
+    # Run gitman to pull down the specific commit/release of the devenv for this project to use
+    gitman install
+
+    # ...or... if not using gitman, the checkout can be done manually
+    mkdir -p repo_sources
+    cd repo_sources
+    git clone git@github.com:classyllama/devenv-vagrant.git devenv
+    cd devenv
+    git checkout master
+    bash gitman_init.sh
+    cd ../../
+
+    # Launch Vagrant to build Virtual Machine
+    vagrant up
+
+  The project's tools/devenv/README.md file is expected to contain more details and specific information on setting up an environment for the specific project.
+  
+  Mutagen is intended to copy files from your host (Windows/WSL) into the virtual machine's file system, so there will be a copy of all the code files both inside the virtual machine where web requests are executed, and on your host where you edit and make changes to the code files. It is important to be aware of what mutagen is doing, and understanding that it syncs copies of files, and that there is the potential for there to be differences between what you seen in a code editor and what is on the file system where the code is being executed.
+  
+  Each project is likely to have specific initialization instructions for:
+  
+  - syncing files with mutagen
+  - initializaing any code dependencies
+  - setting up environment variables
+  - importing a database
+  - syncing persistant files related to data in the database
+  - configuring the application
+  - initializing the application
+  - monitoring mutagen
+  - terminating mutagen
+  - devenv shortcut commands
+
+  To stop the Virtual Machine
+  
+    vagrant halt
+
+  To destroy the Virtual Machine (and any data it contains)
+  
+    vagrant destroy -f
+
+### First Project Setup (Powershell as Administrator)
+
+  Trusting Generated Root CA for DevEnv
+
+  When you setup your first project with the DevEnv it will create likely create a persistant Root CA key to use in generating certificates inside any DevEnv. This new key will be used to sign all the SSL certificates on all DevEnv sites. You can avoid any insecure certificate warnings when browsing the DevEnv sites by trusting the Root CA certificate on Windows, or if you end up setting up a proxy for another device to connect a browser to your DevEnv.
+  
+  The generated Root CA that is unique to your machine/user should be located inside the WSL environment's file system, but you can easily access that from PowerShell as long as the WSL environment is running.
+  
+    # Check to see if WSL is running
+    wsl --list --verbose
+  
+    # view contents of generated root ca from powershell
+    # equivilent in WSL: cat ~/.devenv/rootca/devenv_ca.crt
+    get-content \\wsl$\CentOS8\home\$Env:UserName\.devenv\rootca\devenv_ca.crt
+    
+    # Add generated root ca to trusted certs in Windows (from powershell running as administrator)
+    certutil –addstore -enterprise –f "Root" \\wsl$\CentOS8\home\$Env:UserName\.devenv\rootca\devenv_ca.crt
+
+
+
+
+
+[Vagrant]: https://www.vagrantup.com/
+[Virtualbox]: https://www.virtualbox.org/
+[Vagrant-Hostmanager]: https://github.com/devopsgroup-io/vagrant-hostmanager
+[Composer]: https://getcomposer.org/
+[jq]: https://stedolan.github.io/jq/
+[Digital Ocean Vagrant Provider]: https://github.com/devopsgroup-io/vagrant-digitalocean
+[Ansible]: https://www.ansible.com/
+[Mutagen]: https://mutagen.io/
+[Gitman]: https://github.com/jacebrowning/gitman
+[iac-test-lab]: https://github.com/classyllama/iac-test-lab
+
+[WSL (Windows Subsystem for Linux v1)]: https://docs.microsoft.com/en-us/windows/wsl/
+[Chocolatey]: https://chocolatey.org/
+[Windows for OpenSSH]: https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview
+[Windows Developer Mode]: https://docs.microsoft.com/en-us/windows/uwp/get-started/enable-your-device-for-development
+[Carbon Powershell Module]: http://get-carbon.org/
+[Microsoft Windows Terminal]: https://docs.microsoft.com/en-us/windows/terminal/
+[VSCode]: https://code.visualstudio.com/
+[WSL Distribution Image - CentOS8]: https://github.com/yuk7/wsldl
+[keychain]: https://www.funtoo.org/Keychain
+

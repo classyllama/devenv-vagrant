@@ -16,6 +16,7 @@ sync:
         - "pub/media/"
         - "pub/static/"
         - "tools/devenv/*"
+        - "node_modules/"
     permissions:
       defaultFileMode: 664
       defaultDirectoryMode: 0775
