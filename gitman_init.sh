@@ -36,6 +36,6 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 
 # Rebuild all symlinks inside repo (for Windows/WSL support)
 # find . -type l -ls
-[[ -L provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial ]] 
-    && rm provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial 
+[[ -L provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial ]] \
+    && rm provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial \
     && ln -s xpack-upgrade provisioning/roles/elastic.elasticsearch/test/integration/xpack-upgrade-trial
