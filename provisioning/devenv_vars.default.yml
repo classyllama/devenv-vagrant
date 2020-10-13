@@ -223,3 +223,5 @@ cachetool_config:
 devenv_openssl_rootca_dir: /etc/openssl/rootca
 devenv_openssl_ca_config: /etc/openssl/devenv_openssl_ca_config
 devenv_openssl_req_config: /etc/openssl/devenv_openssl_req_config
+
+web_info_ssl_cert_task: tasks/devenv_ssl-sign.yml
