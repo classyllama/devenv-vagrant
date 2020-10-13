@@ -9,6 +9,11 @@
   with_items: "{{ web_info_config_templates }}"
   notify: reload nginx
 
+- name: web-info selfsign ssl certificate
+  include_tasks: "{{ web_info_ssl_cert_task }}"
+  vars:
+    common_name: "{{ web_info_vhost_server_name }}"
+
 - name: web-info vhost template
   template:
     src: "{{ web_info_vhost_template }}"

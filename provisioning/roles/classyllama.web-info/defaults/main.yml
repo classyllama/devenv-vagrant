@@ -12,3 +12,4 @@ web_info_web_files:
   - { src: web-info/index.php, dest: index.php }
   - { src: web-info/phpinfo.php, dest: phpinfo.php }
   - { src: web-info/sodium.php, dest: sodium.php }
+web_info_ssl_cert_task: ssl-selfsign.yml
