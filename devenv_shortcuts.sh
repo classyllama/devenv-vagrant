@@ -37,7 +37,7 @@ declare COMMAND_OPTION=""
 case $1 in
     xdebug)
         COMMAND="xdebug"
-        if [ ! $# -ge 2 ] || [[ ! "$2" =~ ^enable|disable$ ]]; then
+        if [ ! $# -ge 2 ] || [[ ! "$2" =~ ^enable|disable|status$ ]]; then
             >&2 echo "Error: Invalid command option given. Valid command options: (enable|disable)"
             echo ""
             echo "${HELP_INFO}"
@@ -63,5 +63,15 @@ if [[ "${COMMAND}" == "xdebug" ]]; then
     ansible-playbook -i ../persistent/inventory/devenv action_xdebug_enable.yml --diff
   elif [[ "${COMMAND_OPTION}" == "disable" ]]; then
     ansible-playbook -i ../persistent/inventory/devenv action_xdebug_disable.yml --diff
+  elif [[ "${COMMAND_OPTION}" == "status" ]]; then
+    # XDEBUG_STATUS=$(echo "php -m | grep -i xdebug | head -1" | vagrant ssh -c "bash" -- -q)
+    INVENTORY_FILE="../persistent/inventory/devenv"
+    SSH_HOST=$(cat ${INVENTORY_FILE} | perl -ne 'while(/ansible_host=([^\s]+)/g){print "$1";}')
+    SSH_USER=$(cat ${INVENTORY_FILE} | perl -ne 'while(/ansible_user=([^\s]+)/g){print "$1";}')
+    XDEBUG_STATUS=$(ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR ${SSH_USER}@${SSH_HOST} "php -m | grep -i xdebug | head -1")
+    XDEBUG_STATUS=${XDEBUG_STATUS//[[:space:]]/}
+    [[ "${XDEBUG_STATUS}" != "" ]] \
+      && echo "xDebug Enabled" \
+      || echo "xDebug Disabled"
   fi
 fi
