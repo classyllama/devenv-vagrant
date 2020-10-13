@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.2.7 - 2020-10
+
+- Bug - Fixed web-info vhost expecting ssl cert where none exists
+- Bug - Fixed MariaDB log file that couldn't be created due to permission issues
+- Feature - xdebug status
+- Updated Mutagen sample to not exclude /dev/ directory on sync
+
 ## 0.2.6 - 2020-10
 
 - Windows Support
