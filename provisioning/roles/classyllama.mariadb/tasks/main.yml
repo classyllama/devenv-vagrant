@@ -43,6 +43,17 @@
     backup: yes
   notify: restart mysql
 
+- name: create mysqld tmpdir
+  file:
+    path: /var/log/mysqld.log
+    state: touch
+    owner: mysql
+    group: mysql
+    mode: 0640
+    modification_time: preserve
+    access_time: preserve
+  when: mysqld_create_mysqld_log
+
 - name: start mariadb service
   service:
     name: mariadb
