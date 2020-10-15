@@ -3,7 +3,7 @@ import fileinput
 import os
 
 """
-This script is used to bump elasticsearch versions before a new release
+This script is used to bump beats versions before a new release
 
 Usage:
 - Change the values of `old_versions` and `new_versions``
@@ -26,6 +26,7 @@ new_versions = {
 files = [
     'README.md',
     'defaults/main.yml',
+    'test/integration/standard-6x.yml',
     '.kitchen.yml',
 ]
 

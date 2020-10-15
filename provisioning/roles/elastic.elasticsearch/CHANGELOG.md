@@ -1,5 +1,29 @@
 # Changelog
 
+## 7.9.2 - 2020/09/24
+
+* 7.9.2 as default version
+
+| PR                                                                | Author                                 | Title                                    |
+|-------------------------------------------------------------------|----------------------------------------|------------------------------------------|
+| [#716](https://github.com/elastic/ansible-elasticsearch/pull/716) | [@lksnyder0](https://github.com/lksnyder0) | Use run_once for api related tasks        |
+
+## 7.9.1 - 2020/09/03
+
+* 7.9.1 as default version
+
+| PR                                                                | Author                                 | Title                                    |
+|-------------------------------------------------------------------|----------------------------------------|------------------------------------------|
+| [#701](https://github.com/elastic/ansible-elasticsearch/pull/701) | [@suramon](https://github.com/suramon) | Fix running ansible in check mode        |
+| [#703](https://github.com/elastic/ansible-elasticsearch/pull/703) | [@anisf](https://github.com/anisf)     | Add amazonlinux2 support                 |
+| [#705](https://github.com/elastic/ansible-elasticsearch/pull/705) | [@andzs](https://github.com/andzs)     | Use sudo for users migration from <6.3.0 |
+
+## 7.9.0 - 2020/08/18
+
+* 7.9.0 as default version
+* 6.8.12 as 6.x tested version
+
+
 ## 7.8.1 - 2020/07/28
 
 * 7.8.1 as default version
