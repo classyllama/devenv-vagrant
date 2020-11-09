@@ -33,15 +33,50 @@ Install Homebrew using the "Install Homebrew" command on the official website: h
 
 After Homebrew is installed, install the host dependencies using the following commands.
 
-    brew cask install virtualbox
     brew cask install vagrant
     brew install ansible
     brew install mutagen-io/mutagen/mutagen
-    pip3 install gitman
-    vagrant plugin list
+    sudo pip3 install gitman
     vagrant plugin install vagrant-hostmanager
     vagrant plugin install vagrant-digitalocean
 
+### VirtualBox
+
+Virtual Box can either be installed by downloading the [official installer](https://www.virtualbox.org/wiki/Downloads) of via Homebrew using the following command. 
+
+    brew cask install virtualbox
+
+*A manual step is required to enable the kernel extension.* This is indicated during setup, but the prompt is easy to miss and won't appear again on its own.
+
+After installation, before attempting to start any virtual machines, do the following. See the screenshot below for a visual reference.
+
+1. Open System Preferences, then visit Security & Privacy.
+2. Click the lock on the bottom-left of System Preferences and supply your password to unlock these settings.
+3. Toward the bottom of the screen, a message of the form "Systm software [...] was blocked from loading." should be displayed.
+	1. If you don't see this message, then either the kernel extension has previously been approved, or the Virtual Box installation was not successful.
+4. Click the Allow button next to the message.
+5. Even with these steps, the kernel extension sometimes fails to load immediatly after installation. To proactively address this issue, at this point reboot your mac.
+
+![Kernel extension approval screenshot](http://files.classyllama.com/a18e4458/33718112-56a08f76-db2a-11e7-9a22-9b2253cbabef_2559885C.png)
+
+### Composer, JQ and Magento Access Keys
+
+The VM currently injects Magento composer access keys when provisioning the VM. In order for this to be successful, [Composer] and [jq] must be installed on the host, and Magento composer access keys must be configured prior to starting the VM. Use the following instructions to set this up.
+
+	wget https://getcomposer.org/composer-stable.phar # download latest composer version
+	sudo mv composer-stable.phar /usr/local/bin/composer # move to PATH and use standard "composer" name
+	sudo chmod 755 /usr/local/bin/composer # make composer executable
+	wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 # download JQ executable
+	sudo mv jq-osx-amd64 /usr/local/bin/jq # move to PATH and use standard "jq" name
+	sudo chmod 755 /usr/local/bin/jq # make jq executable
+
+Once these tools are installed, generate and configure Magento composer access keys using the following workflow.
+
+1. Visit [marketplace.magento.com](https://marketplace.magento.com) (not to be confused for magento.com or magento.cloud) and log in using your Magento.com account.
+2. On the top-right, click your name to dropdown an account menu, then click My Profile.
+3. Visit My Products -> Access Keys
+4. Generate a new set of access keys by clicking the Create A New Access Key button, or get the Public Key and Private Key values from a previously-generated key.
+5. On your mac host, run a command of the following form to configure composer to use these: `composer config http-basic.repo.magento.com <public key> <private key>`
 
 ## Allow changes to hosts file
 
@@ -69,25 +104,25 @@ Prior to provisioning the first dev env VM, Virtualbox (if being used) requires 
 2. Using the `Create` and `Remove` buttons at the top left, ensure that there are exactly two network adapters: `vboxnet0` and `vboxnet1`.
 	1. If this configuration is done before provisioning any VMs, then there will already be a `vboxnet0` adapter, so all that is requried is to click `Create` to create the `vboxnet1` adapter.
 	2. If this configuration was inadvertently skipped prior to provisioning a VM, both `vboxnet0` and `vboxnet1` may already exist, in which case this step can be skipped.
-3. For the `vboxnet0` interface, configure the `Adapter` tab settings to match the following values.
+3. Double click the `vboxnet0` interface line, then configure the `Adapter` tab settings to match the following values.
 	1. Configure Adapter Manually
 	2. IPv4 Address: 10.19.89.1
 	3. IPv4 Network Mask: 255.255.255.0
 	4. IPv6 Address: <blank>
 	5. IPv6 Prefix Length: 0
-4. For the `vboxnet0` interface, configure the `DHCP Server` tab settings to match the following values.
+4. Double click the `vboxnet0` interface line, then configure the `DHCP Server` tab settings to match the following values.
 	1. Enable Server: checked
 	2. Server Address: 192.168.56.100
 	3. Server Mask: 255.255.255.0
 	4. Lower Address Bound: 192.168.56.101
 	5. Upper Address Bound: 192.168.56.254
-5. For the `vboxnet1` interface, configure the `Adapter` tab settings to match the following values.
+5. Double click the `vboxnet1` interface line, then configure the `Adapter` tab settings to match the following values.
 	1. Configure Adapter Manually
 	2. IPv4 Address: 172.28.128.1
 	3. IPv4 Network Mask: 255.255.255.0
 	4. IPv6 Address: <blank>
 	5. IPv6 Prefix Length: 0
-6. For the `vboxnet1` interface, configure the `DHCP Server` tab settings to match the following values.
+6. Double click the `vboxnet1` interface line, then configure the `DHCP Server` tab settings to match the following values.
 	1. Enable Server: checked
 	2. Server Address: 172.28.128.2
 	3. Server Mask: 255.255.255.0
@@ -122,7 +157,7 @@ For Firefox you will need to add the certificate authority manually through Fire
 
 
 [Vagrant]: https://www.vagrantup.com/
-[Virtualbox]: https://www.virtualbox.org/
+[VirtualBox]: https://www.virtualbox.org/
 [Vagrant-Hostmanager]: https://github.com/devopsgroup-io/vagrant-hostmanager
 [Composer]: https://getcomposer.org/
 [jq]: https://stedolan.github.io/jq/
