@@ -90,7 +90,7 @@ Review the project README.md sample that was copied into the tools/devenv direct
 
 The files directly in the `tools/devenv` will contain the variants you need for your project's customizations, can be commited to your projects source code repo, and the `tools/devenv/repo_sources` directory containing this repo will just be cloned indepdenently on each developer's machine and ignored by your project's git repo.
 
-### Initializing a new application project install
+### Initializing a new application project install (quick start)
 
 Build VM
 
@@ -118,6 +118,7 @@ Install Magento in VM using install script
 Start Mutagen to sync files into your host system so they can be committed to a project repo
 
     # [run from host]
+    cd ~/projects/example.lan/tools/devenv
     mutagen project start
     mutagen sync monitor
 
@@ -138,6 +139,35 @@ https://example.lan/backend/
     oathtool --time-step-size=30 --window=0 --totp=sha1 --base32 "$(cat magento_admin_credentials.json | jq -r .admin_tfa_secret)"
 
 Additional notes on Demo Install and Two Factor Auth: https://github.com/classyllama/ansible-role-magento-demo#notes
+
+Enable Debugging
+
+- Enable PHP xDebug inside VM
+
+        # [run from host]
+        cd ~/projects/example.lan/tools/devenv
+        ./devenv xdebug enable
+
+- Open PhpStorm at project root directory
+
+        # [run from host]
+        cd ~/projects/example.lan
+        pstorm .
+
+- Start Listening for PHP Debug Connections
+- In browser enable debug with xDebug browser extension
+- Get realpath for application root
+
+        # [run from vm]
+        cd /var/www/data/current/
+        pwd -P
+
+- Setup path mapping in PhpStorm
+    Use the output of "pwd -P" in PhpStorm path mapping (example: /data/www/data/magento)
+
+
+
+
 
 
 
