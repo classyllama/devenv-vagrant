@@ -32,6 +32,16 @@
 #   }
 # ]
 
+
+
+
+
+
+
+
+
+
+
 # $use_provider = "virtualbox" # possible values ["virtualbox", "digitalocean"]
 
 # $digital_ocean_api_token = 'CHANGEME'

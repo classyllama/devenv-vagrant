@@ -30,6 +30,11 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 [[ -f persistent/devenv_playbook.config.yml ]] || cp provisioning/devenv_playbook.config.yml.sample persistent/devenv_playbook.config.yml
 [[ -f persistent/README.md ]] || cp README.md.project.sample persistent/README.md
 [[ -f persistent/ansible.cfg ]] || cp provisioning/ansible.cfg.sample persistent/ansible.cfg
+[[ -f persistent/templates/nginx/conf.d/map.conf ]] \
+  || ( \
+    mkdir -p persistent/templates/nginx/conf.d \
+    && cp templates.sample/nginx/conf.d/map.conf persistent/templates/nginx/conf.d/map.conf \
+  )
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml
