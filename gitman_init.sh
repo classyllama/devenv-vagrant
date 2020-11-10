@@ -33,7 +33,7 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
 [[ -f persistent/templates/nginx/conf.d/map.conf ]] \
   || ( \
     mkdir -p persistent/templates/nginx/conf.d \
-    && cp templates.sample/nginx/conf.d/map.conf persistent/templates/nginx/conf.d/map.conf \
+    && cp provisioning/templates.sample/nginx/conf.d/map.conf persistent/templates/nginx/conf.d/map.conf \
   )
 
 # Create symlinks in source to persistent files
