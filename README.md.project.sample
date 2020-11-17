@@ -59,8 +59,8 @@ For any system requirements or troubleshooting there are references in the [deve
       --use-secure-admin=1 \
       --session-save=redis \
       --session-save-redis-host=127.0.0.1 \
-      --session-save-redis-port=6380 \
-      --session-save-redis-db=0 \
+      --session-save-redis-port=6379 \
+      --session-save-redis-db=1 \
       --cache-backend=redis \
       --cache-backend-redis-server=127.0.0.1 \
       --cache-backend-redis-db=0 \

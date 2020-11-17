@@ -1,11 +1,29 @@
 ---
+
+- name: set fact percona_server_package percona_client_package (<= v5.7)
+  set_fact: 
+    percona_server_package: "Percona-Server-server-{{ percona_version }}"
+    percona_client_package: "Percona-Server-client-{{ percona_version }}"
+  when: percona_version == 56 or percona_version == 57
+
+- name: set fact percona_server_package percona_client_package (> v5.7)
+  set_fact: 
+    percona_server_package: "percona-server-server"
+    percona_client_package: "percona-server-client"
+  when: percona_version != 56 and percona_version != 57
+
+- debug:
+    var: percona_server_package
+- debug:
+    var: percona_client_package
+
 - name: Install Percona Client/Server
   package:
     name: "{{ item }}"
     state: present
   with_items:
-    - "Percona-Server-server-{{ percona_version }}"
-    - "Percona-Server-client-{{ percona_version }}"
+    - "{{ percona_server_package }}"
+    - "{{ percona_client_package }}"
 
 - name: Check for existing datadir
   stat: 
