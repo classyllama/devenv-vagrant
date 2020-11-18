@@ -6,6 +6,7 @@
 - Sample File Updates
 - Improved samples files to demonstrate multi domain setups
 - Updated Magento Demo install script to support 2.4.1 and newer 2.4.x installs
+- Update of Elasticsearch default install version to latest 7.x (7.10.0)
 - Bug - Percona introduced changes requiring updates to the role
 - Bug - Composer introduced changes v2.x requireing updates to the role so that selfupdate can be disabled
 
