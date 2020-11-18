@@ -144,7 +144,7 @@ MAGENTO_INSTALL_OPTIONS=$(cat <<SHELL_COMMAND
 SHELL_COMMAND
 )
 
-if [[ "${MAGENTO_REL_VER}" == "2.4.0" && "${SEARCH_ENGINE}" != "mysql" ]]; then
+if [[ "${MAGENTO_REL_VER}" =~ ^2\.4\. && "${SEARCH_ENGINE}" != "mysql" ]]; then
   echo "----: Magento setup:install (with elasticsearch)"
 MAGENTO_INSTALL_OPTIONS=$(cat <<SHELL_COMMAND
 ${MAGENTO_INSTALL_OPTIONS} \
@@ -198,7 +198,7 @@ bin/magento config:set --lock-env web/secure/base_url ${BASE_URL}/
 bin/magento config:set --lock-env system/full_page_cache/caching_application 2
 bin/magento config:set --lock-env system/full_page_cache/ttl 604800
 
-if [[ "${MAGENTO_REL_VER}" != "2.4.0" && "${SEARCH_ENGINE}" != "mysql" ]]; then
+if [[ ! "${MAGENTO_REL_VER}" =~ ^2\.4\. && "${SEARCH_ENGINE}" != "mysql" ]]; then
   echo "----: Magento Configuration Settings (elasticsearch)"
   bin/magento config:set --lock-env catalog/search/engine ${SEARCH_ENGINE}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_server_hostname ${ELASTIC_HOST}

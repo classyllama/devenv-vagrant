@@ -27,22 +27,56 @@
     - not '[x]' in dnf_module_mysql.stdout
 
 
-# repo rpm URL found from https://www.percona.com/doc/percona-server/5.6/installation/yum_repo.html
+# repo rpm URL found from https://www.percona.com/doc/percona-repo-config/percona-release.html
+# installation instructions https://www.percona.com/doc/percona-server/LATEST/installation/yum_repo.html
 
 # repo files can be derrived from rpm file details
-# rpm -qlp https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
+# rpm -qlp https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+
+# package signature and signature verification can be checked
+# rpm -qi https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+# rpm -Kvv --nosignature https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 
 - name: Check if Percona Server repo is already configured
   stat:
     path: /etc/yum.repos.d/percona-release.repo
   register: percona_repofile_result
 
-- name: Install Percona Server repo
-  yum:
-    # name: "https://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm"
-    name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
+- name: Download and Import Percona GPG key
+  rpm_key:
+    key: https://www.percona.com/downloads/RPM-GPG-KEY-percona
     state: present
   when: not percona_repofile_result.stat.exists
+
+- name: Install Percona Release repo
+  yum:
+    name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
+    state: present
+    # disable_gpg_check: True
+  when: not percona_repofile_result.stat.exists
+
+- name: Setup Percona Repository for Percona Release Version
+  shell:
+    cmd: "percona-release setup -y ps{{ percona_version }}"
+    warn: false
+  register: percona_release_setup
+  changed_when: False
+  check_mode: no
+  when: not percona_repofile_result.stat.exists
+
+- debug:
+    var: percona_release_setup
+
+# To show the enabled repositories in your system:
+# percona-release show
+
+# percona-release setup -y ps57
+# yum list percona\*
+# yum install percona-server-server-57
+
+# percona-release setup -y ps80
+# yum list percona\*
+# yum install percona-server-server
 
 - name: Import Percona Server GPG key
   rpm_key:

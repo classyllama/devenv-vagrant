@@ -28,7 +28,13 @@
   shell: |
     cp {{ composer_download.dest }} {{ composer_install_path }}{{ composer_install_name }}
     chmod 0755 {{ composer_install_path }}{{ composer_install_name }}
-    {{ composer_install_path }}{{ composer_install_name }} selfupdate
   args:
     executable: "/bin/bash"
   when: get_url_result is changed
+
+- name: install composer and selfupdate
+  shell: |
+    {{ composer_install_path }}{{ composer_install_name }} selfupdate
+  args:
+    executable: "/bin/bash"
+  when: get_url_result is changed and composer_selfupdate

@@ -19,7 +19,8 @@ mysqld_memory_percentage: 100
 mysqld_memory_divisor: "{{ (ansible_memtotal_mb > 7680) | ternary('1024', '1') }}"
 mysqld_memory_unit: "{{ (ansible_memtotal_mb > 7680) | ternary('G', 'M') }}"
 
-percona_version: 56
+percona_version: 57 # Example 56, 57, 80
+# Note that Percona v5.6 is not available on CentOS 8 from percona release repo
 
 # Create the tmpdir if it doesn't exist; should be set to "no" when tmpdir path is a symlink (for example)
 mysqld_create_tmpdir: yes
