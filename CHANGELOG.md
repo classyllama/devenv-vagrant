@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.2.8 - 2020-11
+
+- Documentation Updates
+- Sample File Updates
+- Improved samples files to demonstrate multi domain setups
+- Updated Magento Demo install script to support 2.4.1 and newer 2.4.x installs
+- Bug - Percona introduced changes requiring updates to the role
+- Bug - Composer introduced changes v2.x requireing updates to the role so that selfupdate can be disabled
+
 ## 0.2.7 - 2020-10
 
 - Bug - Fixed web-info vhost expecting ssl cert where none exists
