@@ -1,4 +1,5 @@
 composer_install_path: /usr/local/bin/
 composer_install_name: composer
-composer_version: "1.9.3"
+composer_version: "1.10.17"
 composer_download: "{{ _composer_download[composer_version] }}"
+composer_selfupdate: true

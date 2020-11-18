@@ -212,6 +212,7 @@ database_create_db: demo_data
 load_magento_composer_auth_from_host: true
 use_classyllama_web_info: true
 use_vm_cache: true
+composer_selfupdate: false
 
 cachetool_config:
   - path: /home/www-data
