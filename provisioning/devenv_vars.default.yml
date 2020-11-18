@@ -180,7 +180,7 @@ use_dedicated_redis_fpc: false
 redis_fpc_maxmem: 512mb
 
 use_elastic_elasticsearch: true
-es_version: 7.8.1
+es_version: 7.10.0
 es_config:
   node.name: "node1"
   cluster.name: "test-cluster"

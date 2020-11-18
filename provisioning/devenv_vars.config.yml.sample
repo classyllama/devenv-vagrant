@@ -141,7 +141,7 @@ redis_enablerepo: ""
 redis_version: 50
 
 use_elastic_elasticsearch: true
-es_version: 7.8.1
+es_version: 7.10.0
 
 
 # --- Additional Tools Configuration
