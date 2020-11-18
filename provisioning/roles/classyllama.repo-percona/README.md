@@ -1,36 +1,51 @@
-# Install via ansible-galaxy
+# Ansible Role: Percona Repo
 
-  Add the repo to the ansible-galaxy install file
+Installs a Yum/Dnf repo (percona-release) on RHEL / CentOS for installing software releases directly from Percona
 
-    ANSIBLE_GALAXY_CONTENTS=$(cat <<'CONTENTS_HEREDOC'
-    - src: git@github.com:classyllama/ansible-role-repo-percona.git
-      name: classyllama.repo-percona
-      scm: git
-    CONTENTS_HEREDOC
-    )
-    echo "${ANSIBLE_GALAXY_CONTENTS}" >> ansible_roles.yml
+There is a step involved in setting up the repo that configures it to target a specific version of Percona to install, and this is done using the percona-release copmmand utility installed as part of the percona-release package.
 
-  Run the ansible-galaxy install to install roles from various repos
+https://www.percona.com/doc/percona-repo-config/percona-release.html
 
-    ansible-galaxy -r ansible_roles.yml install
+## Requirements
 
-# Run role via playbook adhoc
+None.
 
-  Create temporary playbook file
-  
-    TEMP_PLAYBOOK_FILE="TEMP_PLAY.yml"
-    PLAYBOOK_CONTENTS=$(cat <<'CONTENTS_HEREDOC'
-    ---
-    - hosts: mage2-app
-      become: true
+## Role Variables
+
+Default repo version targets installing Percona for MySQL 5.7
+
+See `defaults/main.yml` for details.
+
+## Dependencies
+
+None.
+
+## Example Playbook
+
+    - hosts: all
+      vars:
+        percona_version: 57 # Example 56, 57, 80
       roles:
-        - classyllama.repo-percona
-    CONTENTS_HEREDOC
-    )
-    echo "${PLAYBOOK_CONTENTS}" > ${TEMP_PLAYBOOK_FILE}
-    ansible-playbook -i inventory-* ${TEMP_PLAYBOOK_FILE} --diff --check
+        - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
 
-  After verifying the changes, run the play and remove the temp playbook file
-  
-    ansible-playbook -i inventory-* ${TEMP_PLAYBOOK_FILE} --diff
-    rm ${TEMP_PLAYBOOK_FILE}
+## Notes
+
+To show the enabled repositories in your system:
+
+    percona-release show
+
+The percona-release command is used to setup the repos for specific software packages. This is where the ansible percona_version variable is used to target a specific version.
+
+    percona-release setup -y ps57
+
+After the repo is configured you can list all packages
+
+    yum list percona\*
+
+## License
+
+This work is licensed under the MIT license. See LICENSE file for details.
+
+## Author Information
+
+This role was created in 2017 by [David Alger](https://davidalger.com/) with contributions from [Matt Johnson](https://github.com/mttjohnson/).
