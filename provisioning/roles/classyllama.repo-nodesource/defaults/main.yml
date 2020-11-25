@@ -1,0 +1,4 @@
+---
+nodejs_major_version: "10"
+nodejs_update_url: "https://rpm.nodesource.com/setup_{{ nodejs_major_version }}.x"
+install_nodejs: false

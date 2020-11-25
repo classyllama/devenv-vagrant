@@ -79,9 +79,13 @@ roles:
   - src: git@github.com:classyllama/ansible-role-repo-nginx.git
     name: classyllama.repo-nginx
     scm: git
-  
+    
   - src: git@github.com:classyllama/ansible-role-repo-nginx-appstream.git
     name: classyllama.repo-nginx-appstream
+    scm: git
+    
+  - src: git@github.com:classyllama/ansible-role-repo-nodesource.git
+    name: classyllama.repo-nodesource
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-repo-ius.git
