@@ -1,0 +1,41 @@
+- name: Check if nvm is installed
+  command: 'which nvm'
+  register: nvm_pkg
+  ignore_errors: yes
+  when: nvm_update is undefined
+  
+- name: Determine if nvm needs to be installed
+  set_fact:
+    nvm_update: '{{ nvm_pkg.rc != 0 }}'
+  when: nvm_update is undefined
+
+- name: Download nodejs update script
+  get_url:
+    url: "{{ nvm_url }}"
+    dest: ~/nvm_update
+    mode: 700
+    force: yes
+  when: nvm_update|bool
+  
+- name: Run nodejs update script
+  command: "~/nvm_update"
+  when: nvm_update|bool
+  
+- name: Remove update script
+  file:
+    path: ~/nvm_update
+    state: absent
+
+- name: Reload .bashrc to use nvm # as recommended by install script as of nvm 0.37.1
+  command: source ~/.bashrc
+
+- name: Install node (latest)
+  command: "nvm install node"
+  when: nodejs_version is undefined
+
+- name: Install node (specific version)
+  command: "nvm install {{ nodejs_version }}"
+  when: nodejs_version is not undefined
+
+- name: Install grunt
+  command: "npm install -g grunt-cli"

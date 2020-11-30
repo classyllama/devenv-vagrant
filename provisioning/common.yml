@@ -10,8 +10,8 @@
   roles:
     - { role: classyllama.syseng-access }
     - { role: geerlingguy.repo-epel }
-    - { role: classyllama.repo-nodesource }
     - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(false) }
+    - { role: classyllama.nvm }
   
   tasks:
     - name: Common Software Packages

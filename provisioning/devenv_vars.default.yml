@@ -127,7 +127,7 @@ mysqld_memory_percentage: 25
 mysqld_max_connections: 15
 
 #nodejs_major_version: "10"
-install_nodejs: true
+
 
 use_classyllama_repo_varnish: true
 use_classyllama_varnish: true
