@@ -11,7 +11,11 @@
     - { role: classyllama.syseng-access }
     - { role: geerlingguy.repo-epel }
     - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(false) }
-    - { role: classyllama.nvm }
+    - role: morgangraphics.nvm
+      become: false
+      nvm_commands:
+        - "nvm install node"
+        - "npm install -g grunt-cli"
   
   tasks:
     - name: Common Software Packages
