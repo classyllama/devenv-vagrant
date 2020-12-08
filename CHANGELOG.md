@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.2.9 - 2020-12
+
+- Support PowerTools repoid changes in CentOS 8.3 release
+- automatically try to detect powertools repo name
+- provide variable override for powertools repo name
+- provide variable conditionals for if all yum packages should be updated
+
 ## 0.2.8 - 2020-11
 
 - Documentation Updates
