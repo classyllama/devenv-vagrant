@@ -6,3 +6,4 @@
 # Versions available may be remi-7.2, remi-7.3, remi-7.4
 
 php_stream_version: "remi-7.3"
+php_remi_powertools_repo_override: ""

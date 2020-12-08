@@ -199,6 +199,7 @@ es_plugins: []
 
 
 # --- Additional Tools Configuration
+yum_update_and_reboot: always # (always, initial, never)
 www_user_use_default_html: false # this allows the www-data user to use /var/www/data/
 use_imagemagick: false
 use_classyllama_n98_magerun: true

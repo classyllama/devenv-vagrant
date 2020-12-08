@@ -46,33 +46,54 @@
     #   selinux:
     #     state: disabled
     
+    
+    
     # Yum update and reboot as needed
-    - name: upgrade all packages
-      package:
-        name: '*'
-        state: latest
-      tags: yum-update
-    
-    - name: check for reboot hint
-      shell: if [ $(rpm -q --last kernel | awk 'NR==1 {print $1}') != kernel-$(uname -r) ]; then echo 'reboot'; else echo 'Kernel is current'; fi
-      ignore_errors: true
-      changed_when: false
-      register: reboot_hint
-      tags: yum-update
-    
-    - name: Rebooting ...
-      shell: sleep 5 && shutdown -r now 'Rebooting (Yum Updates)'
-      async: 1
-      poll: 0
-      ignore_errors: true
-      changed_when: "reboot_hint.stdout == 'reboot'"
-      register: rebooting
-      tags: yum-update
-      when: "reboot_hint.stdout == 'reboot'"
+    - name: Check for initial_updated_all_yum_packages.flag
+      stat:
+        path: /root/initial_updated_all_yum_packages.flag
+      register: stat_updated_all_yum_packages
 
-    - name: Wait for remote system to reboot...
-      become: no
-      wait_for_connection:
-        delay: 60
-      when: rebooting is changed
-      tags: yum-update
+    - name: Yum update and reboot as needed
+      block:
+    
+        - name: upgrade all packages
+          package:
+            name: '*'
+            state: latest
+          tags: yum-update
+    
+        - name: check for reboot hint
+          shell: if [ $(rpm -q --last kernel | awk 'NR==1 {print $1}') != kernel-$(uname -r) ]; then echo 'reboot'; else echo 'Kernel is current'; fi
+          ignore_errors: true
+          changed_when: false
+          register: reboot_hint
+          tags: yum-update
+    
+        - name: Rebooting ...
+          shell: sleep 5 && shutdown -r now 'Rebooting (Yum Updates)'
+          async: 1
+          poll: 0
+          ignore_errors: true
+          changed_when: "reboot_hint.stdout == 'reboot'"
+          register: rebooting
+          tags: yum-update
+          when: reboot_hint.stdout == 'reboot'
+
+        - name: Wait for remote system to reboot...
+          become: no
+          wait_for_connection:
+            delay: 60
+          when: rebooting is changed
+          tags: yum-update
+
+        - name: Write flag file to disable future yum updates
+          copy:
+            content: ""
+            dest: /root/initial_updated_all_yum_packages.flag
+            force: no
+            group: root
+            owner: root
+            mode: 0555
+      
+      when: (yum_update_and_reboot == "always") or (yum_update_and_reboot == "initial" and not stat_updated_all_yum_packages.stat.exists)
