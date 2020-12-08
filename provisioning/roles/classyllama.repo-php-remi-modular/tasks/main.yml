@@ -37,11 +37,77 @@
     - not '[e]' in dnf_module_php.stdout
 
 
+
+# Note:
+# The CentOS PowerTools Repoid was changed from PowerTools to powertools in the 8.3 release
+
+- name: Check for repoid named PowerTools
+  shell:
+    cmd: "dnf repolist --all | grep '^PowerTools'"
+    warn: false
+  register: dnf_repo_powertools_pascalcase
+  changed_when: False
+  check_mode: no
+  failed_when: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- name: Check for repoid named powertools
+  shell:
+    cmd: "dnf repolist --all | grep '^powertools'"
+    warn: false
+  register: dnf_repo_powertools_lowercase
+  changed_when: False
+  check_mode: no
+  failed_when: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_repo_powertools_pascalcase
+- debug:
+    var: dnf_repo_powertools_lowercase
+
+- set_fact:
+     php_remi_powertools_repo: "PowerTools"
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_repo_powertools_pascalcase.stdout != ""
+
+- set_fact:
+     php_remi_powertools_repo: "powertools"
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_repo_powertools_lowercase.stdout != ""
+
+- set_fact:
+     php_remi_powertools_repo: "{{ php_remi_powertools_repo_override }}"
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - php_remi_powertools_repo_override != "" 
+
+- debug:
+    var: php_remi_powertools_repo
+
+- name: CentOS PowerTools/powertools
+  fail:
+    msg: The CentOS PowerTools/powertools repo was not found as an available repo, and no override (php_remi_powertools_repo_override) was specified.
+  when: php_remi_powertools_repo is not defined or (php_remi_powertools_repo is defined and php_remi_powertools_repo == "")
+
+
 - name: Enable CentOS-8 - PowerTools repo
-  command: dnf config-manager --set-enabled PowerTools
+  command: "dnf config-manager --set-enabled {{ php_remi_powertools_repo }}"
   register: dnf_enable_powertools
   changed_when: False
   check_mode: no
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
 
 - debug:
     var: dnf_enable_powertools
