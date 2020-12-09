@@ -5,7 +5,7 @@ $dev_machine_name = 'example.lan'
 $dev_additional_hostnames = %w(store1.example.lan store2.example.lan)
 
 # System Configs
-$vagrant_base_box = 'bento/centos-7'
+$vagrant_base_box = 'bento/centos-8'
 $dev_vm_cpus = 2
 $dev_vm_ram = 4096
 $ssh_private_key = '~/.ssh/id_rsa'

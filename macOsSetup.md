@@ -57,18 +57,35 @@ After installation, before attempting to start any virtual machines, do the foll
 4. Click the Allow button next to the message.
 5. Even with these steps, the kernel extension sometimes fails to load immediatly after installation. To proactively address this issue, at this point reboot your mac.
 
-![Kernel extension approval screenshot](http://files.classyllama.com/a18e4458/33718112-56a08f76-db2a-11e7-9a22-9b2253cbabef_2559885C.png)
+![Kernel extension approval screenshot](docs/files/macos_kernel_extension_approval.png)
 
 ### Composer, JQ and Magento Access Keys
 
 The VM currently injects Magento composer access keys when provisioning the VM. In order for this to be successful, [Composer] and [jq] must be installed on the host, and Magento composer access keys must be configured prior to starting the VM. Use the following instructions to set this up.
 
-	wget https://getcomposer.org/composer-stable.phar # download latest composer version
-	sudo mv composer-stable.phar /usr/local/bin/composer # move to PATH and use standard "composer" name
-	sudo chmod 755 /usr/local/bin/composer # make composer executable
-	wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 # download JQ executable
-	sudo mv jq-osx-amd64 /usr/local/bin/jq # move to PATH and use standard "jq" name
-	sudo chmod 755 /usr/local/bin/jq # make jq executable
+    # Install wget
+    brew install wget
+    
+    # download latest 1.x composer version
+    wget https://getcomposer.org/composer-1.phar
+    
+    # move to PATH and use standard "composer" name
+    sudo mv composer-1.phar /usr/local/bin/composer
+    
+    # make composer executable
+    sudo chmod 755 /usr/local/bin/composer
+    
+    # download JQ executable
+    wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64
+    
+    # move to PATH and use standard "jq" name
+    sudo mv jq-osx-amd64 /usr/local/bin/jq
+    
+    # make jq executable
+    sudo chmod 755 /usr/local/bin/jq
+    
+    # install PHP
+    brew install php@7.4
 
 Once these tools are installed, generate and configure Magento composer access keys using the following workflow.
 
@@ -76,7 +93,11 @@ Once these tools are installed, generate and configure Magento composer access k
 2. On the top-right, click your name to dropdown an account menu, then click My Profile.
 3. Visit My Products -> Access Keys
 4. Generate a new set of access keys by clicking the Create A New Access Key button, or get the Public Key and Private Key values from a previously-generated key.
-5. On your mac host, run a command of the following form to configure composer to use these: `composer config http-basic.repo.magento.com <public key> <private key>`
+5. On your mac host, run a command of the following form to configure composer to use these:
+
+```
+composer -g config http-basic.repo.magento.com <public key> <private key>
+```
 
 ## Allow changes to hosts file
 
