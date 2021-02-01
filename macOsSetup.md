@@ -33,7 +33,7 @@ Install Homebrew using the "Install Homebrew" command on the official website: h
 
 After Homebrew is installed, install the host dependencies using the following commands.
 
-    brew cask install vagrant
+    brew cask install vagrant OR brew install vagrant --cask
     brew install ansible
     brew install mutagen-io/mutagen/mutagen
     sudo pip3 install gitman
@@ -44,7 +44,7 @@ After Homebrew is installed, install the host dependencies using the following c
 
 Virtual Box can either be installed by downloading the [official installer](https://www.virtualbox.org/wiki/Downloads) of via Homebrew using the following command. 
 
-    brew cask install virtualbox
+    brew cask install virtualbox OR brew install virtualbox --cask
 
 *A manual step is required to enable the kernel extension.* This is indicated during setup, but the prompt is easy to miss and won't appear again on its own.
 
