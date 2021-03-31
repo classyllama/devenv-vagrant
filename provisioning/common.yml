@@ -23,6 +23,7 @@
           - unzip
           - words
           - coreutils
+          - oathtool
     
     # EL7 Packages
     - name: Software Packages (EL7)
