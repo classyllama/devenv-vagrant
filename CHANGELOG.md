@@ -3,6 +3,7 @@
 ## 0.2.NEXT
 
 - Inclusion of oathtool in common tools installed
+- Updating default values in crontab task
 
 ## 0.2.9 - 2020-12
 
