@@ -1,13 +1,13 @@
 # This task file requires the following vars be set:
 #
 #   crontab_mailto: "<email_address>,<email_address>"    This is an optional var and will default
-#                                                        to sysadmin@classyllama.com if not specified.
+#                                                        to '' if not specified.
 #   crontab_user: <user>
 #   crontab_path: <path>             This should be set to the webroot dir of the Magento 2 deployment
 #
 ---
 - set_fact:
-    crontab_mailto: "{{ crontab_mailto | default('sysadmin@classyllama.com') }}"
+    crontab_mailto: "{{ crontab_mailto | default('') }}"
 
 - name: setup crontab mailto
   tags: crontab

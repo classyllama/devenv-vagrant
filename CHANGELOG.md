@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.NEXT
+
+- Inclusion of oathtool in common tools installed
+
 ## 0.2.9 - 2020-12
 
 - Support PowerTools repoid changes in CentOS 8.3 release
