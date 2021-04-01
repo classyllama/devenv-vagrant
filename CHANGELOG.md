@@ -14,6 +14,7 @@
   - PHP-FPM default changed to v7.3
   - Fixed Varnish 6.0 and 6.4 configs options
   - New option for www-user to support UID GID assignments
+- Updated Virtualbox config to use newer default VMSVGA graphics controller
 
 ## 0.2.9 - 2020-12
 

@@ -105,6 +105,8 @@ Vagrant.configure('2') do |config|
         vb.name = "#{$dev_machine_name}"
         vb.memory = $dev_vm_ram
         vb.cpus = $dev_vm_cpus
+        # Adjust graphics controller
+        vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
         # Adjust vram size to expected min
         vb.customize ["modifyvm", :id, "--vram", "16"]
         # Prevent VirtualBox from interfering with host audio stack
