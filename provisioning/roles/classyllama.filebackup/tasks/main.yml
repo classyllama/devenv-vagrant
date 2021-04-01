@@ -19,7 +19,7 @@
   tags: crontab
   cron:
     name: "filebackup_sh {{ item.backup_name }}"
-    job: "{{ filebackup_bin_dir }}/filebackup.sh {{ item.backup_name }} {{ item.backup_path }} {{ filebackup_data_dir }}"
+    job: "{{ filebackup_bin_dir }}/filebackup.sh {{ item.backup_name }} {{ item.backup_path }} {{ filebackup_data_dir }} {{ item.backup_file|default('') }}"
     user: root
     minute: "{{ item.cron_minute }}"
     hour: "{{ item.cron_hour }}"

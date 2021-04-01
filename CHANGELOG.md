@@ -4,6 +4,16 @@
 
 - Inclusion of oathtool in common tools installed
 - Updating default values in crontab task
+- Updated dependent Ansible Roles 
+  - Improved support for check mode before install
+  - Magento Demo Install defaults to 4GB RAM during install and is now configurable
+  - Improved MariaDB install for logging and tempdir
+  - Improved Percona install for logging and tempdir
+  - Nginx config improvements for Magento 2.4.2
+  - Improved PHP-FPM child count calculation
+  - PHP-FPM default changed to v7.3
+  - Fixed Varnish 6.0 and 6.4 configs options
+  - New option for www-user to support UID GID assignments
 
 ## 0.2.9 - 2020-12
 

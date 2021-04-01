@@ -134,3 +134,5 @@ nginx_additional_real_ip_from_list: []
 
 nginx_x_forwarded_for: remote_addr
 nginx_sign_task: ssl-selfsign.yml
+
+nginx_access_control_allow_origin: "*"

@@ -24,14 +24,26 @@ None.
       vars:
         filebackup_data_dir: /var/filebackup
         filebackup_backup_items:
+          
+          # Backup a single file /etc/hosts in the /etc directory
+          - backup_name: etc_hosts
+            backup_path: /etc
+            backup_file: hosts
+            cron_hour: 1
+            cron_minute: 10
+          
+          # Backup the entire /etc directory
           - backup_name: etc
             backup_path: /etc
             cron_hour: 1
             cron_minute: 0
+          
+          # Backup the /var/www directory
           - backup_name: web
             backup_path: /var/www
             cron_hour: 1
             cron_minute: 0
+          
         filebackup_keep_days: "1"
       roles:
         - { role: classyllama.filebackup }

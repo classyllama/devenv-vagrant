@@ -20,3 +20,4 @@
   loop_control:
     loop_var: inner_item
   when: result is changed
+  ignore_errors: "{{ ansible_check_mode }}"

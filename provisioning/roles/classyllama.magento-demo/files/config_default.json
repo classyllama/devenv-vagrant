@@ -30,8 +30,11 @@
   "ELASTIC_ENABLE_AUTH": "1",
   "ELASTIC_USERNAME": "elasticsearch",
   "ELASTIC_PASSWORD": "changeme",
+  "ELASTIC_INDEX_PREFIX": "data_magento2",
   
   "SHOULD_SETUP_SAMPLE_DATA": "true",
   "SHOULD_RUN_CUSTOM_SCRIPT": "false",
-  "SHOULD_SETUP_TFA": "false"
+  "SHOULD_SETUP_TFA": "false",
+  
+  "PHP_MEMORY_LIMIT": "4096M"
 }

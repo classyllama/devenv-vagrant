@@ -1,8 +1,15 @@
 
+- name: create group {{ www_user_name }}
+  group:
+    name: "{{ www_user_name }}"
+    gid: "{{ www_user_gid | default(omit) }}"
+
 - name: create user {{ www_user_name }}
   user:
     name: "{{ www_user_name }}"
+    uid: "{{ www_user_uid | default(omit) }}"
     home: "{{ www_user_home }}"
+    group: "{{ www_user_name }}"
     groups: "{{ www_user_groups | join(',') }}"
     append: yes
     shell: /bin/bash
@@ -13,6 +20,7 @@
     user: "{{ www_user_name }}"
     key: "{{ lookup('file', '{{ item }}') }}"
   with_items: "{{ www_user_ssh_keys }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 # replace www- out of username for data dir name if present
 - set_fact: www_user_web_dir={{ www_user_name|replace("www-", "") }}
@@ -22,15 +30,22 @@
 - set_fact: www_user_web_dir=html
   when: www_user_use_default_html and www_user_name == "www-data"
 
+- name: Check existance of /var/www/{{ www_user_web_dir }}
+  stat:
+    path: "/var/www/{{ www_user_web_dir }}"
+  register: www_user_web_dir_stat
+
 - name: create /var/www/{{ www_user_web_dir }}
   file:
-    path: /var/www/{{ www_user_web_dir }}
+    path: "/var/www/{{ www_user_web_dir }}"
     owner: "{{ www_user_name }}"
     group: "{{ www_user_name }}"
     mode: 0751
     state: directory
+  when: not www_user_web_dir_stat.stat.exists or (www_user_web_dir_stat.stat.islnk is defined and not www_user_web_dir_stat.stat.islnk)
 
 - name: "append ~{{ www_user_name }}/bash_profile dir change"
   lineinfile:
     line: "cd /var/www/{{ www_user_web_dir }}"
     dest: ~{{ www_user_name }}/.bash_profile
+  ignore_errors: "{{ ansible_check_mode }}"

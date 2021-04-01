@@ -27,6 +27,7 @@
     - "{{ php_fpm_slowlog }}"
   notify:
     - restart php-fpm
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: ensure setfacl support is present
   package: name=acl state=present

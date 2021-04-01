@@ -24,6 +24,11 @@
     mode: 0755
   when: not mysqld_datadir_stat.stat.exists
 
+- name: Check for existing tmpdir
+  stat: 
+    path: "{{ mysqld_tmpdir }}"
+  register: mysqld_tmpdir_stat
+
 - name: create mysqld tmpdir
   file:
     path: "{{ mysqld_tmpdir }}"
@@ -31,7 +36,7 @@
     owner: mysql
     group: mysql
     mode: 0775
-  when: mysqld_create_tmpdir
+  when: mysqld_create_tmpdir or not mysqld_tmpdir_stat.stat.exists
 
 - name: configure mysqld
   template:
@@ -43,7 +48,7 @@
     backup: yes
   notify: restart mysql
 
-- name: create mysqld tmpdir
+- name: create mysqld log file
   file:
     path: /var/log/mysqld.log
     state: touch
@@ -53,6 +58,20 @@
     modification_time: preserve
     access_time: preserve
   when: mysqld_create_mysqld_log
+
+- name: Check for existing log dir
+  stat: 
+    path: "{{ mysqld_log_dir }}"
+  register: mysqld_log_dir_stat
+
+- name: create mysqld tmpdir
+  file:
+    path: "{{ mysqld_log_dir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0775
+  when: not mysqld_log_dir_stat.stat.exists
 
 - name: start mariadb service
   service:

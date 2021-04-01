@@ -117,6 +117,7 @@ mysqld_slow_query_log_file: /var/log/mysql/{{ ansible_hostname }}-slow-log
 mysqld_long_query_time: 2
 
 ## [mysqld_safe]
+mysqld_log_dir: /var/log/mysql
 mysqld_log_error: /var/log/mysqld.log
 mysqld_pid_file: /var/run/mariadb/mariadb.pid
 mysqld_open_files_limit: 65535

@@ -18,6 +18,7 @@
     key: "{{ lookup('file', '{{ item.pubkey }}') }}"
     exclusive: yes
   with_items: "{{ syseng_access_users }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 # Confirm include directory exists with the proper permissions
 - name: create /etc/sudoers.d dir

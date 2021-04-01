@@ -61,7 +61,7 @@
     warn: false
   register: percona_release_setup
   changed_when: False
-  check_mode: no
+  ignore_errors: "{{ ansible_check_mode }}"
   when: not percona_repofile_result.stat.exists
 
 - debug:
@@ -82,10 +82,12 @@
   rpm_key:
     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-Percona
     state: present
+  ignore_errors: "{{ ansible_check_mode }}"
   when: not percona_repofile_result.stat.exists
 
 - name: Import Percona Packaging key
   rpm_key:
     key: /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
     state: present
+  ignore_errors: "{{ ansible_check_mode }}"
   when: not percona_repofile_result.stat.exists

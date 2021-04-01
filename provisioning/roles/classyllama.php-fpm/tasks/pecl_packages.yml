@@ -8,8 +8,31 @@
   command: pecl channel-update pecl.php.net
   changed_when: false
 
+- name: Check if /root/tmp exists
+  stat:
+    path: /root/tmp
+  register: pear_tmp_stat
+- name: Create /root/tmp
+  file:
+    path: /root/tmp
+    owner: root
+    group: root
+    state: directory
+    mode: '0600'
+  when: not pear_tmp_stat.stat.exists
+
+ # The default /tmp may be mounted with noexec
+- name: Update pear download directory
+  command: pear config-set download_dir /root/tmp
+  changed_when: false
+  when: not pear_tmp_stat.stat.exists
+- name: Update pear temp directory - used when executing package installation
+  command: pear config-set temp_dir /root/tmp
+  changed_when: false
+  when: not pear_tmp_stat.stat.exists
+
 - name: PHP PECL - Install Packages
-  pear:
+  community.general.pear:
     name: "{{ item }}"
     state: present
   with_items: "{{ php_pecl_packages }}"

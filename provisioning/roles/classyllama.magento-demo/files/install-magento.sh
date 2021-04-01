@@ -71,10 +71,13 @@ declare ELASTIC_PORT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq
 declare ELASTIC_ENABLE_AUTH=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.ELASTIC_ENABLE_AUTH')
 declare ELASTIC_USERNAME=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.ELASTIC_USERNAME')
 declare ELASTIC_PASSWORD=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.ELASTIC_PASSWORD')
+declare ELASTIC_INDEX_PREFIX=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.ELASTIC_INDEX_PREFIX')
 
 declare SHOULD_SETUP_SAMPLE_DATA=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_SETUP_SAMPLE_DATA')
 declare SHOULD_RUN_CUSTOM_SCRIPT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_RUN_CUSTOM_SCRIPT')
 declare SHOULD_SETUP_TFA=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.SHOULD_SETUP_TFA')
+
+declare PHP_MEMORY_LIMIT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.PHP_MEMORY_LIMIT')
 
 
 # Dynamic Variables
@@ -124,7 +127,7 @@ chmod +x bin/magento
 # Conditionally install sample data
 if [[ "$SHOULD_SETUP_SAMPLE_DATA" == "true" ]]; then
   echo "----: Including Magento Sample Data"
-  php -dmemory_limit=2048M bin/magento sampledata:deploy
+  php -dmemory_limit=${PHP_MEMORY_LIMIT} bin/magento sampledata:deploy
 fi
 
 
@@ -153,7 +156,8 @@ ${MAGENTO_INSTALL_OPTIONS} \
   --elasticsearch-port=${ELASTIC_PORT} \
   --elasticsearch-enable-auth=${ELASTIC_ENABLE_AUTH} \
   --elasticsearch-username=${ELASTIC_USERNAME} \
-  --elasticsearch-password=${ELASTIC_PASSWORD} 
+  --elasticsearch-password=${ELASTIC_PASSWORD} \
+  --elasticsearch-index-prefix=${ELASTIC_INDEX_PREFIX}
 SHELL_COMMAND
 )
 fi
@@ -206,6 +210,7 @@ if [[ ! "${MAGENTO_REL_VER}" =~ ^2\.4\. && "${SEARCH_ENGINE}" != "mysql" ]]; the
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_enable_auth ${ELASTIC_ENABLE_AUTH}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_username ${ELASTIC_USERNAME}
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_password ${ELASTIC_PASSWORD}
+  bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_index_prefix ${ELASTIC_INDEX_PREFIX}
 fi
 
 bin/magento config:set --lock-env dev/front_end_development_workflow/type server_side_compilation

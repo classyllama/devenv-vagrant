@@ -8,6 +8,7 @@
     name: varnish
     state: stopped
     enabled: no
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - include_tasks: configure-el{{ ansible_distribution_major_version }}.yml
 
@@ -23,3 +24,4 @@
     name: varnish-{{ varnish_instance.name }}
     state: started
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"

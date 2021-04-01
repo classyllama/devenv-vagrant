@@ -24,6 +24,7 @@
   with_items:
     - "{{ percona_server_package }}"
     - "{{ percona_client_package }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Check for existing datadir
   stat: 
@@ -33,6 +34,11 @@
     mysqld_existing_datadir: yes
   when: mysqld_datadir != mysqld_default_datadir and mysqld_datadir_stat.stat.exists
 
+- name: Check for existing tmpdir
+  stat: 
+    path: "{{ mysqld_tmpdir }}"
+  register: mysqld_tmpdir_stat
+
 - name: create mysqld tmpdir
   file:
     path: "{{ mysqld_tmpdir }}"
@@ -40,7 +46,7 @@
     owner: mysql
     group: mysql
     mode: 0775
-  when: mysqld_create_tmpdir
+  when: mysqld_create_tmpdir or not mysqld_tmpdir_stat.stat.exists
 
 - name: fail without mysqld_server_id when replication is enabled
   fail: msg="mysqld_server_id must be set when replication is enabled"
@@ -62,11 +68,26 @@
     backup: yes
   notify: restart mysql
 
+- name: Check for existing log dir
+  stat: 
+    path: "{{ mysqld_log_dir }}"
+  register: mysqld_log_dir_stat
+
+- name: create mysqld tmpdir
+  file:
+    path: "{{ mysqld_log_dir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0775
+  when: not mysqld_log_dir_stat.stat.exists
+
 - name: start mysql service
   service:
     name: mysql
     state: started
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - import_tasks: root_user_setup.yml
 - import_tasks: user_check.yml

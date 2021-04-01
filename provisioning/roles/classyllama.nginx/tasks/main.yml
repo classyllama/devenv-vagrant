@@ -57,6 +57,10 @@
   file:
     path: /etc/nginx/default.d/php.conf
     state: absent
+- name: Ensure default php-fpm config file is not in nginx/conf.d directory
+  file:
+    path: /etc/nginx/conf.d/php-fpm.conf
+    state: absent
 
 - import_tasks: configure-nginx.yml
 - import_tasks: configure-ssl.yml
