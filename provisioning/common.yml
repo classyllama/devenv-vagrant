@@ -11,14 +11,6 @@
     - { role: classyllama.syseng-access }
     - { role: geerlingguy.repo-epel }
     - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(false) }
-    - role: morgangraphics.nvm
-      become: true
-      become_user: www-data
-      autocomplete: true
-      nvm_commands:
-        - "nvm install node"
-        - "npm install -g grunt-cli"
-      tags: nvm
   
   tasks:
     - name: Common Software Packages

@@ -215,6 +215,11 @@ use_classyllama_web_info: true
 use_vm_cache: true
 composer_selfupdate: false
 
+use_morgangraphics_nvm: true
+morgangraphics_nvm_commands: 
+  - "nvm install node"
+  - "npm install -g grunt-cli"
+
 cachetool_config:
   - path: /home/www-data
     adapter: fastcgi
