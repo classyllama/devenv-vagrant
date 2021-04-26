@@ -33,7 +33,7 @@ Install Homebrew using the "Install Homebrew" command on the official website: h
 
 After Homebrew is installed, install the host dependencies using the following commands.
 
-    brew cask install vagrant OR brew install vagrant --cask
+    brew install vagrant --cask
     brew install ansible
     brew install mutagen-io/mutagen/mutagen
     sudo pip3 install gitman
@@ -44,7 +44,7 @@ After Homebrew is installed, install the host dependencies using the following c
 
 Virtual Box can either be installed by downloading the [official installer](https://www.virtualbox.org/wiki/Downloads) of via Homebrew using the following command. 
 
-    brew cask install virtualbox OR brew install virtualbox --cask
+    brew install virtualbox --cask
 
 *A manual step is required to enable the kernel extension.* This is indicated during setup, but the prompt is easy to miss and won't appear again on its own.
 
@@ -90,10 +90,9 @@ The VM currently injects Magento composer access keys when provisioning the VM. 
 Once these tools are installed, generate and configure Magento composer access keys using the following workflow.
 
 1. Visit [marketplace.magento.com](https://marketplace.magento.com) (not to be confused for magento.com or magento.cloud) and log in using your Magento.com account.
-2. On the top-right, click your name to dropdown an account menu, then click My Profile.
-3. Visit My Products -> Access Keys
-4. Generate a new set of access keys by clicking the Create A New Access Key button, or get the Public Key and Private Key values from a previously-generated key.
-5. On your mac host, run a command of the following form to configure composer to use these:
+2. Visit [My Access Keys](https://marketplace.magento.com/customer/accessKeys/). Alternatively, click your name to dropdown an account menu in the top-right, click My Profile, then My Products -> Access Keys.
+3. Generate a new set of access keys by clicking the Create A New Access Key button, or get the Public Key and Private Key values from a previously-generated key.
+4. On your mac host, run a command of the following form to configure composer to use these:
 
 ```
 composer -g config http-basic.repo.magento.com <public key> <private key>
