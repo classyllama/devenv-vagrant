@@ -16,6 +16,8 @@
   - New option for www-user to support UID GID assignments
 - Updated Virtualbox config to use newer default VMSVGA graphics controller
 - Updated minimum Ansible version to 2.10
+- Install nvm and lts version of node by default
+- Install grunt by default
 
 ## 0.2.9 - 2020-12
 
