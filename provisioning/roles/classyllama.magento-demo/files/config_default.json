@@ -9,8 +9,10 @@
   "SITE_ROOT_DIR": "current",
 
   "MAGENTO_COMPOSER_PROJECT": "magento/project-community-edition",
-  "MAGENTO_REL_VER": "2.4.0",
-  
+  "MAGENTO_REL_VER": "2.4.2",
+  "MAGENTO_DEPLOY_MODE": "production",
+  "MAGENTO_FPC": "varnish",
+
   "REDIS_OBJ_HOST": "localhost",
   "REDIS_OBJ_PORT": "6379",
   "REDIS_OBJ_DB": "0",

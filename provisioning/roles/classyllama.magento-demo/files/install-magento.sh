@@ -51,6 +51,8 @@ declare SITE_ROOT_DIR=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | j
 
 declare MAGENTO_COMPOSER_PROJECT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_COMPOSER_PROJECT')
 declare MAGENTO_REL_VER=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_REL_VER')
+declare MAGENTO_DEPLOY_MODE=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_DEPLOY_MODE')
+declare MAGENTO_FPC=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.MAGENTO_FPC')
 
 declare REDIS_OBJ_HOST=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.REDIS_OBJ_HOST')
 declare REDIS_OBJ_PORT=$(cat ${CONFIG_DEFAULT} ${CONFIG_OVERRIDE} | jq -s add | jq -r '.REDIS_OBJ_PORT')
@@ -188,19 +190,6 @@ bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}
 
 # Configure Magento
 echo "----: Magento Configuration Settings"
-bin/magento config:set --lock-env web/seo/use_rewrites 1
-bin/magento config:set --lock-env web/secure/use_in_frontend 1
-bin/magento config:set --lock-env web/secure/use_in_adminhtml 1
-
-bin/magento config:set --lock-env web/unsecure/base_url ${BASE_URL}/
-bin/magento config:set --lock-env web/secure/base_url ${BASE_URL}/
-# bin/magento config:set --lock-env web/unsecure/base_static_url ${BASE_URL}/static/
-# bin/magento config:set --lock-env web/secure/base_static_url ${BASE_URL}/static/
-# bin/magento config:set --lock-env web/unsecure/base_media_url ${BASE_URL}/media/
-# bin/magento config:set --lock-env web/secure/base_media_url ${BASE_URL}/media/
-
-bin/magento config:set --lock-env system/full_page_cache/caching_application 2
-bin/magento config:set --lock-env system/full_page_cache/ttl 604800
 
 if [[ ! "${MAGENTO_REL_VER}" =~ ^2\.4\. && "${SEARCH_ENGINE}" != "mysql" ]]; then
   echo "----: Magento Configuration Settings (elasticsearch)"
@@ -213,6 +202,30 @@ if [[ ! "${MAGENTO_REL_VER}" =~ ^2\.4\. && "${SEARCH_ENGINE}" != "mysql" ]]; the
   bin/magento config:set --lock-env catalog/search/${SEARCH_ENGINE}_index_prefix ${ELASTIC_INDEX_PREFIX}
 fi
 
+if [[ "${MAGENTO_FPC}" == "varnish" ]]; then
+
+  # Use Varnish for FPC
+  bin/magento config:set --lock-env system/full_page_cache/caching_application 2
+  bin/magento config:set --lock-env system/full_page_cache/ttl 604800
+  
+else
+
+  # Use Built-In for FPC
+  bin/magento config:set --lock-env system/full_page_cache/caching_application 1
+  bin/magento config:set --lock-env system/full_page_cache/ttl 604800
+fi
+
+bin/magento config:set --lock-env web/seo/use_rewrites 1
+bin/magento config:set --lock-env web/secure/use_in_frontend 1
+bin/magento config:set --lock-env web/secure/use_in_adminhtml 1
+
+bin/magento config:set --lock-env web/unsecure/base_url ${BASE_URL}/
+bin/magento config:set --lock-env web/secure/base_url ${BASE_URL}/
+# bin/magento config:set --lock-env web/unsecure/base_static_url ${BASE_URL}/static/
+# bin/magento config:set --lock-env web/secure/base_static_url ${BASE_URL}/static/
+# bin/magento config:set --lock-env web/unsecure/base_media_url ${BASE_URL}/media/
+# bin/magento config:set --lock-env web/secure/base_media_url ${BASE_URL}/media/
+
 bin/magento config:set --lock-env dev/front_end_development_workflow/type server_side_compilation
 bin/magento config:set --lock-env dev/template/allow_symlink 0
 bin/magento config:set --lock-env dev/template/minify_html 0
@@ -221,16 +234,34 @@ bin/magento config:set --lock-env dev/js/minify_files 0
 bin/magento config:set --lock-env dev/js/enable_js_bundling 0
 bin/magento config:set --lock-env dev/css/merge_css_files 0
 bin/magento config:set --lock-env dev/css/minify_files 0
-bin/magento config:set --lock-env dev/static/sign 1
+
+if [[ "${MAGENTO_DEPLOY_MODE}" == "production" ]]; then
+  
+  # Signing of static assets
+  bin/magento config:set --lock-env dev/static/sign 1
+  
+  # Set all indexers to rebuild from cron
+  bin/magento indexer:set-mode schedule
+  
+else
+  
+  # Signing of static assets
+  bin/magento config:set --lock-env dev/static/sign 0
+  
+  # Set all indexers to rebuild from cron
+  bin/magento indexer:set-mode realtime
+fi
+
 bin/magento config:set --lock-env admin/security/session_lifetime 28800
 
-bin/magento indexer:set-mode schedule
+
 
 bin/magento app:config:import
 bin/magento cache:enable
 bin/magento cache:flush
+
 echo "----: Magento Deployment Mode"
-bin/magento deploy:mode:set production
+bin/magento deploy:mode:set ${MAGENTO_DEPLOY_MODE}
 bin/magento cache:flush
 
 # Two Factor Auth Support
@@ -256,7 +287,6 @@ if [[ "${SHOULD_SETUP_TFA}" == "true" ]]; then
   # Set the TFA secret for admin user
   bin/magento security:tfa:google:set-secret "${ADMIN_USER}" "${TFA_SECRET}"
 fi
-
 
 # Create SymLink for site root
 echo "----: Creating Site Root Symlink to Magento Root"

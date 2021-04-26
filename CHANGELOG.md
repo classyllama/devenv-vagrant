@@ -7,6 +7,8 @@
 - Updated dependent Ansible Roles 
   - Improved support for check mode before install
   - Magento Demo Install defaults to 4GB RAM during install and is now configurable
+  - Magento Demo Install defaults to developer deployment mode
+  - Magento Demo Install defaults to redis fpc use
   - Improved MariaDB install for logging and tempdir
   - Improved Percona install for logging and tempdir
   - Nginx config improvements for Magento 2.4.2
