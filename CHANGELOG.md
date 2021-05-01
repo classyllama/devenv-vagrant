@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.2.NEXT
+## 0.2.10 - 2021-05
 
 - Inclusion of oathtool in common tools installed
 - Updating default values in crontab task
@@ -16,10 +16,12 @@
   - PHP-FPM default changed to v7.3
   - Fixed Varnish 6.0 and 6.4 configs options
   - New option for www-user to support UID GID assignments
+  - Updated Elasticsearch role to 7.12.1
 - Updated Virtualbox config to use newer default VMSVGA graphics controller
 - Updated minimum Ansible version to 2.10
 - Install nvm and lts version of node by default
 - Install grunt by default
+- Put Ansible collection for mysql in repo to correct for issues with Ansible 2.10.8
 
 ## 0.2.9 - 2020-12
 
