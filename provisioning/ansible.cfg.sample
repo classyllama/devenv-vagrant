@@ -1,6 +1,7 @@
 [defaults]
 library = ./source/provisioning/modules
 roles_path = ./source/provisioning/roles
+collections_paths = ./source/provisioning/collections
 
 retry_files_enabled = False
 
