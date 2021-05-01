@@ -1,10 +1,11 @@
 ---
 # Install Collections and Roles with Ansible Galaxy
-# ansible-galaxy role install -r requirements.yml
-# ansible-galaxy collection install -r requirements.yml -p ./
+# ansible-galaxy install -r requirements.yml
 
 # collections:
-  
+
+  # - name: community.general
+  #   type: galaxy
   
 roles:
 
@@ -135,13 +136,13 @@ roles:
   # 3rd Party Ansible Roles
 
   - src: elastic.elasticsearch
-    version: 7.10.0
+    version: v7.12.1
 
   - src: geerlingguy.repo-epel
-    # version: 1.2.4
+    # version: 3.0.0
   
   - src: geerlingguy.repo-remi
-    # version: 1.2.0
+    # version: 2.0.1
 
   - src: git@github.com:morgangraphics/ansible-role-nvm.git
     name: morgangraphics.nvm
