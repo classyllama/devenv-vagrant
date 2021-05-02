@@ -9,6 +9,7 @@
   - Magento Demo Install defaults to 4GB RAM during install and is now configurable
   - Magento Demo Install defaults to developer deployment mode
   - Magento Demo Install defaults to redis fpc use
+  - Magento Demo Improvements to memory limits of composer and bin/magento commands
   - Improved MariaDB install for logging and tempdir
   - Improved Percona install for logging and tempdir
   - Nginx config improvements for Magento 2.4.2

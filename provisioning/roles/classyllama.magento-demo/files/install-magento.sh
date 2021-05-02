@@ -114,6 +114,7 @@ echo "----: Move to Magento Install Directory ${MAGENTO_ROOT_DIR}"
 cd ${MAGENTO_ROOT_DIR}
 
 # Deploy install files
+export COMPOSER_MEMORY_LIMIT=${PHP_MEMORY_LIMIT}
 composer config -g http-basic.repo.magento.com ${COMPOSER_AUTH_USER} ${COMPOSER_AUTH_PASS}
 echo "----: Creating composer project"
 composer create-project \
@@ -129,7 +130,7 @@ chmod +x bin/magento
 # Conditionally install sample data
 if [[ "$SHOULD_SETUP_SAMPLE_DATA" == "true" ]]; then
   echo "----: Including Magento Sample Data"
-  php -dmemory_limit=${PHP_MEMORY_LIMIT} bin/magento sampledata:deploy
+  php -d memory_limit=${PHP_MEMORY_LIMIT} bin/magento sampledata:deploy
 fi
 
 
@@ -184,9 +185,9 @@ SHELL_COMMAND
 )
 
 # Display command
-echo "bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}"
+echo "php -d memory_limit=${PHP_MEMORY_LIMIT} bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}"
 # Execute bin/magento setup:install
-bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}
+php -d memory_limit=${PHP_MEMORY_LIMIT} bin/magento setup:install ${MAGENTO_INSTALL_OPTIONS}
 
 # Configure Magento
 echo "----: Magento Configuration Settings"
