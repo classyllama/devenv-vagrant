@@ -2,7 +2,12 @@ server-id                  = {{ mysqld_server_id | ternary(mysqld_server_id, 1) 
 #log-bin                   = {{ mysqld_log_bin }}
 #relay-log                 = {{ mysqld_relay_log }}
 relay-log-space-limit      = {{ mysqld_relay_log_space_limit }}
+{% if percona_version == 56 or percona_version == 57 %}
 expire-logs-days           = {{ mysqld_expire_logs_days }}
+{% endif %}
+{% if percona_version != 56 and percona_version != 57 %}
+binlog_expire_logs_seconds = {{ mysqld_expire_logs_days * 86400 }}
+{% endif %}
 #read-only                 = {{ mysqld_read_only }}
 #sync-binlog               = {{ mysqld_sync_binlog }}
 #log-slave-updates         = {{ mysqld_log_slave_updates }}
