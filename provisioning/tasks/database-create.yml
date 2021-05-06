@@ -21,13 +21,11 @@
 
 - name: Create database {{ mysql_db }}
   mysql_db:
-    login_unix_socket: "{{ mysqld_socket }}"
     config_file: /root/.my.cnf
     name: "{{ mysql_db }}"
 
 - name: Create database user {{ mysql_user }}
   mysql_user:
-    login_unix_socket: "{{ mysqld_socket }}"
     host: "{{ mysql_host }}"
     name: "{{ mysql_user }}"
     password: "{{ pw_result.stdout }}"

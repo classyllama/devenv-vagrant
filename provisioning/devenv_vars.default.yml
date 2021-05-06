@@ -127,7 +127,6 @@ use_classyllama_percona: true
 percona_version: 57
 mysqld_memory_percentage: 25
 mysqld_max_connections: 15
-mysqld_socket: /var/lib/mysql/mysql.sock
 
 use_classyllama_repo_varnish: true
 use_classyllama_varnish: true
