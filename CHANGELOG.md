@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.Next
+
+- Support for Percona 8.0
+
 ## 0.2.10 - 2021-05
 
 - Inclusion of oathtool in common tools installed
