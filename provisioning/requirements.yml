@@ -91,6 +91,10 @@ roles:
   - src: git@github.com:classyllama/ansible-role-repo-ius.git
     name: classyllama.repo_ius
     scm: git
+
+  - src: git@github.com:classyllama/ansible-role-repo-nodesource.git
+    name: classyllama.repo-nodesource
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-repo-percona.git
     name: classyllama.repo-percona

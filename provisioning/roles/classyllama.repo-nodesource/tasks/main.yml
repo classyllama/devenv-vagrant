@@ -1,0 +1,46 @@
+- name: Check if nodejs is installed
+  yum:
+    list: nodesource-release
+  register: nodejs_pkg
+  when: nodejs_update is undefined
+  
+- name: Determine if nodejs needs to be installed
+  set_fact:
+    nodejs_update: '{{ nodejs_pkg.results|selectattr("yumstate", "match", "installed")|list|length == 0 }}'
+  when: nodejs_update is undefined
+
+- name: Download nodejs update script
+  get_url:
+    url: "{{ nodejs_update_url }}"
+    dest: ~/nodejs_update
+    mode: 700
+    force: yes
+  when: nodejs_update|bool
+  
+- name: Run nodejs update script
+  command: "~/nodejs_update"
+  when: nodejs_update|bool
+  
+- name: Remove update script
+  file:
+    path: ~/nodejs_update
+    state: absent
+
+- name: Uninstall any previous versions of nodejs
+  yum:
+    name: nodejs
+    state: absent
+  when: nodejs_update|bool and install_nodejs
+
+- name: Clean yum cache of old nodejs versions
+  command:
+    cmd: "yum clean all"
+    warn: false
+  when: nodejs_update|bool
+
+- name: Install nodejs
+  yum:
+    name:
+      - nodejs
+    state: present
+  when: nodejs_update|bool and install_nodejs
