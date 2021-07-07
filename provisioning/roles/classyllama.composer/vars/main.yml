@@ -14,3 +14,7 @@ _composer_download:
     url: "https://getcomposer.org/download/1.10.17/composer.phar"
     dest: "/var/cache/ansible/composer-1.10.17.phar"
     checksum: "sha256:6fa00eba5103ce6750f94f87af8356e12cc45d5bbb11a140533790cf60725f1c"
+  2.0.14:
+    url: "https://getcomposer.org/download/2.0.14/composer.phar"
+    dest: "/var/cache/ansible/composer-2.0.14.phar"
+    checksum: "sha256:29454b41558968ca634bf5e2d4d07ff2275d91b637a76d7a05e6747d36dd3473"
