@@ -21,6 +21,8 @@ mysqld_memory_unit: "{{ (ansible_memtotal_mb > 7680) | ternary('G', 'M') }}"
 
 mariadb_version: "10.3"
 
+mysqld_service_name: mariadb
+
 mysqld_create_tmpdir: yes
 mysqld_create_mysqld_log: yes
 mysqld_existing_datadir: no
