@@ -1,3 +1,14 @@
+- name: Check if Nodesource repo is already configured
+  stat:
+    path: "{{ nodesource_repo_path }}"
+  register: nodesource_repofile_result
+
+- name: Import Nodesource GPG Key
+  rpm_key:
+    key: "{{ nodesource_gpg_key }}"
+    state: present
+  when: not nodesource_repofile_result.stat.exists
+
 - name: Check if nodejs is installed
   yum:
     list: nodesource-release
