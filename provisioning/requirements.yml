@@ -13,6 +13,7 @@ collections:
 
   # - name: community.general
   #   type: galaxy
+  #   version: '>=3.3.0' # This comes bunlded with Ansible 2.11.2+
 
   # - name: community.mysql
   #   type: galaxy
