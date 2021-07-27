@@ -126,7 +126,7 @@ use_classyllama_mariadb: false
 use_classyllama_percona: true
 percona_version: 57
 mysqld_memory_percentage: 25
-mysqld_max_connections: 15
+mysqld_max_connections: 50
 
 use_classyllama_repo_varnish: true
 use_classyllama_varnish: true
