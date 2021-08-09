@@ -1,0 +1,12 @@
+# This task file requires the following vars be set:
+#
+#   elasticaccess_file: <path>     Path to the .elastic.json file to store the given options in
+#
+---
+- name: Create /home/www-data/.elastic_access.json
+  ansible.builtin.template:
+    src: elasticsearch/.elastic_access.json.j2
+    dest: /home/www-data/.elastic_access.json
+    owner: www-data
+    group: www-data
+    mode: '0640'
