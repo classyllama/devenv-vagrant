@@ -3,6 +3,16 @@
 ## 0.2.Next
 
 - Support for Percona 8.0
+- Update fix for EL8 when installing php-remi-modular
+- Update to support Compsoer 2.0.14 and 2.1.3
+- Update max SQL connections from 15 to 50
+- PWA Support
+  - Support for installing System Node.js
+- Updated dependent Ansible Roles 
+  - Variable defined Percona and MariaDB service name
+- Ansible 2.11.2 introduced issue with certbot that was resolved with Ansible 2.11.3
+- Removal of embedded Ansible collection and requirement for Ansible 2.11.3
+- Improved display of Ansible version in use and required version
 
 ## 0.2.10 - 2021-05
 
