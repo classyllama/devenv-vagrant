@@ -2,13 +2,19 @@
 # Install Collections and Roles with Ansible Galaxy
 # ansible-galaxy install -r requirements.yml
 
+# List installed collections or roles and the respective versions
+# ansible-galaxy collection list
+# ansible-galaxy role list
+
+# Verify installed collections
+# ansible-galaxy collection verify -r requirements.yml 
+
 collections:
 
   # - name: community.general
   #   type: galaxy
-
-  - name: community.mysql
-    type: galaxy
+  #   version: '>=3.3.2' # Certbot role fix (snapd), see https://github.com/ansible-collections/community.general/issues/2953 for details
+  #   # requirements met by Ansible 2.11.3
   
 roles:
 
@@ -90,6 +96,10 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-repo-ius.git
     name: classyllama.repo_ius
+    scm: git
+
+  - src: git@github.com:classyllama/ansible-role-repo-nodesource.git
+    name: classyllama.repo-nodesource
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-repo-percona.git

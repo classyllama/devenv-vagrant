@@ -1,5 +1,6 @@
 ---
 - name: check ansible version
+  # Specified for all hosts along with local connection to function with vagrant provision
   hosts: all
   connection: local
   gather_facts: no
@@ -9,7 +10,14 @@
     - ../devenv_vars.config.yml
   
   tasks:
-    - name: fail if wrong ansible version
+    - name: Display Ansible Version and Requirement
+      ansible.builtin.debug:
+          msg: 
+            - Current Ansible Version {{ ansible_version.string }}
+            - Requirement is {{ ansible_version_require_min_operator }} {{ ansible_version_require_min }} and {{ ansible_version_require_max_operator }} {{ ansible_version_require_max }}
+      tags: [always]
+    
+    - name: Checking Ansible Version Requirements (skipped if requirements match)
       when: 
         ansible_version.string is not version(ansible_version_require_min, ansible_version_require_min_operator) or
         ansible_version.string is not version(ansible_version_require_max, ansible_version_require_max_operator)

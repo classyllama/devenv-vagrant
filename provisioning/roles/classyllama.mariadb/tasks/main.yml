@@ -75,7 +75,7 @@
 
 - name: start mariadb service
   service:
-    name: mariadb
+    name: "{{ mysqld_service_name }}"
     state: started
     enabled: yes
 

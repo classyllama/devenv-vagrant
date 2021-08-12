@@ -84,7 +84,7 @@
 
 - name: start mysql service
   service:
-    name: mysql
+    name: "{{ mysqld_service_name }}"
     state: started
     enabled: yes
   ignore_errors: "{{ ansible_check_mode }}"

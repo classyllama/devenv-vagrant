@@ -1,0 +1,6 @@
+---
+nodejs_major_version: "10"
+nodejs_update_url: "https://rpm.nodesource.com/setup_{{ nodejs_major_version }}.x"
+install_nodejs: false
+nodesource_gpg_key: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+nodesource_repo_path: "/etc/yum.repos.d/nodesource-el{{ ansible_distribution_major_version}}.repo"
