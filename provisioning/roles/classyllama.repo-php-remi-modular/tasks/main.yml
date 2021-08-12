@@ -4,7 +4,7 @@
 # the defined stream module is not enabled
 - name: Check dnf module php
   shell:
-    cmd: "dnf -q module list php | grep php | grep '{{ php_stream_version }}'"
+    cmd: "dnf -y -q module list php | grep php | grep '{{ php_stream_version }}'"
     warn: false
   register: dnf_module_php
   changed_when: False
