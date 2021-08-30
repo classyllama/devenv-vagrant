@@ -152,7 +152,12 @@
     - name: Run all notified handlers
       meta: flush_handlers
       tags: database
-    
+
+    # Save ElasticSearch credentials into www-data user home
+    - include: tasks/elasticsearch-access.yml
+      tags: elasticsearch
+      when: use_elastic_elasticsearch | default(false)
+
     # --- Common Tools
     # Install ImageMagick
     # verify tool exists: mogrify -version
