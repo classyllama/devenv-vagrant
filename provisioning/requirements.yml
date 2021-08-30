@@ -52,7 +52,6 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
     name: classyllama.multi-redis
-    version: feature/redis6support
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-n98-magerun.git
