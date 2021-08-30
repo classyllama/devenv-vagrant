@@ -13,6 +13,8 @@
 - Ansible 2.11.2 introduced issue with certbot that was resolved with Ansible 2.11.3
 - Removal of embedded Ansible collection and requirement for Ansible 2.11.3
 - Improved display of Ansible version in use and required version
+- Persist Elasticsearch credentials to disk
+  Elasticsearch credentials are now written to disk after installation for later reference. The DevEnv now has this written to the default path of the www-data user's home directory ~/.elastic_access.json similar to the creation of the ~/.my.cnf for MySQL access.
 
 ## 0.2.10 - 2021-05
 
