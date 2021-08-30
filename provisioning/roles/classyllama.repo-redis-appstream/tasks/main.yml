@@ -1,0 +1,37 @@
+---
+
+# On RHEL/CentOS 8 the packages will not show up if 
+# the defined stream module is not enabled
+- name: Check dnf module redis
+  shell:
+    cmd: "dnf -y -q module list redis | grep redis | grep '{{ redis_stream_version }}'"
+    warn: false
+  register: dnf_module_redis
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_redis
+
+- name: Reset redis module
+  shell:
+    cmd: dnf -y module reset redis
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_redis.stdout != ""
+    - not '[e]' in dnf_module_redis.stdout
+
+- name: Enable redis module version
+  shell:
+    cmd: "dnf -y module enable redis:{{ redis_stream_version }}"
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_redis.stdout != ""
+    - not '[e]' in dnf_module_redis.stdout

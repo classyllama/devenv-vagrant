@@ -1,7 +1,8 @@
 ---
 dependencies:
   - { role: classyllama.repo_ius, when: use_classyllama_repo_ius | default(true) }
-  
+  - { role: geerlingguy.repo-remi, when: use_geerlingguy_repo_remi | default(false) }  
+  - { role: classyllama.repo-redis-appstream, when: use_classyllama_repo_redis_appstream | default(false) }
 galaxy_info:
   role_name: multi_redis
   author: David Alger
@@ -12,6 +13,7 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
+        - 8
         - 7
         - 6
 

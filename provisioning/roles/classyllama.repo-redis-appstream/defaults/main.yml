@@ -1,0 +1,8 @@
+---
+##############################
+# Redis Stream Version
+#
+# Redis is distributed via AppStream Module repositories
+# Versions available may be 5 or 6
+
+redis_stream_version: "6"
