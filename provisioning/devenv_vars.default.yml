@@ -170,11 +170,14 @@ nginx_config_hsts: no
 nginx_sign_task: tasks/devenv_ssl-sign.yml
 nginx_ssl_cert_dir: /etc/nginx/ssl
 
+# CentOS 7 / Redis 6 (Remi)
 # use_classyllama_repo_ius: true
+# use_geerlingguy_repo_remi: true
 use_classyllama_multi_redis: true
-redis_package_name: "redis5"
-redis_enablerepo: ""
-redis_version: 50
+use_classyllama_repo_redis_appstream: false
+redis_package_name: "redis"
+redis_enablerepo: "remi"
+redis_version: 60
 redis_obj_maxmem: 1gb
 use_dedicated_redis_ses: false
 redis_ses_maxmem: 256mb
