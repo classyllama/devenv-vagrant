@@ -8,8 +8,10 @@ ansible_version_require_max_operator: "<"   # Example "<=" or "<"
 
 # --- System Configs
 syseng_access_users:
+  # - { username: www-data, pubkey: ~/.ssh/id_ed25519.pub }
   - { username: www-data, pubkey: ~/.ssh/id_rsa.pub }
 www_user_ssh_keys:
+  # - ~/.ssh/id_ed25519.pub
   - ~/.ssh/id_rsa.pub
 
 app_domain: example.lan
