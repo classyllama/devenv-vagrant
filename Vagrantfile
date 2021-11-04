@@ -71,7 +71,7 @@ Vagrant.configure('2') do |config|
       # the hostname on the host_only network and use the 
       # www-data user when logging into the box
       if PluginUtility.vmIsProvisioned("#{$dev_machine_name}")
-        config.ssh.private_key_path = "#{$ssh_private_key}"
+        config.ssh.private_key_path = $ssh_private_key
         config.ssh.insert_key = false
         config.ssh.host = "#{$dev_machine_name}"
         config.ssh.port = 22
@@ -176,7 +176,7 @@ Vagrant.configure('2') do |config|
 
         # Digital Ocean provider scenario
         config.vm.provider :digital_ocean do |provider, override|
-          override.ssh.private_key_path = "#{$ssh_private_key}"
+          override.ssh.private_key_path = $ssh_private_key
           override.vm.box = 'digital_ocean'
           override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
           override.nfs.functional = false

@@ -10,8 +10,15 @@ $dev_additional_hostnames = %w(store1.myprojectname.lan store1.myprojectname.lan
 $vagrant_base_box = 'bento/centos-8' # support for 'bento/centos-7' and 'bento/centos-8'
 # $dev_vm_cpus = 2
 # $dev_vm_ram = 4096
-# $ssh_private_key = '~/.ssh/id_rsa'
-# $ssh_public_key_paths = ['~/.ssh/id_rsa.pub']
+
+$ssh_private_key        =   [
+                                '~/.ssh/id_rsa'
+                                # ,'~/.ssh/id_ed25519'
+                            ]
+$ssh_public_key_paths   =   [
+                                '~/.ssh/id_rsa.pub'
+                                # ,'~/.ssh/id_ed25519.pub'
+                            ]
 
 $persistent_disks = [
   {
