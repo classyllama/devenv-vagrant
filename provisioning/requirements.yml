@@ -85,7 +85,11 @@ roles:
   - src: git@github.com:classyllama/ansible-role-rclone-archiver.git
     name: classyllama.rclone-archiver
     scm: git
-  
+ 
+  - src: git@github.com:classyllama/ansible-role-repo-mariadb.git
+    name: classyllama.repo-mariadb
+    scm: git
+ 
   - src: git@github.com:classyllama/ansible-role-repo-nginx.git
     name: classyllama.repo-nginx
     scm: git
