@@ -1,5 +1,8 @@
 ---
 
+- debug:
+    var: mariadb_version
+
 - name: Install MariaDB Client/Server
   package:
     name: "{{ item }}"
