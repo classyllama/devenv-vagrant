@@ -110,6 +110,7 @@
     
     # Global services
     - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.repo-mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
     - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
     - { role: classyllama.nginx, tags: nginx }
     
