@@ -32,6 +32,11 @@
     path: "{{ mysqld_tmpdir }}"
   register: mysqld_tmpdir_stat
 
+- name: Check for existing pid_dir
+  stat:
+    path: "{{ mysqld_pid_dir }}"
+  register: mysqld_pid_dir_stat
+
 - name: create mysqld tmpdir
   file:
     path: "{{ mysqld_tmpdir }}"
@@ -40,6 +45,15 @@
     group: mysql
     mode: 0775
   when: mysqld_create_tmpdir or not mysqld_tmpdir_stat.stat.exists
+
+- name: create mysqld pid_dir
+  file:
+    path: "{{ mysqld_pid_dir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0775
+  when: not mysqld_pid_dir.stat.exists
 
 - name: configure mysqld
   template:
@@ -75,6 +89,9 @@
     group: mysql
     mode: 0775
   when: not mysqld_log_dir_stat.stat.exists
+
+- name: initialize mysqld 
+  ansible.builtin.command: mysql_install_db --user=mysql --basedir=/usr --datadir={{ mysqld_datadir }}
 
 - name: start mariadb service
   service:
