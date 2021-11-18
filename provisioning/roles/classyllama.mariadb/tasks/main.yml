@@ -53,7 +53,7 @@
     owner: mysql
     group: mysql
     mode: 0775
-  when: not mysqld_pid_dir.stat.exists
+  when: not mysqld_pid_dir_stat.stat.exists
 
 - name: configure mysqld
   template:
