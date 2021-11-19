@@ -167,7 +167,7 @@ nginx_logrotate_users: [ www-data ]
 nginx_conf_auth_allow: []
 nginx_http_additional_config:
   map_hash_bucket_size: "2048"
-nginx_diffie_hellman_bits: 1024 # Optimized this for build speed. Production environments should use 4096
+nginx_diffie_hellman_bits: 2048 # Optimized this for build speed. Production environments should use 4096
 nginx_config_hsts: no
 nginx_sign_task: tasks/devenv_ssl-sign.yml
 nginx_ssl_cert_dir: /etc/nginx/ssl
