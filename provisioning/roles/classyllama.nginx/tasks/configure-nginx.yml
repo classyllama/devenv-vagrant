@@ -7,6 +7,11 @@
   with_items: "{{ nginx_groups }}"
   notify: restart nginx
 
+- name: combine settings for nginx_http/nginx_server
+  set_fact:
+    nginx_http_config_merged: "{{ nginx_http_config|combine(nginx_http_additional_config) }}"
+    nginx_server_config_merged: "{{ nginx_server_config|combine(nginx_server_additional_config) }}"
+
 - name: configure nginx.conf
   template:
     src: nginx/nginx.conf
