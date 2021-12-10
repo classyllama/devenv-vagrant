@@ -1,0 +1,170 @@
+---
+- hosts: all
+  name: Enable MailHog
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+
+  handlers:
+    - name: restart php-fpm
+      service: name=php-fpm state=restarted
+
+  tasks:
+    - name: install msmtp
+      yum: 
+        name: msmtp
+    
+    - name: Check for existing mailhog ini file
+      tags: mailhog
+      stat:
+          path: "{{ php_mailhog_ini_path }}"
+      register: mailhog_ini_stat
+    
+    - name: Check for disabled mailhog ini file
+      tags: mailhog
+      stat:
+          path: "{{ php_mailhog_ini_path }}.disabled"
+      register: mailhog_ini_disabled_stat
+
+    - name: Check for existing MailHog binary
+      tags: mailhog
+      stat:
+        path: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
+      register: mailhog_stat
+    
+    - name: Get current MailHog version (if available)
+      tags: mailhog
+      shell: "{{ mailhog_install_path }}{{ mailhog_install_name }} --version | sed 's/^.* \\(\\([0-9]\\{1,\\}\\.\\)*[0-9]*\\)/\\1/'"
+      when: mailhog_stat.stat and mailhog_stat.stat.exists
+      register: installed_mailhog_version
+    
+    - debug: 
+        var: installed_mailhog_version.stdout
+
+    # Install / Update MailHog if necessary
+    - name: Retrieve latest MailHog release data
+      tags: mailhog
+      uri:
+        url: https://api.github.com/repos/mailhog/MailHog/releases/latest
+        headers:
+          Accept: application/vnd.github.v3+json
+        body_format: json
+        follow_redirects: safe
+      register: latest_mailhog_release_data
+
+    - name: Parse latest MailHog version from data
+      tags: mailhog
+      shell: echo "{{ latest_mailhog_release_data.json.tag_name }}" | sed 's/^v\(\([0-9]\{1,\}\.\)*[0-9]*\).*/\1/g'
+      register: latest_mailhog_release_version
+
+    - name: Retrieve MailHog download path
+      tags: mailhog
+      set_fact:
+        latest_mailhog_download_url: "{{ latest_mailhog_release_data.json | community.general.json_query(latest_amd64_asset_query) }}"
+      vars:
+        latest_amd64_asset_query: "assets[?name==`MailHog_linux_amd64`].browser_download_url | [0]"
+      when:
+        - (installed_mailhog_version.skipped is defined and installed_mailhog_version.skipped) or
+          latest_mailhog_release_version.stdout is version(installed_mailhog_version.stdout, '>')
+    
+    # Download binaries from GitHub
+    - name: Download MailHog binary
+      tags: mailhog
+      get_url:
+        url: "{{ latest_mailhog_download_url }}"
+        dest: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
+      when:
+        - (installed_mailhog_version.skipped is defined and installed_mailhog_version.skipped) or
+          latest_mailhog_release_version.stdout is version(installed_mailhog_version.stdout, '>')
+    
+    - name: Allow execution of MailHog binary
+      tags: mailhog
+      file:
+        path: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
+        mode: 0755
+    
+    # Configure MailHog as system service
+    - name: Check for MailHog system service
+      tags: mailhog
+      stat:
+        path: /etc/systemd/system/mailhog.service
+
+    - name: Configure MailHog service (Unit)
+      tags: mailhog
+      ini_file:
+        section: Unit
+        dest: /etc/systemd/system/mailhog.service
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict:
+        Description: MailHog
+        After: syslog.target network.target
+      when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+    
+    - name: Configure MailHog service (Service)
+      tags: mailhog
+      ini_file:
+        section: Service
+        dest: /etc/systemd/system/mailhog.service
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict:
+        Type: simple
+        ExecStart: "{{ mailhog_install_path }}{{ mailhog_install_name }}"
+        StandardOutput: journal
+        Restart: on-failure
+      when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+    
+    - name: Configure MailHog service (Install)
+      tags: mailhog
+      ini_file:
+        section: Service
+        dest: /etc/systemd/system/mailhog.service
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict:
+        WantedBy: multi-user.target
+      when: mailhog_service_stat is undefined or not mailhog_service_stat.stat.exists
+    
+    - name: Enable MailHog system service
+      tags: mailhog
+      service:
+        name: mailhog
+        pattern: /usr/local/bin/MailHog
+        enabled: yes
+        state: started
+    
+    # Create the PHP MailHog configuration file if it doesn't exist at all
+    - name: Configure mailhog.ini.disabled
+      tags: mailhog
+      ini_file:
+        section: null
+        dest: "{{ php_mailhog_ini_path }}.disabled"
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_mailhog_ini }}"
+      notify: restart php-fpm
+      when:
+        - mailhog_ini_stat is not defined or not mailhog_ini_stat.stat.exists
+        - mailhog_ini_disabled_stat is not defined or not mailhog_ini_disabled_stat.stat.exists
+      register: mailhog_ini_created
+
+    - name: Copy disabled mailhog.ini file to enable it
+      tags: mailhog
+      copy:
+          remote_src: true
+          src: "{{ php_mailhog_ini_path }}.disabled"
+          dest: "{{ php_mailhog_ini_path }}"
+      when:
+        - (mailhog_ini_created is defined and not mailhog_ini_created.skipped)
+          or mailhog_ini_disabled_stat.stat.exists
+      notify:
+          - restart php-fpm
+
+    - name: Remove disabled mailhog ini file
+      tags: mailhog
+      file:
+          path: "{{ php_mailhog_ini_path }}.disabled"
+          state: absent
