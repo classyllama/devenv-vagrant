@@ -12,9 +12,23 @@
       service: name=php-fpm state=restarted
 
   tasks:
-    - name: install msmtp
+    - name: Install msmtp
+      tags: mailhog
       yum: 
         name: msmtp
+    
+    - name: Create msmtp log file (if necessary)
+      tags: mailhog
+      file:
+        path: "{{ msmtp_log_path }}"
+        state: touch
+        mode: 0666
+
+    - name: Create msmtprc file
+      template:
+        src: msmtp/msmtprc
+        dest: /etc/msmtprc
+        mode: 0644
     
     - name: Check for existing mailhog ini file
       tags: mailhog
@@ -132,7 +146,6 @@
       tags: mailhog
       service:
         name: mailhog
-        pattern: /usr/local/bin/MailHog
         enabled: yes
         state: started
     

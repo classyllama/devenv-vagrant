@@ -59,6 +59,5 @@
       tags: mailhog
       service:
         name: mailhog
-        pattern: /usr/local/bin/MailHog
         enabled: false
         state: stopped
