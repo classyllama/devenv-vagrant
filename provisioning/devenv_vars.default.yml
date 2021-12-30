@@ -116,6 +116,13 @@ php_extension_xdebug_ini:
   xdebug.profiler_output_name: cachegrind.out.%s.%t
 php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
+php_mailhog_ini_path: "/etc/php.d/20-mailhog.ini"
+php_mailhog_ini:
+  sendmail_path: "/usr/bin/msmtp --read-recipients -a default"
+mailhog_install_path: /usr/local/bin/
+mailhog_install_name: MailHog
+msmtp_log_path: /var/log/msmtp.log
+
 use_classyllama_repo_python_appstream: false
 python_package_name: python # CentOS 7 uses Python 2.7
 python_software_packages:
@@ -224,7 +231,7 @@ use_vm_cache: true
 composer_selfupdate: false
 
 use_morgangraphics_nvm: true
-morgangraphics_nvm_commands: 
+morgangraphics_nvm_commands:
   - "nvm install node"
   - "npm install -g grunt-cli"
 
