@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.2.Next
+## 0.2.11 - 2021-12
 
 - Support for Percona 8.0
 - Update fix for EL8 when installing php-remi-modular
