@@ -17,6 +17,7 @@
   Elasticsearch credentials are now written to disk after installation for later reference. The DevEnv now has this written to the default path of the www-data user's home directory ~/.elastic_access.json similar to the creation of the ~/.my.cnf for MySQL access.
 - Support for Redis 6
 - Nginx param, nginx_diffie_hellman_bits, is updated to 2048
+- Email capture feature using Mailhog is added
 
 ## 0.2.10 - 2021-05
 
