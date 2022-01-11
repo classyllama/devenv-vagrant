@@ -140,7 +140,21 @@ https://example.lan/backend/
 
 Additional notes on Demo Install and Two Factor Auth: https://github.com/classyllama/ansible-role-magento-demo#notes
 
-Enable Debugging
+**Initialize Email Capture (using Mailhog)**
+
+- Enable mailhog
+
+        ./devenv mailhog enable
+- Disable mailhog
+
+        ./devenv mailhog disable
+
+- Inside VM, value of `sendmail_path` variable in `/etc/php.d/20-mailhog.ini` changes to `/usr/bin/msmtp --read-recipients -a default` when enabled and changes to `/usr/sbin/sendmail -t -i` when disabled.
+- Look for captured email in the browser at <env_name>:8025/  (eg: http://dev-centos7-common.lan:8025/)
+  - For example: change password of a customer and go to the above address to find the captured email
+
+
+**Enable Debugging**
 
 - Enable PHP xDebug inside VM
 
