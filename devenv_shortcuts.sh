@@ -104,4 +104,10 @@ elif [[ "${COMMAND}" == "mailhog" ]]; then
       && echo "MailHog Enabled" \
       || echo "MailHOg Disabled"
   fi
+elif [[ "${COMMAND}" == "centos8fix" ]]; then
+  cd ./provisioning/
+
+  if [[ "${COMMAND_OPTION}" == "apply" ]]; then
+    ansible-playbook -i ../persistent/inventory/devenv centos8eol.yml --diff
+  fi
 fi

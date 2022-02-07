@@ -33,8 +33,3 @@
 [ ] Look into utilizing Traefik
 [?] Look into using DNSMasq
   Utilizing vagrant-hostmanager may reduce the need for DNSMasq
-[ ] Look into some kind of mail catcher to prevent actual sending of emails, but still have ability to review emails
-    [ ] Mailtrap
-    [ ] MailSlurper
-    [ ] MailCatcher
-    [ ] MailHog
