@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.2.13 - 2022-02
+- Fix for CentOS 8 based environments due to EOL (replacing the repositories with https://vault.centos.org)
+
 ## 0.2.12 - 2022-01
 - Email capture feature using Mailhog is added
 

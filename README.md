@@ -60,7 +60,8 @@ Example reference implementations used for testing variations on environment con
 
 [Troubleshooting](troubleshooting.md)
 
-
+# CentOS 8 Fix for outdated repositories URLs (EOL)
+[CentOS 8 Fix](Centos8EOL.md)
 
 # Optional Use
 
