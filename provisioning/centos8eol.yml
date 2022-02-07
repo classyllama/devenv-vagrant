@@ -8,8 +8,13 @@
     - ./devenv_vars.config.yml
   
   tasks:
+    - name: Check if vault.centos.org is already used
+      shell: grep 'baseurl=http://vault.centos.org/' /etc/yum.repos.d/CentOS-Linux-* |wc -l
+      register: centos_vault_repo
+
     - name: Replace outdated CentOS 8 repositories with http://vault.centos.org
       shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version >= '8'
+        - centos_vault_repo.stdout|int =< '12'
