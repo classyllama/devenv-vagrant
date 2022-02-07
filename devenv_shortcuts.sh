@@ -16,12 +16,14 @@ Shortcut commands for common devenv actions
 Usage: devenv [command] [command_option]
   xdebug [enable|disable]   Enable of disable PHP xDebug extension
   mailhog [enable|disable]  Enable or disable MailHog dev email system
+  centos8fix apply          Modify CentOS 8 repositories due to EOL
 
 Example:
   devenv xdebug enable
   devenv xdebug disable
   devenv mailhog enable
   devenv mailhog disable
+  devenv centos8fix apply
 
 CONTENTS_HEREDOC
 )
@@ -58,6 +60,17 @@ case $1 in
         fi
         COMMAND_OPTION="$2"
         ;;
+    centos8fix)
+        COMMAND="centos8fix"
+        if [ ! $# -ge 2 ] || [[ ! "$2" =~ ^apply ]]; then
+            >&2 echo "Error: Invalid command option given. Valid command option: apply"
+            echo ""
+            echo "${HELP_INFO}"
+            exit -1
+        fi
+        COMMAND_OPTION="$2"
+        ;;
+ 
     *)
         echo "${HELP_INFO}"
         exit;
