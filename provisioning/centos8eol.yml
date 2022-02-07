@@ -9,8 +9,7 @@
   
   tasks:
     - name: Replace outdated CentOS 8 repositories with http://vault.centos.org
-      ansible.builtin.shell:
-      cmd: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+      shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version >= '8'
