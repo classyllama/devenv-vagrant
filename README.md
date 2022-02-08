@@ -63,6 +63,9 @@ Example reference implementations used for testing variations on environment con
 # CentOS 8 Fix for outdated repositories URLs (EOL)
 [CentOS 8 Fix](Centos8EOL.md)
 
+# Supported Systems
+[Supported Vagrant Systems (images)](SupportedOS.md)
+
 # Optional Use
 
 ### Digital Ocean Provider

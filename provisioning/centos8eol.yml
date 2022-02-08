@@ -1,20 +1,28 @@
 ---
-- name: CentOS 8 Transition to Vault repositories 
+- name: CentOS 8 Transition to Vault repositories
   hosts: all
   become: true
 
   vars_files:
     - ./devenv_vars.default.yml
     - ./devenv_vars.config.yml
-  
+
   tasks:
+    - name: Check if it is CentOS or Rocky
+      stat:
+        path: /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
+      register: centos_base_repo
+
     - name: Check if vault.centos.org is already used
       shell: grep -E '^baseurl=https:\/\/vault.centos.org' /etc/yum.repos.d/CentOS-Linux-* |wc -l
       register: centos_vault_repo
+      when:
+        - centos_base_repo.stat.exists
 
     - name: Replace outdated CentOS 8 repositories with http://vault.centos.org
       shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version >= '8'
+        - centos_base_repo.stat.exists
         - (centos_vault_repo.stdout|int < 13)
