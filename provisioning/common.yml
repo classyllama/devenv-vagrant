@@ -57,7 +57,26 @@
 
     - name: Yum update and reboot as needed
       block:
-    
+
+        # Fix for jemalloc which exists in epel and percona repositories - setting higher priority for EPEL
+        - name: Check if EPEL repository exists
+          stat:
+            path: /etc/yum.repos.d/epel.repo
+          register: epel_repo_config
+
+        - name: Check if priority is added for EPEL
+          shell: grep -E '^priority' /etc/yum.repos.d/epel.repo |wc -l
+          register: epel_repo_config_priority
+          when:
+            - epel_repo_config.stat.exists
+
+        - name: Add priority for EPEL
+          shell: sed -i -e '/^countme=.*/a priority=98' /etc/yum.repos.d/epel.repo
+          when:
+            - ansible_os_family == 'RedHat'
+            - epel_repo_config.stat.exists
+            - (epel_repo_config_priority.stdout|int == 0)
+
         - name: upgrade all packages
           package:
             name: '*'
