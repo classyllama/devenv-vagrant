@@ -49,3 +49,14 @@
     - fail:
         msg: "ERROR: Xdebug still seems to be disabled somehow!"
       when: not ansible_check_mode and php_module_xdebug_match is defined and php_module_xdebug_match.stdout == ""
+
+    # Create 'php-debug' alias for 'php -d xdebug.remote_autostart=on -f'
+    - name: Create php-debug alias
+      lineinfile:
+        path: /home/www-data/.bashrc
+        line: "alias php-debug='export PHP_IDE_CONFIG=serverName='{{ app_domain }}' && php -d xdebug.remote_autostart=on -f'"
+        owner: www-data
+        regexp: "^alias php-debug='export PHP_IDE_CONFIG=serverName='{{ app_domain }}' && php -d xdebug.remote_autostart=on -f'$"
+        state: present
+        insertafter: EOF
+        create: True
