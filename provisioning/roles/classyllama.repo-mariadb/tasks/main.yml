@@ -1,0 +1,38 @@
+---
+# On RHEL/CentOS 8 the MariaDB-* packages will not show up if 
+# the default mariadb stream module is enabled
+- name: Check dnf module mariadb
+  shell:
+    cmd: dnf -q module list mariadb | grep mariadb | grep '[d]'
+    warn: false
+  register: dnf_module_mariadb
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+
+- debug:
+    var: dnf_module_mariadb
+
+- name: Disable mariadb module
+  shell:
+    cmd: dnf -y module disable mariadb
+    warn: false
+  when: 
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_mariadb.stdout != ""
+    - not '[x]' in dnf_module_mariadb.stdout
+
+- name: Check if MariaDB repo is already configured
+  stat:
+    path: /etc/yum.repos.d/mariadb.repo
+  register: mariadb_repofile_result
+
+- name: Download and run MariaDB Package Repository Setup script
+  shell: |
+    curl -LsS "{{ mariadb_repo_setup_url }}" | bash -s -- --mariadb-server-version="mariadb-{{ mariadb_version }}"
+  args:
+    executable: "/bin/bash"
+  when: not mariadb_repofile_result.stat.exists

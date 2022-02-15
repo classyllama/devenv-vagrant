@@ -1,3 +1,4 @@
 ---
-dependencies: []
-
+dependencies:
+  - role: classyllama.repo-mariadb
+    when: mariadb_version is version("10.4", '>=')

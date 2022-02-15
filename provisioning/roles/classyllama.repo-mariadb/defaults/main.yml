@@ -1,0 +1,3 @@
+---
+mariadb_version: "10.4"
+mariadb_repo_setup_url: "https://downloads.mariadb.com/MariaDB/mariadb_repo_setup"

@@ -14,7 +14,10 @@ See `defaults/main.yml` for details.
 
 ## Dependencies
 
-This expects the CentOS 8 AppStream to have the MariaDB 10.3 stream enabled by default.
+* `classyllama.repo-mariadb`
+
+for MariaDB 10.4 and higher, MariaDB 10.3 uses CentOS 8 AppStream enabled by default.
+
 
 ## Example Playbook
 

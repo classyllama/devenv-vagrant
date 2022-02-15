@@ -48,6 +48,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-mariadb.git
     name: classyllama.mariadb
+    version: feature/CLII01-63_MariaDB_10_4
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
@@ -85,7 +86,11 @@ roles:
   - src: git@github.com:classyllama/ansible-role-rclone-archiver.git
     name: classyllama.rclone-archiver
     scm: git
-  
+ 
+  - src: git@github.com:classyllama/ansible-role-repo-mariadb.git
+    name: classyllama.repo-mariadb
+    scm: git
+ 
   - src: git@github.com:classyllama/ansible-role-repo-nginx.git
     name: classyllama.repo-nginx
     scm: git
