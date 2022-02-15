@@ -1,0 +1,63 @@
+---
+- hosts: all
+  name: Disable MailHog
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+
+  handlers:
+    - name: restart php-fpm
+      service: name=php-fpm state=restarted
+
+  tasks:
+    - name: Check for existing mailhog ini file
+      tags: mailhog
+      stat:
+          path: "{{ php_mailhog_ini_path }}"
+      register: mailhog_ini_stat
+    
+    - name: Check for disabled mailhog ini file
+      stat:
+          path: "{{ php_mailhog_ini_path }}.disabled"
+      register: mailhog_ini_disabled_stat
+    
+    - name: Configure mailhog.ini
+      tags: mailhog
+      ini_file:
+        section: null
+        dest: "{{ php_mailhog_ini_path }}"
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_mailhog_ini }}"
+      notify: restart php-fpm
+      when:
+        - mailhog_ini_stat is not defined or not mailhog_ini_stat.stat.exists
+        - mailhog_ini_disabled_stat is not defined or not mailhog_ini_disabled_stat.stat.exists
+      register: mailhog_ini_created
+
+    - name: Backup existing mailhog ini file as disabled it
+      tags: mailhog
+      copy:
+          remote_src: true
+          src: "{{ php_mailhog_ini_path }}"
+          dest: "{{ php_mailhog_ini_path }}.disabled"
+      when: mailhog_ini_stat.stat.exists
+      notify:
+          - restart php-fpm
+
+    - name: Remove mailhog ini file to disable it
+      tags: mailhog
+      file:
+          path: "{{ php_mailhog_ini_path }}"
+          state: absent
+      notify:
+        - restart php-fpm
+    
+    - name: Disable MailHog system service
+      tags: mailhog
+      service:
+        name: mailhog
+        enabled: false
+        state: stopped

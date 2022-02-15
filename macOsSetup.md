@@ -150,6 +150,25 @@ Prior to provisioning the first dev env VM, Virtualbox (if being used) requires 
 	5. Upper Address Bound: 172.28.128.254
 7. Close the Host Network Manager window.
 
+Please note - starting [6.1.28 release of VirtualBox it restricted private IP addresses](https://www.virtualbox.org/manual/ch06.html#network_hostonly) for Host-only networking with 192.168.56.0/21 network. We can alter this using a new config file `/etc/vbox/networks.conf`:
+
+    sudo mkdir /etc/vbox/
+
+then create /etc/vbox/networks.conf and place the following content:
+
+    # Allow DevEnv local IPs (since Virtualbox 6.1.28)
+    # See: https://www.virtualbox.org/manual/ch06.html#network_hostonly
+    #
+    # Default VirtualBox range
+    * 192.168.56.0/21
+    * ::1/128
+    # DevEnv ranges
+    * 10.19.89.0/24
+    * 172.28.0.0/16
+    * fc00::/7
+
+and restart the VirtualBox application.
+
 # Host Configuration: Trusting Root CA
 
 When the devenv is provisioned it will either use the root CA certificate/key files in `~/.devenv/rootca/` or if the do not exist when it provisions the VM, it will create new root CA files and copy them to your host's `~/.devenv/rootca/` directory.

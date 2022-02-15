@@ -60,7 +60,14 @@ Example reference implementations used for testing variations on environment con
 
 [Troubleshooting](troubleshooting.md)
 
+# CentOS 8 Fix for outdated repositories URLs (EOL)
+[CentOS 8 Fix](Centos8EOL.md)
 
+# Supported Systems
+[Supported Vagrant Systems (images)](SupportedOS.md)
+
+# Mutagen
+[Mutagen](mutagen.md)
 
 # Optional Use
 

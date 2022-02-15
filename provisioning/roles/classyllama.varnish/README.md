@@ -6,6 +6,9 @@ Supported Varnish Versions:
 - 4.1
 - 6.0
 - 6.4
+- 6.5
+- 6.6
+- 7.0
 
 Currently this role installs varnish pre-configured with defaults tuned for Magento. Some of these defaults may be different if this role is used to deploy in a non-Magento environment. See `defaults/main.yml` for details.
 

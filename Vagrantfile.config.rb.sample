@@ -7,7 +7,7 @@ $dev_machine_name = 'myprojectname.lan'
 $dev_additional_hostnames = %w(store1.myprojectname.lan store1.myprojectname.lan)
 
 # System Configs
-$vagrant_base_box = 'bento/centos-8' # support for 'bento/centos-7' and 'bento/centos-8'
+$vagrant_base_box = 'bento/centos-8' # support for 'bento/centos-7', 'bento/centos-8' and 'bento/rockylinux-8'
 # $dev_vm_cpus = 2
 # $dev_vm_ram = 4096
 

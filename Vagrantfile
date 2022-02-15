@@ -34,9 +34,10 @@ Vagrant.require_version ">= 2.2.5", "< 2.3.0"
 
 Vagrant.configure('2') do |config|
   
-  
-  
-  
+  config.trigger.before :up do |trigger|
+    trigger.name = "Checking requested and installed DevEnv version"
+    trigger.run = {path: "#{source_path}versioncheck.sh"}
+  end
   
   if $use_provider == "virtualbox"
     
