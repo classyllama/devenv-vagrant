@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.2.14 - 2022-02 (2)
+- RockyLinux 8 support (an example of configuration available on https://github.com/classyllama/iac-test-lab/tree/master/dev-rocky8-latest.lan)
+- Ability to work on macOS Monterey 12.2
+- Varnish 6.5, 6.6, and 7.0 support
+- MariaDB 10.4 support
+- Improved 'Mutagen' documentation
+- Additional check when the version of installed DevEnv doesn't match with gitman.yml
+- An alias 'php-debug' to debug PHP CLI applications
+- Fix for 'yum' error during re-provisioning of DevEnv instance (related to 'jemalloc' library)
+
 ## 0.2.13 - 2022-02
 - Fix for CentOS 8 based environments due to EOL (replacing the repositories with https://vault.centos.org)
 
