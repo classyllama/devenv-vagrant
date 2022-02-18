@@ -1,0 +1,14 @@
+---
+rabbitmq_version: 3.8
+# erlang 22.0 is available via epel so 3.8.8 is a maximum available version currently (https://www.rabbitmq.com/which-erlang.html)
+rabbitmq_version_specific: 3.8.8 
+
+rabbitmq_repo_file: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
+rabbitmq_repo_script_setup_url: https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh
+rabbitmq_rpm_enable_repo: "rabbitmq_rabbitmq-server"
+
+rabbitmq_vhosts: []
+rabbitmq_users: []
+rabbitmq_delete_guest: true
+
+rabbitmq_plugin_template: "rabbitmq/enabled_plugins"

@@ -1,0 +1,66 @@
+---
+- name: Check if RabbitMQ repo is already configured
+  stat:
+    path: "{{ rabbitmq_repo_file }}"
+  register: rabbitmq_repofile_result
+
+- name: Download and run RabbitMQ Package Repository Setup script
+  shell: |
+    curl -LsS "{{ rabbitmq_repo_script_setup_url }}" | bash -s --
+  args:
+    executable: "/bin/bash"
+  when: not rabbitmq_repofile_result.stat.exists
+
+- name: install RabbitMQ
+  yum:
+    name: "rabbitmq-server{{ rabbitmq_version_specific | ternary ('-' + (rabbitmq_version_specific | string),'-' + (rabbitmq_version | string) + '*') }}"
+    state: present
+    enablerepo: "{{ rabbitmq_rpm_enable_repo }}"
+
+- name: enable management plugin
+  template:
+    src: "{{ rabbitmq_plugin_template }}"
+    dest: "/etc/rabbitmq/enabled_plugins"
+    force: true
+    mode: 0644
+    owner: root
+  notify:
+    - restart RabbitMQ
+
+- name: ensure RabbitMQ is started and enabled
+  systemd:
+    name: "rabbitmq-server.service"
+    state: "started"
+    enabled: "true"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: create RabbitMQ virtualhosts
+  rabbitmq_vhost:
+    name: "{{ item.name }}"
+    state: present
+  with_items:
+    - "{{ rabbitmq_vhosts }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: create RabbitMQ users
+  rabbitmq_user:
+    user: "{{ item.user }}"
+    password: "{{ item.password }}"
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    vhost: "{{ item.vhost | default(omit) }}"
+    tags: "{{ item.tags | default(omit) }}"
+  with_items:
+    - "{{ rabbitmq_users }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: delete RabbitMQ guest user
+  rabbitmq_user:
+    user: guest
+    state: absent
+  when: rabbitmq_delete_guest
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: restart RabbitMQ
+  meta: flush_handlers

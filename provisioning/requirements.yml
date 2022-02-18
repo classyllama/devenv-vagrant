@@ -78,6 +78,10 @@ roles:
   - src: git@github.com:classyllama/ansible-role-python.git
     name: classyllama.python
     scm: git
+    
+  - src: git@github.com:classyllama/ansible-role-rabbitmq.git
+    name: classyllama.rabbitmq
+    scm: git
   
   - src: git@github.com:classyllama/ansible-role-rclone.git
     name: classyllama.rclone

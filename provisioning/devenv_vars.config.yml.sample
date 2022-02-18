@@ -145,6 +145,20 @@ redis_version: 50
 use_elastic_elasticsearch: true
 es_version: 7.10.0
 
+use_classyllama_rabbitmq: false
+rabbitmq_vhosts:
+  - name: production
+  - name: staging
+rabbitmq_users:
+  - user: production
+    password: changeme
+    vhost: production
+  - user: staging
+    password: changeme
+    vhost: staging
+  - user: manager
+    password: rabbitmqmgr
+    tags: management
 
 # --- Additional Tools Configuration
 use_create_www_projects_dir: false

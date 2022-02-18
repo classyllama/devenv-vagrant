@@ -112,6 +112,7 @@
     - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
     - { role: classyllama.repo-mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
     - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
+    - { role: classyllama.rabbitmq, tags: rabbitmq, when: use_classyllama_rabbitmq | default(false) }
     - { role: classyllama.nginx, tags: nginx }
     
     - role: elastic.elasticsearch
