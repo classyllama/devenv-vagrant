@@ -127,6 +127,11 @@ Vagrant.configure('2') do |config|
             disk["persistDiskSizeGb"] #persistDiskSizeGb
           )
         }
+
+      config.trigger.after :up do |trigger|
+        trigger.name = "Reset known_hosts entries"
+        trigger.run = {path: "#{source_path}resetknownhosts.sh"}
+      end
       
       end
     
