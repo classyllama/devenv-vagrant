@@ -35,6 +35,9 @@ SOURCE_DIR_FROM_PERSIST_DIR="${GITMAN_LOCATION}/${SOURCE_NAME}"
     mkdir -p persistent/templates/nginx/conf.d \
     && cp provisioning/templates.sample/nginx/conf.d/map.conf persistent/templates/nginx/conf.d/map.conf \
   )
+# 'bin' directory with bin/devenv for shortcuts commands for common devenv actions
+[[ -d persistent/bin ]] || ( mkdir -p persistent/bin && ln -s source/devenv_shortcuts.sh persistent/bin/devenv )
+
 
 # Create symlinks in source to persistent files
 [[ -L provisioning/devenv_vars.config.yml ]] || ln -s ../persistent/devenv_vars.config.yml provisioning/devenv_vars.config.yml
