@@ -116,6 +116,20 @@ Cmnd_Alias VAGRANT_HOSTMANAGER_UPDATE = /bin/cp ${VAGRANT_HOME}/tmp/hosts.local 
 " | sudo tee /etc/sudoers.d/vagrant_hostmanager
 ```
 
+## When host machine is rebooted
+
+Make sure your SSH key is added to the ssh-agent after you reboot your machine
+
+List your keys in the ssh-agent:
+```
+ssh-add -l
+```
+
+If ssh key is not listed above, add it to the agent:
+```
+ssh-add -K ~/.ssh/<private_key_filename>
+```
+
 ## Configure Virtualbox
 
 Prior to provisioning the first dev env VM, Virtualbox (if being used) requires some network configuration changes using the following steps.
