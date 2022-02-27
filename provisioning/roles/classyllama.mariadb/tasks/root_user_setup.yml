@@ -4,7 +4,6 @@
     name: pwgen
     state: present
 
-
 # Determine existing/initial root password
 - stat:
     path: ~root/.my.cnf
@@ -25,8 +24,6 @@
     value: "'{{ item.value }}'"
   with_dict: "{{ mycnf_start_root_opts }}"
   when: not root_my_cnf.stat.exists
-
-
 
 # Generate new or use existing preset password
 - name: generate password
@@ -53,13 +50,38 @@
     - mysqld_default_root_password|length > 0
   no_log: true
 
-
-
 # Change root password
 # MySQL 5.7.6 / MariaDB 10.1.20 and later
+- name: check for root localhost user ('root'@'localhost' - socket)
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = 'localhost' and User = 'root';"
+  register: mysql_root_socket_user_count
+  changed_when: False
+
+## 127.0.0.1
+- name: check for root localhost user ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '127.0.0.1' and User = 'root';"
+  register: mysql_root_tcpip_user_count
+  changed_when: False
+
+## IPv6
+- name: check for root localhost user ('root'@'::1' - TCP/IP ipv6)
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '::1' and User = 'root';"
+  register: mysql_root_tcpipv6_user_count
+  changed_when: False
+
+- name: create root localhost user ('root'@'localhost' - socket)
+  command: mysql -e "CREATE USER 'root'@'localhost' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' not in mysql_root_socket_user_count) or (mysql_root_socket_user_count.stdout|int == 0)
+  no_log: true
+
 - name: set mysql root localhost user password ('root'@'localhost' - socket)
   command: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: gen_new_passwd.changed
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' in mysql_root_socket_user_count)
+    - (mysql_root_socket_user_count.stdout|int > 0)
   no_log: true
 
 - name: update ~root/.my.cnf
@@ -73,14 +95,34 @@
   when: gen_new_passwd.changed
   no_log: true
 
-- name: set mysql root localhost user password ('root'@'127.0.0.1' - TCP/IP)
-  command: mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: gen_new_passwd.changed
+- name: create root localhost user ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' not in mysql_root_tcpip_user_count) or (mysql_root_tcpip_user_count.stdout|int == 0)
   no_log: true
 
-- name: set mysql root localhost user password ('root'@'::1' - TCP/IP)
+- name: set mysql root localhost user password ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' in mysql_root_tcpip_user_count)
+    - (mysql_root_tcpip_user_count.stdout|int > 0)
+  no_log: true
+
+- name: create root localhost user ('root'@'::1' - TCP/IP ipv6)
+  command: mysql -e "CREATE USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' not in mysql_root_tcpipv6_user_count) or (mysql_root_tcpipv6_user_count.stdout|int == 0)
+  no_log: true
+
+- name: set mysql root localhost user password ('root'@'::1' - TCP/IP ipv6)
   command: mysql -e "ALTER USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: gen_new_passwd.changed
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' in mysql_root_tcpipv6_user_count)
+    - (mysql_root_tcpipv6_user_count.stdout|int > 0)
   no_log: true
 
 - name: get system hostname
@@ -88,7 +130,22 @@
   register: local_hostname
   when: gen_new_passwd.changed
 
+- name: "check for root localhost user ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{local_hostanme.stdout }}' and User = 'root';"
+  register: mysql_root_local_hostname_user_count
+  when: gen_new_passwd.changed
+  changed_when: False
+
+- name: "create root localhost user ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
+  command: mysql -e "CREATE USER 'root'@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' not in mysql_root_local_hostname_user_count) or (mysql_root_local_hostname_user_count.stdout|int == 0)
+
 - name: "set mysql root localhost user password ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
   command: mysql -e "ALTER USER 'root'@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
-  when: gen_new_passwd.changed
+  when:
+    - gen_new_passwd.changed
+    - ('stdout' in mysql_root_local_hostname_user_count)
+    - (mysql_root_local_hostname_user_count.stdout|int > 0)
   no_log: true

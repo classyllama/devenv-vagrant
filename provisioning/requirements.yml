@@ -48,7 +48,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-mariadb.git
     name: classyllama.mariadb
-    version: feature/CLII01-63_MariaDB_10_4
+    version: bugfix/SYEI01-278-users-config
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
