@@ -4,6 +4,7 @@
     name: pwgen
     state: present
 
+
 # Determine existing/initial root password
 - stat:
     path: ~root/.my.cnf
@@ -24,6 +25,8 @@
     value: "'{{ item.value }}'"
   with_dict: "{{ mycnf_start_root_opts }}"
   when: not root_my_cnf.stat.exists
+
+
 
 # Generate new or use existing preset password
 - name: generate password
@@ -49,6 +52,8 @@
     - mysqld_default_root_password is defined 
     - mysqld_default_root_password|length > 0
   no_log: true
+
+
 
 # Change root password
 # MySQL 5.7.6 / MariaDB 10.1.20 and later
