@@ -136,7 +136,7 @@
   when: gen_new_passwd.changed
 
 - name: "check for root localhost user ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
-  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{local_hostanme.stdout }}' and User = 'root';"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{local_hostname.stdout }}' and User = 'root';"
   register: mysql_root_local_hostname_user_count
   when: gen_new_passwd.changed
   changed_when: False
