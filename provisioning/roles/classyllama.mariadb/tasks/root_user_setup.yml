@@ -133,10 +133,10 @@
 - name: get system hostname
   command: hostname
   register: local_hostname
-  when: gen_new_passwd.changed
+  #when: gen_new_passwd.changed
 
 - name: "check for root localhost user ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
-  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{local_hostname.stdout }}' and User = 'root';"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{ local_hostname.stdout }}' and User = 'root';"
   register: mysql_root_local_hostname_user_count
   when: gen_new_passwd.changed
   changed_when: False
@@ -154,3 +154,37 @@
     - ('stdout' in mysql_root_local_hostname_user_count)
     - (mysql_root_local_hostname_user_count.stdout|int > 0)
   no_log: true
+
+## Check for empty users
+- name: "check for empty 127.0.0.1 user (''@'127.0.0.1' - TCP/IP)"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '127.0.0.1' and User = '';"
+  register: mysql_empty_tcpip_user_count
+  changed_when: False
+
+- name: "check for empty localhost user (''@'localhost' - socket)"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = 'localhost' and User = '';"
+  register: mysql_empty_socket_user_count
+  changed_when: False
+
+- name: check for empty hostname user - TCP/IP
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{ local_hostname.stdout }}' and User = '';"
+  register: mysql_empty_local_hostname_user_count
+  changed_when: False
+
+- name: "Remove empty user without password (''@'127.0.0.1' - TCP/IP)"
+  command: mysql -e "DROP USER ''@'127.0.0.1';"
+  when:
+    - ('stdout' in mysql_empty_tcpip_user_count)
+    - (mysql_empty_tcpip_user_count.stdout|int > 0)
+
+- name: "Remove empty user without password (''@'localhost' - socket)"
+  command: mysql -e "DROP USER ''@'localhost';"
+  when:
+    - ('stdout' in mysql_empty_socket_user_count)
+    - (mysql_empty_socket_user_count.stdout|int > 0)
+
+- name: Remove empty user without password for hostname - TCP/IP
+  command: mysql -e "DROP USER ''@'{{ local_hostname.stdout }}';"
+  when:
+    - ('stdout' in mysql_empty_local_hostname_user_count)
+    - (mysql_empty_local_hostname_user_count.stdout|int > 0)
