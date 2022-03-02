@@ -100,6 +100,11 @@
   when: gen_new_passwd.changed
   no_log: true
 
+# Allow access after storing generated password
+- name: allow root localhost access to all databases ('root'@'localhost' - socket)
+  command: mysql -e "GRANT ALL ON *.* TO 'root'@'localhost';"
+  no_log: true
+
 - name: create root localhost user ('root'@'127.0.0.1' - TCP/IP)
   command: mysql -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
   when:
@@ -115,6 +120,10 @@
     - (mysql_root_tcpip_user_count.stdout|int > 0)
   no_log: true
 
+- name: allow root localhost access to all databases ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql -e "GRANT ALL ON *.* TO 'root'@'127.0.0.1';"
+  no_log: true
+
 - name: create root localhost user ('root'@'::1' - TCP/IP ipv6)
   command: mysql -e "CREATE USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
   when:
@@ -128,6 +137,10 @@
     - gen_new_passwd.changed
     - ('stdout' in mysql_root_tcpipv6_user_count)
     - (mysql_root_tcpipv6_user_count.stdout|int > 0)
+  no_log: true
+
+- name: allow root localhost access to all databases ('root'@'::1' - TCP/IP ipv6)
+  command: mysql -e "GRANT ALL ON *.* TO 'root'@'::1';"
   no_log: true
 
 - name: get system hostname
