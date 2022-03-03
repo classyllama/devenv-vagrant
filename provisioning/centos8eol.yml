@@ -19,10 +19,24 @@
       when:
         - centos_base_repo.stat.exists
 
-    - name: Replace outdated CentOS 8 repositories with http://vault.centos.org
-      shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+    - name: Check if vault.epel.cloud is already used
+      shell: grep -E '^baseurl=https:\/\/vault.epel.cloud' /etc/yum.repos.d/CentOS-Linux-* |wc -l
+      register: centos_vaultepel_repo
+      when:
+        - centos_base_repo.stat.exists
+
+    - name: Replace outdated CentOS 8 repositories with http://vault.epel.cloud
+      shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=https://vault.epel.cloud|g" /etc/yum.repos.d/CentOS-*
       when:
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version >= '8'
         - centos_base_repo.stat.exists
         - (centos_vault_repo.stdout|int < 13)
+
+    - name: Replace https://vault.centos.org CentOS 8 repositories with http://vault.epel.cloud
+      shell: sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-* && sed -i -e "s|#baseurl=https://vault.centos.org|baseurl=https://vault.epel.cloud|g" /etc/yum.repos.d/CentOS-*
+      when:
+        - ansible_os_family == 'RedHat'
+        - ansible_distribution_major_version >= '8'
+        - centos_base_repo.stat.exists
+        - (centos_vaultepel_repo.stdout|int < 13)
