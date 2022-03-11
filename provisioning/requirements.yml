@@ -30,6 +30,10 @@ roles:
     name: classyllama.dbbackup
     scm: git
   
+  - src: git@github.com:classyllama/ansible-role-elasticdump.git
+    name: classyllama.elasticdump
+    scm: git
+  
   - src: git@github.com:classyllama/ansible-role-filebackup.git
     name: classyllama.filebackup
     scm: git

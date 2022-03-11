@@ -212,6 +212,9 @@ es_plugins: []
 #  - plugin: ingest-attachment
 elasticaccess_file: /home/www-data/.elastic_access.json
 
+use_classyllama_repo_nodesource: false
+use_classyllama_elasticdump: false
+install_nodejs: false
 
 # --- Additional Tools Configuration
 yum_update_and_reboot: always # (always, initial, never)

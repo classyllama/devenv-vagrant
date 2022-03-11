@@ -1,0 +1,3 @@
+---
+dependencies:
+    - { role: classyllama.repo-nodesource, tags: nodejs, when: use_classyllama_repo_nodesource | default(false) }

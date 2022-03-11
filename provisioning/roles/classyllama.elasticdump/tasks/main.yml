@@ -1,0 +1,9 @@
+---
+- name: Check whether elasticdump installed
+  ansible.builtin.stat:
+    path: /usr/bin/elasticdump
+  register: is_elasticdump_installed
+
+- name: Install elasticdump
+  ansible.builtin.command: npm install elasticdump -g
+  when: is_elasticdump_installed.stat.islnk is not defined
