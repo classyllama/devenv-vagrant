@@ -94,6 +94,20 @@
     mode: 0775
   when: not mysqld_log_dir_stat.stat.exists
 
+- name: Check for existing datadir/mysql
+  stat:
+    path: "{{ mysqld_datadir }}/mysql"
+  register: mysqld_datadir_mysql_stat
+
+- name: initialize "{{ mysqld_datadir }}" for MariaDB 10.4
+  command: /bin/mysql_install_db --datadir={{ mysqld_datadir }}
+  become: true
+  become_user: mysql
+  when:
+    - mysqld_datadir != mysqld_default_datadir
+    - mariadb_version == "10.4"
+    - not mysqld_datadir_mysql_stat.stat.exists
+
 - name: start mariadb service
   service:
     name: "{{ mysqld_service_name }}"

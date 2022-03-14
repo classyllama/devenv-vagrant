@@ -52,7 +52,6 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-mariadb.git
     name: classyllama.mariadb
-    version: bugfix/SYEI01-278
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
