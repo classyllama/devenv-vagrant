@@ -46,6 +46,10 @@
     mode: 0775
   when: mysqld_create_tmpdir or not mysqld_tmpdir_stat.stat.exists
 
+- name: fail when mysqld_innodb_buffer_pool_size calculates to 0
+  fail: msg="innodb_buffer_pool_size gets calculated to {{ mysqld_innodb_buffer_pool_size }}"
+  when: mysqld_innodb_buffer_pool_size == "0M" or mysqld_innodb_buffer_pool_size == "0G"
+
 - name: create mysqld pid_dir
   file:
     path: "{{ mysqld_pid_dir }}"

@@ -73,9 +73,41 @@
   when: gen_new_passwd.changed
   no_log: true
 
+# MariaDB 10.4
+- name: check mysql root localhost user ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql --batch --skip-column-names -e "SELECT COUNT(*) FROM mysql.user WHERE User='root' AND Host='127.0.0.1';"
+  register: root_localhost_tcpip_user
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: create mysql root localhost user ('root'@'127.0.0.1' - TCP/IP) if not exists
+  command: mysql -e "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - root_localhost_tcpip_user.stdout|int == 0
+  no_log: true
+
 - name: set mysql root localhost user password ('root'@'127.0.0.1' - TCP/IP)
   command: mysql -e "ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
   when: gen_new_passwd.changed
+  no_log: true
+
+- name: grant privileges to root localhost user ('root'@'127.0.0.1' - TCP/IP)
+  command: mysql -e "GRANT ALL PRIVILEGES ON *.* TO `root`@`127.0.0.1` IDENTIFIED BY '{{ mycnf_root_opts.password }}' WITH GRANT OPTION;"
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: check mysql root localhost user ('root'@'::1' - TCP/IP)
+  command: mysql --batch --skip-column-names -e "SELECT COUNT(*) FROM mysql.user WHERE User='root' AND Host='::1';"
+  register: root_localhost_tcpip6_user
+  when: gen_new_passwd.changed
+  no_log: true
+
+- name: create mysql root localhost user ('root'@'::1' - TCP/IP) if not exists
+  command: mysql -e "CREATE USER 'root'@'::1' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - root_localhost_tcpip6_user.stdout|int == 0
   no_log: true
 
 - name: set mysql root localhost user password ('root'@'::1' - TCP/IP)
@@ -83,12 +115,69 @@
   when: gen_new_passwd.changed
   no_log: true
 
+- name: grant privileges to root localhost user ('root'@'::1' - TCP/IP)
+  command: mysql -e "GRANT ALL PRIVILEGES ON *.* TO `root`@`::1` IDENTIFIED BY '{{ mycnf_root_opts.password }}' WITH GRANT OPTION;"
+  when: gen_new_passwd.changed
+  no_log: true
+
 - name: get system hostname
   command: hostname
   register: local_hostname
+  #when: gen_new_passwd.changed
+
+- name: check mysql root localhost user ('root'@'local_hostname' - TCP/IP)
+  command: mysql --batch --skip-column-names -e "SELECT COUNT(*) FROM mysql.user WHERE User='root' AND Host='{{ local_hostname.stdout }}';"
+  register: root_localhost_localhostname_user
   when: gen_new_passwd.changed
+  no_log: true
+
+- name: create mysql root localhost user ('root'@'localhostname' - TCP/IP) if not exists
+  command: mysql -e "CREATE USER 'root'@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
+  when:
+    - gen_new_passwd.changed
+    - root_localhost_localhostname_user.stdout|int == 0
+  no_log: true
 
 - name: "set mysql root localhost user password ('root'@'{{ local_hostname.stdout }}' - TCP/IP)"
   command: mysql -e "ALTER USER 'root'@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}';"
   when: gen_new_passwd.changed
   no_log: true
+
+- name: grant privileges to root localhost user ('root'@'localhostname' - TCP/IP)
+  command: mysql -e "GRANT ALL PRIVILEGES ON *.* TO `root`@'{{ local_hostname.stdout }}' IDENTIFIED BY '{{ mycnf_root_opts.password }}' WITH GRANT OPTION;"
+  when: gen_new_passwd.changed
+  no_log: true
+
+## Check for empty users
+- name: "check for empty 127.0.0.1 user (''@'127.0.0.1' - TCP/IP)"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '127.0.0.1' and User = '';"
+  register: mysql_empty_tcpip_user_count
+  changed_when: False
+
+- name: "check for empty localhost user (''@'localhost' - socket)"
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = 'localhost' and User = '';"
+  register: mysql_empty_socket_user_count
+  changed_when: False
+
+- name: check for empty hostname user - TCP/IP
+  command: mysql --batch --skip-column-names -e "select count(*) from mysql.user where Host = '{{ local_hostname.stdout }}' and User = '';"
+  register: mysql_empty_local_hostname_user_count
+  changed_when: False
+
+- name: "Remove empty user without password (''@'127.0.0.1' - TCP/IP)"
+  command: mysql -e "DROP USER ''@'127.0.0.1';"
+  when:
+    - ('stdout' in mysql_empty_tcpip_user_count)
+    - (mysql_empty_tcpip_user_count.stdout|int > 0)
+
+- name: "Remove empty user without password (''@'localhost' - socket)"
+  command: mysql -e "DROP USER ''@'localhost';"
+  when:
+    - ('stdout' in mysql_empty_socket_user_count)
+    - (mysql_empty_socket_user_count.stdout|int > 0)
+
+- name: Remove empty user without password for hostname - TCP/IP
+  command: mysql -e "DROP USER ''@'{{ local_hostname.stdout }}';"
+  when:
+    - ('stdout' in mysql_empty_local_hostname_user_count)
+    - (mysql_empty_local_hostname_user_count.stdout|int > 0)
