@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.15 - 2022-03
+- RabbitMQ support (https://github.com/classyllama/ansible-role-rabbitmq)
+- ElasticDump support (https://github.com/classyllama/ansible-role-elasticdump) to have the ability to dump the ElasticSearch database and restore it locally
+- Ability to run bin/devenv and bin/magento directly from DevEnv root
+- Replacing https://vault.centos.org with https://vault.epel.cloud for CentOS 8
+- Fixes for MariaDB installation (10.3-10.4)
+- Fix for the Mutagen issue when the same IP is being reused by a different VM (reset ~/.ssh/known_hosts entries)
+
 ## 0.2.14 - 2022-02 (2)
 - RockyLinux 8 support (an example of configuration available on https://github.com/classyllama/iac-test-lab/tree/master/dev-rocky8-latest.lan)
 - Ability to work on macOS Monterey 12.2
