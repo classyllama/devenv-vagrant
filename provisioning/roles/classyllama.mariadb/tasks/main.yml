@@ -105,7 +105,7 @@
   become_user: mysql
   when:
     - mysqld_datadir != mysqld_default_datadir
-    - mariadb_version == "10.4"
+    - mariadb_version is version("10.3", '>=')
     - not mysqld_datadir_mysql_stat.stat.exists
 
 - name: start mariadb service
