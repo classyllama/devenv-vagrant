@@ -16,6 +16,7 @@
       - ps_mem
       - pv        # requires epel-release
       - pwgen
+      - screen
       - tree
     state: present
 
