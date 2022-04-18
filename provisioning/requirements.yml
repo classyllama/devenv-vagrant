@@ -77,7 +77,6 @@ roles:
   - src: git@github.com:classyllama/ansible-role-php-fpm.git  
     name: classyllama.php-fpm
     scm: git
-    version: feature/CLII01-157-easier-php-version-switching
   
   - src: git@github.com:classyllama/ansible-role-python.git
     name: classyllama.python
