@@ -1,0 +1,3 @@
+---
+php_enablerepo: "remi-php81"
+php_package_name_extra: "81"

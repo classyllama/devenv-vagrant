@@ -64,35 +64,11 @@ use_geerlingguy_repo_remi: true
 use_classyllama_repo_php_appstream: false
 use_classyllama_repo_php_remi_modular: false
 php_version: 74
-php_enablerepo: "remi-php{{ php_version }}"
-php_package_name_extra: ""
 php_fpm_pm: ondemand
 php_fpm_pm_max_children: 10
 php_fpm_memory_percentage: 50
-php_default_modules:
-  - bcmath
-  - cli
-  - common
-  - devel
-  - fpm
-  - gd
-  - intl
-  - json
-  - mbstring
-  # - mcrypt      # installed on 7.1 and prior
-  - sodium      # installed on 7.2 and later
-  - mysqlnd
-  - opcache
-  - pdo
-  - pecl-redis # Not required
-  - process
-  - soap
-  - xml
-  - xmlrpc
-  - pecl-zip
-  - pear # Requirement for PECL
 php_additional_modules:
-  - xdebug
+  - pecl-xdebug
   - pecl-imagick
 php_fpm_global_additional_ini:
   display_errors: "on"

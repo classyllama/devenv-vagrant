@@ -1,0 +1,3 @@
+---
+php_enablerepo: "ius-archive"
+php_package_name_extra: "73"
