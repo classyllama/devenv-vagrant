@@ -1,0 +1,6 @@
+---
+use_classyllama_repo_php_appstream: false
+use_classyllama_repo_php_remi_modular: true
+php_enablerepo: ""
+php_package_name_extra: "74"
+php_stream_version: "remi-7.4"

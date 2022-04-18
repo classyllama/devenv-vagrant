@@ -1,38 +1,55 @@
 ---
 - name: include php-opcache default settings
   include_vars: opcache.yml
+  
+- name: include version-specific default settings
+  include_vars: "{{ php_version }}_c{{ ansible_distribution_major_version }}.yml"
+  ignore_errors: true
 
 # php72u-mcrypt is not a valid package, so remove it from module list on PHP 7.2
-- name: drop mcrypt ext when depoying 7.2 or later versions
+- name: drop mcrypt ext when deploying 7.2 or later versions
   set_fact:
     php_default_modules: "{{ php_default_modules | difference(['mcrypt']) }}"
   when: php_version >= 72
 
 # php72u-sodium is the only package for sodium available, remove it from module list on PHP 7.1 and earlier
-- name: drop sodium ext when depoying 7.1 or earlier versions
+- name: drop sodium ext when deploying 7.1 or earlier versions
   set_fact:
     php_default_modules: "{{ php_default_modules | difference(['sodium']) }}"
   when: php_version < 72
-
-
-
 
 # php73-xdebug is not a valid package, so replace it with php73-pecl-xdebug on PHP 7.3
 - name: replace xdebug with pecl-xdebug ext when deploying 7.3 or later versions
   set_fact:
     php_default_modules: "{{ php_default_modules | difference(['xdebug']) + [ 'pecl-xdebug' ] }}"
   when: php_version >= 73 and 'xdebug' in php_default_modules
-- name: replace xdebug with pecl-xdebug ext when deploying 7.3 or later versions
-  set_fact:
-    php_additional_modules: "{{ php_additional_modules | difference(['xdebug']) + [ 'pecl-xdebug' ] }}"
-  when: php_version >= 73 and 'xdebug' in php_additional_modules
 
 # php73-mhash is not a valid package, so remove it from module list on PHP 7.3
-- name: drop 'mhash', 'curl', 'xsl', 'zip' ext when deploying 7.3 or later versions (php_modules)
+- name: drop 'mhash', 'curl', 'xsl' ext when deploying 7.3 or later versions (php_modules)
   set_fact:
-    php_additional_modules: "{{ php_additional_modules | difference(['mhash', 'curl', 'xsl', 'zip']) }}"
+    php_additional_modules: "{{ php_additional_modules | difference(['mhash', 'curl', 'xsl']) }}"
   when: php_version >= 73
 
+- name: drop 'zip' ext when deploying 7.1 or later versions (php_modules)
+  set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['zip','pecl-zip']) }}"
+  when: php_version >= 71
+
+- name: drop pecl-imagick ext when deploying 7.1 or earlier versions
+  set_fact:
+    php_additional_modules: "{{ php_additional_modules | difference(['pecl-imagick']) }}"
+  when: php_version < 72
+
+- name: drop 'pear' ext (php_modules)
+  set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['pear']) }}"
+
+- name: drop 'pecl-redis' ext when deploying on CentOS 8
+  set_fact:
+    php_default_modules: "{{ php_default_modules | difference(['pecl-redis']) }}"
+  when:
+    - php_version > 73
+    - ansible_distribution_major_version >= '8'
 
 - debug:
     var: php_version
@@ -42,11 +59,8 @@
     var: php_additional_modules
 - debug:
     var: php_modules
-
-
-
-
-
+- debug:
+    var: php_package_name_extra
 
 - name: create {{ php_fpm_owner }} user
   user:
@@ -59,37 +73,111 @@
     name: "{{ php_fpm_group }}"
     state: present
 
-
-
-
-
-- name: drop u from IUS package name
-  set_fact:
-    php_package_name_extra: "{{ php_version }}"
-  when: php_enablerepo == "ius" and php_version >= 73 and php_package_name_extra == (php_version ~ "u")
+####################################################
+# CentOS 8 / RockyLinux - install from Remi modular
+- name: Check dnf module php
+  shell:
+    cmd: "dnf -y -q module list php | grep php | grep '{{ php_stream_version }}'"
+    warn: false
+  register: dnf_module_php
+  changed_when: False
+  check_mode: no
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
 
 - debug:
-    var: php_package_name_extra
+    var: dnf_module_php
 
-- name: Build array of package names to install with yum
+- name: Reset php module
+  shell:
+    cmd: dnf -y module reset php
+    warn: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_php.stdout != ""
+    - not '[e]' in dnf_module_php.stdout
+
+- name: Enable php module version
+  shell:
+    cmd: "dnf -y module enable php:{{ php_stream_version }}"
+    warn: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version >= '8'
+    - dnf_module_php.stdout != ""
+    - not '[e]' in dnf_module_php.stdout
+####################################################
+
+- name: Build array of package names to install with yum for PHP 7.X for CentOS 7
   set_fact:
     php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php{{ php_package_name_extra }}-{{ item }}' ]"
   with_items: "{{ php_modules }}"
-  
+  when:
+    - php_version < 75
+    - ansible_distribution_major_version < '8'
+
+- name: Build array of package names to install with yum for PHP 7.X for CentOS 8 / RockyLinux
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-{{ item }}' ]"
+  with_items: "{{ php_modules }}"
+  when:
+    - php_version < 75
+    - ansible_distribution_major_version >= '8'
+
+- name: Build array of package names to install with yum for PHP 8.X
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-{{ item }}' ]"
+  with_items: "{{ php_modules }}"
+  when:
+    - php_version > 74
+
+- name: Add zip package # name prefix is fixed, regardless of whether or not package name extra has "u"
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php{{ php_version }}-pecl-zip' ]"
+  when:
+    - php_version == 74
+    - ansible_distribution_major_version < '8'
+
+- name: Add zip package # name prefix is fixed, regardless of whether or not package name extra has "u"
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-zip' ]"
+  when:
+    - php_version >= 73
+    - ansible_distribution_major_version >= '8'
+
+- name: Add pear package
+  set_fact:
+    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-pear' ]"
 
 - debug:
     var: php_yum_packages
 
-
-
-
-
-
-
+# Install 7.X from IUS on CentOS 7
 - name: install php-fpm
   yum: 
     name: php{{ php_package_name_extra }}-fpm
     enablerepo: "{{ php_enablerepo }}"
+  when:
+    - php_version < 75
+    - ansible_distribution_major_version < '8'
+
+# Install 7.X from Remi on CentOS 8 / RockyLinux
+- name: install php-fpm
+  yum:
+    name: php-fpm
+    enablerepo: "{{ php_enablerepo }}"
+  when:
+    - php_version < 75
+    - ansible_distribution_major_version >= '8'
+
+# Install 8.X on CentOS 7/8/RockyLinux
+- name: install php-fpm
+  yum:
+    name: php-fpm
+    enablerepo: "{{ php_enablerepo }}"
+  when: php_version > 74
 
 - name: install php modules
   yum: 
@@ -146,3 +234,4 @@
     name: php-fpm
     state: started
     enabled: true
+  ignore_errors: "{{ ansible_check_mode }}"
