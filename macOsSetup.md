@@ -42,7 +42,7 @@ After Homebrew is installed, install the host dependencies using the following c
 
 ### VirtualBox
 
-Virtual Box can either be installed by downloading the [official installer](https://www.virtualbox.org/wiki/Downloads) of via Homebrew using the following command. 
+Virtual Box can be installed either by downloading the [official installer](https://www.virtualbox.org/wiki/Downloads) or via Homebrew using the following command. 
 
     brew install virtualbox --cask
 
