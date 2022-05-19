@@ -14,6 +14,15 @@ None.
 
 ## Role Variables
 
+For PHP 8.x, use the following version:
+
+    - composer_version: "2.3.5"
+
+For PHP 7.x, use the following version:
+
+    - composer_version: "2.1.3"
+
+
 See `defaults/main.yml` for details.
 
 ## Dependencies
