@@ -1,0 +1,342 @@
+---
+- hosts: all
+  name: Application Server Setup
+  become: yes
+
+  vars_files:
+    - ./devenv_vars.default.yml
+    - ./devenv_vars.config.yml
+    - ./molecule_vars.config.yml
+  
+  vars:
+    
+  pre_tasks:
+#    - name: change hostname to myserver
+#      hostname:
+#        name: "{{ app_domain }}"
+
+    - name: Set location of /var/www
+      block:
+
+        - name: Check for existing /var/www directory
+          stat:
+            path: "/var/www"
+          register: var_www_stat
+        - name: "Check for existing {{ location_var_www }} directory"
+          stat:
+            path: "{{ location_var_www }}"
+          register: location_var_www_stat
+        - name: "Move /var/www to {{ location_var_www }}"
+          shell: "mv /var/www {{ location_var_www }}"
+          when: var_www_stat.stat.exists and not location_var_www_stat.stat.exists
+        - name: "Remove initial /var/www directory"
+          shell: "rm -rf /var/www"
+          when: var_www_stat.stat.exists and var_www_stat.stat.islnk is defined and var_www_stat.stat.islnk == False
+
+        - name: "Create {{ location_var_www }}"
+          file:
+            path: "{{ location_var_www }}"
+            state: directory
+            mode: '0755'
+        - name: "Create symlink for {{ location_var_www }} at /var/www"
+          file:
+            src: "{{ location_var_www }}"
+            dest: "/var/www"
+            state: link
+
+      when: (location_var_www is defined) and (location_var_www|length > 0)
+    
+    
+    # --- DevEnv Initialize Persisted MySQL Root Credentials
+    - name: Check if root .my.cnf exists
+      stat:
+        path: ~root/.my.cnf
+      register: root_my_cnf
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+    - name: Check if persisted root .my.cnf exists
+      stat:
+        path: "{{ mysqld_cred_persist }}"
+      register: persist_root_my_cnf
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+    - name: Copy MySQL Root Credentials from Persistent Location
+      synchronize:
+        src: "{{ mysqld_cred_persist }}"
+        dest: /root/.my.cnf
+      delegate_to: "{{ inventory_hostname }}"
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+        - not root_my_cnf.stat.exists
+        - persist_root_my_cnf.stat is defined
+        - persist_root_my_cnf.stat.exists
+
+  roles:
+    # System Config
+    - { role: classyllama.boilerplate }
+    - { role: classyllama.python, tags: python}
+  #  - { role: local.timezone }
+  #  - { role: classyllama.hostsfile }
+    
+    # Environment specific services: www-data
+    - { role: classyllama.www-user, www_user_name: www-data }
+    - { role: classyllama.php-fpm, php_fpm_pool: www-data, tags: php-fpm }
+    
+    - role: classyllama.varnish
+      varnish_instance: { name: data, port: 6081, admin_port: 6082, backend_port: 8080 }
+      varnish_storage_size: "{{ varnish_data_storage_size }}"
+      tags: varnish
+      when: use_classyllama_varnish | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: obj, port: 6379 }
+      redis_maxmemory: "{{ redis_obj_maxmem }}"
+      tags: redis
+      when: use_classyllama_multi_redis | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: ses, port: 6380, save: yes }
+      redis_maxmemory: "{{ redis_ses_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_ses | default(false)
+    
+    - role: classyllama.multi-redis
+      redis_instance: { name: fpc, port: 6381 }
+      redis_maxmemory: "{{ redis_fpc_maxmem }}"
+      tags: redis
+      when: use_dedicated_redis_fpc | default(false)
+    
+    # Global services
+    - { role: classyllama.percona, tags: mysql, when: use_classyllama_percona | default(false) }
+    - { role: classyllama.repo-mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
+    - { role: classyllama.mariadb, tags: mysql, when: use_classyllama_mariadb | default(false) }
+    - { role: classyllama.rabbitmq, tags: rabbitmq, when: use_classyllama_rabbitmq | default(false) }
+    - { role: classyllama.nginx, tags: nginx }
+   
+    - { role: classyllama.repo-nodesource, tags: nodejs, when: use_classyllama_repo_nodesource | default(false) }
+    - { role: classyllama.elasticdump, tags: elasticdump, when: use_classyllama_elasticdump | default(false) }
+    
+    # install additional tools
+    - { role: classyllama.php-cachetool, tags: toolchain }
+    - { role: classyllama.composer, tags: toolchain }
+    - { role: classyllama.n98-magerun, tags: toolchain, when: use_classyllama_n98_magerun | default(false) }
+    - { role: classyllama.magento-demo, tags: magento-demo, when: use_classyllama_magento_demo | default(false) }
+    - { role: classyllama.web-info, tags: web-info, when: use_classyllama_web_info | default(false) }
+
+    - role: morgangraphics.nvm
+      become: true
+      become_user: www-data
+      nvm_profile: /home/www-data/.bashrc
+      autocomplete: true
+      nvm_commands: "{{ morgangraphics_nvm_commands }}"
+      tags: nvm
+      when: use_morgangraphics_nvm | default(false)
+
+  tasks:
+   
+    # --- Elasticsearch Service
+    - name: Install Elastic Dependencies
+      package:
+        name: "{{ elastic_package_dependencies }}"
+        state: present
+      when: use_elastic_elasticsearch | default(false)
+
+    - name: ElasticSearch version check
+      ansible.builtin.debug:
+        msg: ElasticSearch version {{ es_version.split(".")[0] }}
+      when: use_elastic_elasticsearch | default(false)
+
+    # Create elasticsearch group
+    - name: Create elasticsearch group
+      group:
+        state: present
+        name: "{{ es_group }}"
+        system: yes
+      tags: elasticsearch
+      when:
+        - use_elastic_elasticsearch | default(false)
+        - es_version.split(".")[0] == "7"
+        - es_createhome | default(false)
+
+    # Create elasticsearch user and temp directory as a user home
+    # only when elasticsearch temp directory is not /tmp
+    - name: Create elasticsearch user and real home
+      user:
+        state: present
+        name: "{{ es_user }}"
+        comment: elasticsearch system user
+        system: yes
+        shell: /sbin/nologin
+        home: "{{ es_tmp_dir }}"
+        group: "{{ es_group }}"
+        createhome: yes
+        skeleton: no
+      tags: elasticsearch
+      when:
+        - use_elastic_elasticsearch | default(false)
+        - es_version.split(".")[0] == "7"
+        - es_createhome | default(false)
+        - es_tmp_dir is defined
+        - es_tmp_dir | length > 0
+        - es_tmp_dir != '/tmp'
+
+    # Create temp directory
+    - name: Check if Elastic Temp Dir Already Exists
+      stat:
+        path: "{{ es_tmp_dir }}"
+      register: es_tmp_dir_stat
+      when:
+        - es_tmp_dir is defined
+        - es_tmp_dir | length > 0
+        - es_tmp_dir != '/tmp'
+
+    - name: Create Elastic Temp Directory
+      file:
+        path: "{{ es_tmp_dir | default('/tmp') }}"
+        state: directory
+        mode: "777"
+      when:
+        - es_tmp_dir is defined
+        - es_tmp_dir | length > 0
+        - es_tmp_dir != '/tmp'
+        - not es_tmp_dir_stat.stat.exists
+
+    - ansible.builtin.import_role:
+         name: elastic.elasticsearch
+      tags: [ elasticsearch, elastic-stack ]
+      when: use_elastic_elasticsearch | default(false)
+      ignore_errors: "{{ ansible_check_mode }}" # This 3rd party role doesn't always play with with check mode
+
+ 
+    # --- Create Databases
+    - include: tasks/database-create.yml
+      tags: database
+      args:
+        mysql_db: "{{ database_create_db }}"
+        mysql_host: "%"
+        mysql_user: "{{ database_create_user }}"
+
+    - include: tasks/database-mycnf.yml
+      tags: database
+      args:
+        mycnf_file: /home/www-data/.my.cnf
+        mycnf_opts: "{{ mysql_user_info[database_create_user] }}"
+
+    - name: Run all notified handlers
+      meta: flush_handlers
+      tags: database
+
+    # Save ElasticSearch credentials into www-data user home
+    - include: tasks/elasticsearch-access.yml
+      tags: elasticsearch
+      when: use_elastic_elasticsearch | default(false)
+
+    # --- Common Tools
+    # Install ImageMagick
+    # verify tool exists: mogrify -version
+    # For access from PHP code it requires the pecl-imagick extension
+    - name: Install ImageMagick
+      tags: toolchain
+      package:
+        name:
+          - ImageMagick
+          - ImageMagick-devel
+        state: present
+      when: use_imagemagick | default(false)
+
+    - name: Link cachetool config into /var/www/data
+      file:
+        src: /home/www-data/.cachetool.yml
+        dest: /var/www/data/.cachetool.yml
+        state: link
+    
+    # --- DevEnv Persist MySQL Root Credentials
+    - name: Copy MySQL Root Credentials to Persistent Location
+      synchronize:
+        src: /root/.my.cnf
+        dest: "{{ mysqld_cred_persist }}"
+        perms: yes
+        owner: yes
+        group: yes
+      delegate_to: "{{ inventory_hostname }}"
+      when:
+        - mysqld_cred_persist is defined 
+        - mysqld_cred_persist|length > 0
+    
+    # --- DevEnv Configuration
+    # Make sure any existing default xdebug ini file from installation is backed up
+    - name: Check for existing xdebug ini install file
+      tags: xdebug
+      stat:
+        path: "{{ php_xdebug_ini_path }}"
+      register: xdebug_ini_stat
+    - name: Backup xdebug ini file as install_default file
+      tags: xdebug
+      copy: 
+        remote_src: true 
+        src: "{{ php_xdebug_ini_path }}"
+        dest: "{{ php_xdebug_ini_path }}.install_default"
+      when: xdebug_ini_stat.stat.exists
+    - name: Remove xdebug ini file to ensure it is disabled
+      tags: xdebug
+      file: 
+        path: "{{ php_xdebug_ini_path }}"
+        state: absent
+    # Created configured xdebug.ini file that is disabled
+    - name: configure xdebug.ini.disabled
+      tags: xdebug
+      ini_file:
+        section: null
+        dest: "{{ php_xdebug_ini_path }}.disabled" # xdebug disabled by default
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+      with_dict: "{{ php_extension_xdebug_ini }}"
+      notify: restart php-fpm
+    # Detect if php xdebug module is actually disabled
+    - name: Check if xdebug is listed among php module list
+      shell: php -m | grep -i xdebug | head -1
+      register: php_module_xdebug_match
+    - debug: 
+        var: php_module_xdebug_match.stdout
+    - fail:
+        msg: "ERROR: Xdebug still seems to be enabled somehow!"
+      when: php_module_xdebug_match is defined and php_module_xdebug_match.stdout != ""
+    
+    # Symlink for nginx site root
+    - name: Link www current directory to app install dir
+      file:
+        src: "{{ app_root_install_dir }}"
+        dest: "{{ app_root_dir }}/current"
+        owner: www-data
+        group: www-data
+        state: link
+        force: yes
+      when: use_current_to_app_install_symlink | default(false)
+    
+    # Copy composer cache files to www-users
+    - name: Create remote cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        state: directory
+        mode: "755"
+        owner: www-data
+        group: www-data
+    
+    - name: Synchronize remote composer directories for www-data
+      synchronize:
+        src: /root/.composer/cache/
+        dest: /home/www-data/.composer/cache/
+      delegate_to: "{{ inventory_hostname }}"
+      
+    - name: Update user:group ownership on www-data cache directory (composer)
+      file:
+        path: /home/www-data/.composer/cache
+        recurse: true
+        owner: www-data
+        group: www-data
+    
+
+#- import_playbook: ../persistent/devenv_playbook.config.yml
