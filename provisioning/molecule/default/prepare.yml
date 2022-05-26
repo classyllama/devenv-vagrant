@@ -1,0 +1,13 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: "Prep hosts for ansible - install missing tools"
+      ansible.builtin.package:
+        name:
+          - hostname
+          - cronie
+          - dnf-plugins-core
+        state: present

@@ -1,0 +1,120 @@
+---
+
+##### ---------------------------
+# dev-centos8-latest.lan
+##### ---------------------------
+# Latest on CentOS 8
+# Magento 2.4.2
+#
+# CentOS 8
+# PHP 7.4
+# Nginx 1.18
+# MariaDB 10.3
+# ElasticSearch 7.x
+# Varnish 6.x
+# Redis 5.x
+
+
+# --- System Configs
+app_domain: dev-centos8-latest.lan
+
+
+# --- Magento Demo Install
+magento_demo_config_overrides:
+  MAGENTO_COMPOSER_PROJECT: magento/project-community-edition
+  MAGENTO_REL_VER: "2.4.3-p1"
+  MAGENTO_DEPLOY_MODE: "developer"
+  MAGENTO_FPC: "redis"
+  REDIS_OBJ_HOST: "localhost"
+  REDIS_OBJ_PORT: "6379"
+  REDIS_OBJ_DB: "0"
+  REDIS_SES_HOST: "localhost"
+  REDIS_SES_PORT: "6379"
+  REDIS_SES_DB: "1"
+  VARNISH_HOST: "localhost"
+  VARNISH_PORT: "6081"
+  SEARCH_ENGINE: "elasticsearch7"
+  ELASTIC_HOST: "localhost"
+  ELASTIC_PORT: "9200"
+  ELASTIC_ENABLE_AUTH: "1"
+  ELASTIC_USERNAME: "elastic"
+  ELASTIC_PASSWORD: "changeme"
+  SHOULD_SETUP_TFA: "true"
+
+
+# --- Tech Stack (Services) Configuration
+use_classyllama_repo_ius: false
+use_geerlingguy_repo_remi: true
+use_classyllama_repo_php_appstream: false
+use_classyllama_repo_php_remi_modular: true
+php_stream_version: "remi-7.4"
+php_version: 74
+php_enablerepo: ""
+php_package_name_extra: ""
+php_default_modules:
+  - bcmath
+  - cli
+  - common
+  - devel
+  - fpm
+  - gd
+  - intl
+  - json
+  - mbstring
+  # - mcrypt      # installed on 7.1 and prior
+  - sodium      # installed on 7.2 and later
+  - mysqlnd
+  - opcache
+  - pdo
+  - pecl-redis5 # Not required
+  - process
+  - soap
+  - xml
+  - xmlrpc
+  - pecl-zip
+  - pear # Requirement for PECL
+php_additional_modules:
+  - xdebug
+  # - pecl-imagick
+
+use_classyllama_repo_python_appstream: true
+python3_stream_version: "3.6"
+python_module_name: python36
+python_package_name: python3
+python_software_packages: 
+  - "{{ python_package_name }}"
+  - "{{ python_package_name }}-pip"
+  - "{{ python_package_name }}-devel"
+  - "{{ python_package_name }}-PyMySQL"
+
+use_classyllama_mariadb: false
+use_classyllama_percona: true
+percona_version: 80
+
+use_classyllama_repo_varnish: true
+use_classyllama_varnish: true
+varnish_version: 64
+
+use_classyllama_repo_nginx: true
+use_classyllama_repo_nginx_appstream: false
+nginx_stream_version: "1.20"
+
+# use_classyllama_repo_ius: false
+# use_geerlingguy_repo_remi: true
+use_classyllama_multi_redis: true
+use_classyllama_repo_redis_appstream: true
+redis_package_name: "redis"
+redis_enablerepo: ""
+redis_stream_version: "remi-6.2"
+redis_version: 62
+
+use_elastic_elasticsearch: true
+es_version: 7.10.0
+
+
+# --- Additional Tools Configuration
+composer_version: "2.1.3"
+composer_selfupdate: true
+
+use_create_www_projects_dir: false
+yum_update_and_reboot: never # (always, initial, never)

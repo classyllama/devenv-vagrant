@@ -1,0 +1,40 @@
+#
+# We don't have /data/ directory inside docker container, using a default datadir location
+#
+mysqld_datadir: /var/lib/mysql
+#
+# This fix is needed for Docker containers because /tmp is mounted with noexec flag (similar to Rackspace)
+#
+es_tmp_dir: /var/lib/elasticsearchtmp
+#
+# We need to override the postfix parameters for inet_interfaces and inet_protocols options to avoid using IPv6 interface ('localhost' is mapped to 127.0.0.1 and ::1 
+# and it is impossible to modify /etc/hosts inside the container
+#
+postfix_parameters:
+  alias_database: 'hash:/etc/aliases'
+  alias_maps: 'hash:/etc/aliases'
+  command_directory: /usr/sbin
+  daemon_directory: /usr/libexec/postfix
+  data_directory: /var/lib/postfix
+  debug_peer_level: 2
+  debugger_command: 'PATH=/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin ddd $daemon_directory/$process_name $process_id & sleep 5'
+  html_directory: false
+  inet_interfaces: 127.0.0.1
+  inet_protocols: ipv4
+  mail_owner: postfix
+  mailq_path: /usr/bin/mailq.postfix
+  manpage_directory: /usr/share/man
+  mydestination:
+    - $myhostname
+    - localhost.$mydomain
+    - localhost
+  newaliases_path: /usr/bin/newaliases.postfix
+  readme_directory: "/usr/share/doc/postfix-{{ postfix_version }}/README_FILES"
+  sample_directory: "/usr/share/doc/postfix-{{ postfix_version }}/samples"
+  sendmail_path: /usr/sbin/sendmail.postfix
+  setgid_group: postdrop
+  queue_directory: /var/spool/postfix
+  unknown_local_recipient_reject_code: 550
+
+# We typically don't need this role
+use_morgangraphics_nvm: false
