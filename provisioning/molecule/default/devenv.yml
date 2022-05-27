@@ -138,12 +138,6 @@
   tasks:
    
     # --- Elasticsearch Service
-    - name: Install Elastic Dependencies
-      package:
-        name: "{{ elastic_package_dependencies }}"
-        state: present
-      when: use_elastic_elasticsearch | default(false)
-
     - name: ElasticSearch version check
       ansible.builtin.debug:
         msg: ElasticSearch version {{ es_version.split(".")[0] }}
@@ -315,28 +309,6 @@
         state: link
         force: yes
       when: use_current_to_app_install_symlink | default(false)
-    
-    # Copy composer cache files to www-users
-    - name: Create remote cache directory (composer)
-      file:
-        path: /home/www-data/.composer/cache
-        state: directory
-        mode: "755"
-        owner: www-data
-        group: www-data
-    
-    - name: Synchronize remote composer directories for www-data
-      synchronize:
-        src: /root/.composer/cache/
-        dest: /home/www-data/.composer/cache/
-      delegate_to: "{{ inventory_hostname }}"
-      
-    - name: Update user:group ownership on www-data cache directory (composer)
-      file:
-        path: /home/www-data/.composer/cache
-        recurse: true
-        owner: www-data
-        group: www-data
     
 
 #- import_playbook: ../persistent/devenv_playbook.config.yml

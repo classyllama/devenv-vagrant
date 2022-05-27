@@ -22,7 +22,6 @@
           - yara
           - unzip
           - words
-          - coreutils
           - oathtool
     
     # EL7 Packages
