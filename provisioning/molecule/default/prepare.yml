@@ -10,4 +10,5 @@
           - hostname
           - cronie
           - dnf-plugins-core
+          - openssl
         state: present
