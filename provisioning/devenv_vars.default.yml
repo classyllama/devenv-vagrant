@@ -170,6 +170,7 @@ use_dedicated_redis_fpc: false
 redis_fpc_maxmem: 512mb
 
 use_elastic_elasticsearch: true
+use_classyllama_opensearch: false
 es_version: 7.12.1
 es_config:
   node.name: "node1"

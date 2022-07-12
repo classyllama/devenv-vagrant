@@ -1,0 +1,143 @@
+---
+# tasks file for opensearch
+
+- name: OpenSearch Install | Check for existing configuration
+  ansible.builtin.stat:
+    path: "{{ os_config_dir }}"
+  register: opensearch_config
+
+- name: OpenSearch Install | Create opensearch user "{{ os_user }}"
+  ansible.builtin.user:
+    name: "{{ os_user }}"
+    state: present
+    shell: /bin/bash
+
+- name: OpenSearch Install | Create home directory "{{ os_home }}"
+  ansible.builtin.file:
+    path: "{{ os_home }}"
+    state: directory
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: "0755"
+
+- name: OpenSearch Install | Download opensearch {{ os_version }}
+  ansible.builtin.get_url:
+    url: "{{ os_download_url }}/{{ os_version }}/opensearch-{{ os_version }}-linux-x64.tar.gz"
+    dest: "/tmp/opensearch.tar.gz"
+    mode: "0644"
+  when: not opensearch_config.stat.exists
+
+- name: OpenSearch Install | Extract the tar file
+  ansible.builtin.command: chdir=/tmp/ tar -xvzf opensearch.tar.gz -C "{{ os_home }}" --strip-components=1
+  when: not opensearch_config.stat.exists
+
+- name: OpenSearch Install | Copy Configuration File
+  ansible.builtin.template:
+    src: opensearch.yml.j2
+    dest: "{{ os_config_dir }}/opensearch.yml"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: 0600
+    force: yes
+
+- name: OpenSearch Install | Copy jvm.options File for Instance
+  ansible.builtin.template:
+    src: jvm.options.j2
+    dest: "{{ os_config_dir }}/jvm.options"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: 0600
+    force: yes
+
+- name: OpenSearch Install | Create link to {{ os_config_dir_link }} directory
+  ansible.builtin.file:
+     src: "{{ os_config_dir }}"
+     dest: "{{ os_config_dir_link }}"
+     owner: "{{ os_user }}"
+     group: "{{ os_user }}"
+     state: link
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: OpenSearch Install | Create systemd service
+  ansible.builtin.template:
+    src: opensearch.service.j2
+    dest: "{{ os_systemctl_path }}/opensearch.service"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  notify: reload systemd configuration
+
+- name: Security Plugin configuration | Copy the opensearch security internal users template
+  ansible.builtin.template:
+    src: internal_users.yml.j2
+    dest: "{{ os_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
+
+- name: Security Plugin configuration | Set the user password
+  ansible.builtin.shell: >
+    sed -i '/hash: / s,{{ os_admin_password }},'$(bash {{ os_sec_plugin_tools_path }}/hash.sh -p {{ os_admin_password }} | tail -1)','
+    {{ os_sec_plugin_conf_path }}/internal_users.yml
+  environment:
+    JAVA_HOME: "{{ os_home }}/jdk"
+  run_once: true
+  notify: restart opensearch
+
+- name: Security Plugin configuration | Check for existing SSL certificates
+  ansible.builtin.stat:
+    path: "{{ os_config_dir }}/transport.pem"
+  register: opensearch_ssl_stat
+
+- name: Security Plugin configuration | SSL generation
+  ansible.builtin.shell: |
+    openssl genrsa -out root-ca-key.pem 2048
+    openssl req -new -x509 -sha256 -key root-ca-key.pem -out root-ca.pem -days 3650 -subj "/C=US/ST=OpenSearch/L=OpenSearchm /O=.../OU=.../CN=.../emailAddress=..."
+    openssl genrsa -out transport-key-temp.pem 2048
+    openssl pkcs8 -inform PEM -outform PEM -in transport-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out transport-key.pem
+    openssl req -new -key transport-key.pem -out transport.csr -subj "/C=US/ST=OpenSearch/L=OpenSearchm /O=.../OU=.../CN=.../emailAddress=..."
+    openssl x509 -req -in transport.csr -CA root-ca.pem -CAkey root-ca-key.pem -CAcreateserial -sha256 -out transport.pem -days 3650
+  args:
+    chdir: "{{ os_config_dir }}"
+  become: true
+  become_user: "{{ os_user }}"
+  run_once: true
+  when: not opensearch_ssl_stat.stat.exists
+
+- name: OpenSearch Check | Make sure opensearch is started
+  ansible.builtin.service:
+    name: opensearch
+    state: started
+    enabled: yes
+
+- name: OpenSearch Check | Wait for open port
+  ansible.builtin.wait_for:
+    host: "{{ os_api_ip }}"
+    port: "{{ os_api_port }}"
+    delay: 10
+
+- name: OpenSearch Check | Get all the installed ES plugins
+  ansible.builtin.command: "{{ os_plugin_bin_path }} list"
+  register: list_plugins
+
+- name: OpenSearch Check | Show all the installed ES plugins
+  ansible.builtin.debug:
+    msg: "{{ list_plugins.stdout }}"
+
+- name: OpenSearch Check | Check the opensearch status
+  ansible.builtin.command: curl http://{{ os_api_ip }}:{{ os_api_port }}/_cluster/health?pretty -u '{{ os_admin_user }}:{{ os_admin_password }}' -k
+  register: os_status
+
+- name: OpenSearch Check | Show the opensearch status
+  ansible.builtin.debug:
+    msg: "{{ os_status.stdout }}"
+  failed_when: "'number_of_nodes' not in os_status.stdout"
+
+- name: OpenSearch Check | Verify the roles of opensearch cluster nodes
+  ansible.builtin.command: curl http://{{ os_api_ip }}:{{ os_api_port }}/_cat/nodes?v -u '{{ os_admin_user }}:{{ os_admin_password }}' -k
+  register: os_roles
+  run_once: true
+
+- name: OpenSearch Check | Show the roles of opensearch cluster nodes
+  ansible.builtin.debug:
+    msg: "{{ os_roles.stdout }}"
+  run_once: true

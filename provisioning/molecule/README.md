@@ -11,19 +11,16 @@ When Molecule and Docker are installed we can use the following steps to test th
 Build Docker containers for available OSes:
 
     molecule create -s centos7-latest
-    molecule create -s centos8-latest
     molecule create -s rocky8-latest
 
 Run IaC repo provisioning for a particular environment:
 
     molecule converge -s centos7-latest
-    molecule converge -s centos8-latest
     molecule converge -s rocky8-latest
 
 Detroy the Docker containers:
 
     molecule destroy -s centos7-latest
-    molecule destroy -s centos8-latest
     molecule destroy -s rocky8-latest
 
 This is only one of the scenarios that can be used, please refer to [Molecule documentation](https://confluence.classyllama.com/x/vJDKAg) to see all possible options.
@@ -54,7 +51,7 @@ However, we need to include a custom var file to override some variables (`molec
 
 3. We need to override the postfix parameters for `inet_interfaces` and `inet_protocols` options to avoid using IPv6 interface ('localhost' is mapped to 127.0.0.1 and ::1 and it is impossible to modify /etc/hosts inside the container).
 
-4. The package 'coreutils' is removed from the list of 'Common Software Packages' due to conflict with 'coreutils-single' which is installed by default on Docker containers for RockyLinux8 and CentOS 8.
+4. The package 'coreutils' is removed from the list of 'Common Software Packages' due to conflict with 'coreutils-single' which is installed by default on Docker containers for RockyLinux8.
 
 ## Molecule CLI
 
@@ -66,5 +63,4 @@ Please refer to the Confluence documentation on [Molecule CLI](https://confluenc
 Currently we use the following Docker images built by community:
 
     - centos7-latest - https://github.com/geerlingguy/docker-centos7-ansible
-    - centos8-latest - https://github.com/geerlingguy/docker-centos8-ansible
     - rocky8-latest - https://github.com/geerlingguy/docker-rockylinux8-ansible

@@ -118,7 +118,11 @@
     - role: elastic.elasticsearch
       tags: [ elasticsearch, elastic-stack ]
       when: use_elastic_elasticsearch | default(false)
-      
+
+    - role: classyllama.opensearch
+      tags: [ elasticsearch, elastic-stack ]
+      when: use_classyllama_opensearch | default(false)
+
     - { role: classyllama.repo-nodesource, tags: nodejs, when: use_classyllama_repo_nodesource | default(false) }
     - { role: classyllama.elasticdump, tags: elasticdump, when: use_classyllama_elasticdump | default(false) }
     

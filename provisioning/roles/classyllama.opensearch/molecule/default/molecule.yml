@@ -4,8 +4,21 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: devenv-centos8-latest
-    image: geerlingguy/docker-centos8-ansible:latest
+#
+#   Disabled only for performance reasons
+#
+#  - name: opensearch-centos7-latest
+#    image: geerlingguy/docker-centos7-ansible
+#    command: /sbin/init
+#    privileged: true
+#    cgroupns: host
+#    tmpfs:
+#      - /run
+#      - /tmp
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+  - name: opensearch-rockylinux8-latest
+    image: geerlingguy/docker-rockylinux8-ansible
     command: /sbin/init
     privileged: true
     cgroupns: host
@@ -20,10 +33,10 @@ provisioner:
     D: True
 verifier:
   name: testinfra
-#lint: |
-#  set -e
-#  yamllint .
-#  ansible-lint
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
 scenario:
   create_sequence:
     - dependency

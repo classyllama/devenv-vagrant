@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: opensearch
+  author: ClassyLlama
+  namespace: classyllama
+  description: OpenSearch Ansible Role
+  company: ClassyLlama
+  license: MIT
+  min_ansible_version: 2.1
+  platforms:
+    - name: CentOS
+      versions:
+        - all
+    - name: RHEL
+      versions:
+        - all
+    - name: RockyLinux
+      versions:
+        - all
+dependencies: []

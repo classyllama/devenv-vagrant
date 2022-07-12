@@ -154,8 +154,9 @@ roles:
     name: classyllama.www-user
     scm: git
 
-
-
+  - src: git@github.com:classyllama/ansible-role-opensearch.git
+    name: classyllama.opensearch
+    scm: git
 
 
 

@@ -1,0 +1,17 @@
+cluster.name: "{{ os_cluster_name }}"
+node.name: "{{ inventory_hostname }}"
+network.host: "{{ os_api_ip }}"
+http.port: "{{ os_api_port }}"
+discovery.type: single-node
+bootstrap.memory_lock: true
+
+plugins.security.disabled: {{ os_disable_security|lower }}
+plugins.security.ssl.http.enabled: false
+plugins.security.ssl.transport.pemcert_filepath: transport.pem
+plugins.security.ssl.transport.pemkey_filepath: transport-key.pem
+plugins.security.ssl.transport.pemtrustedcas_filepath: root-ca.pem
+plugins.security.allow_default_init_securityindex: true
+plugins.security.audit.type: internal_opensearch
+plugins.security.enable_snapshot_restore_privilege: true
+plugins.security.check_snapshot_restore_write_privileges: true
+plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]

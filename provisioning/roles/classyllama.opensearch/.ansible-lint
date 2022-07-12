@@ -1,0 +1,4 @@
+warn_list:
+  - command-instead-of-module  # Using command rather than module.
+  - no-changed-when  # Commands should not change things if nothing needs doing.
+  - risky-shell-pipe  # Shells that use pipes should set the pipefail option.

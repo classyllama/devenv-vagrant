@@ -1,0 +1,9 @@
+- name: Prepare
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: "Prep host for OpenSearch installation"
+      ansible.builtin.package:
+        name: openssl
+        state: present

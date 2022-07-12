@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include classyllama.opensearch"
+      ansible.builtin.include_role:
+        name: "classyllama.opensearch"
+  vars:
+    - os_xmx: 1g
+    - os_xms: 1g

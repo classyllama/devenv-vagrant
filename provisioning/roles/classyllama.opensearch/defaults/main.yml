@@ -1,0 +1,27 @@
+---
+# defaults file for opensearch
+os_home: /usr/share/opensearch
+os_config_dir: /usr/share/opensearch/config
+os_config_dir_link: /etc/opensearch
+os_plugin_bin_path: /usr/share/opensearch/bin/opensearch-plugin
+os_sec_plugin_conf_path: /usr/share/opensearch/plugins/opensearch-security/securityconfig
+os_sec_plugin_tools_path: /usr/share/opensearch/plugins/opensearch-security/tools
+os_systemctl_path: /etc/systemd/system
+
+os_api_ip: "127.0.0.1"
+os_api_port: 9200
+
+## Common opensearch configuration parameters ##
+os_cluster_name: opensearch-cluster
+# opensearch download
+os_download_url: https://artifacts.opensearch.org/releases/bundle/opensearch
+# opensearch version
+os_version: "1.2.4"
+# Java memory heap values for opensearch
+os_xms_value: 2g
+os_xmx_value: 2g
+# opensearch user info
+os_user: opensearch
+os_admin_user: opensearch
+os_admin_password: changeme
+os_disable_security: false
