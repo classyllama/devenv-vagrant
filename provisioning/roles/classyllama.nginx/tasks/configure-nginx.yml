@@ -31,7 +31,7 @@
     vhost_pool: "{{ item.pool }}"
     vhost_params: "{{ item.params|default({}) }}"
     vhost_template: "{{ item.template|default('vhost.conf') }}"
-    vhost_includes: "{{ item.includes|default([]) }} + {{ nginx_vhost_includes }}"
+    vhost_includes: "{{ item.includes|default([]) + nginx_vhost_includes }}"
     vhost_http_includes: "{{ item.http_includes|default([]) }}"
   with_items: "{{ nginx_vhosts }}"
 
@@ -43,7 +43,7 @@
     backend_listen: "{{ item.listen }}"
     backend_webroot: "{{ item.webroot }}"
     backend_template: "{{ item.template|default('backend.conf') }}"
-    backend_includes: "{{ item.includes|default([]) }} + {{ nginx_backend_includes }}"
+    backend_includes: "{{ item.includes|default([]) + nginx_backend_includes }}"
   with_items: "{{ nginx_backends }}"
 
 - name: configure domain redirects

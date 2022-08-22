@@ -27,7 +27,7 @@ php_default_modules:
   - xml
   - xmlrpc
 php_additional_modules: []
-php_modules: "{{ php_default_modules }} + {{ php_additional_modules }}"
+php_modules: "{{ php_default_modules + php_additional_modules }}"
 
 php_fpm_sys_owner: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"
 php_fpm_sys_group: "{{ (php_version >= 56) | ternary('php-fpm', 'apache') }}"

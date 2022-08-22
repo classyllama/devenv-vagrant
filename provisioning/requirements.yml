@@ -56,6 +56,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-multi-redis.git
     name: classyllama.multi-redis
+    version: feature/SYEI01-476_Ansible_2_13_compatibility
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-n98-magerun.git
@@ -64,6 +65,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-nginx.git
     name: classyllama.nginx
+    version: feature/SYEI01-476_Ansible_2_13_compatibility
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-percona.git
@@ -76,6 +78,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-php-fpm.git  
     name: classyllama.php-fpm
+    version: feature/SYEI01-476_Ansible_2_13_compatibility
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-python.git
@@ -144,6 +147,7 @@ roles:
   
   - src: git@github.com:classyllama/ansible-role-varnish.git
     name: classyllama.varnish
+    version: feature/SYEI01-476_Ansible_2_13_compatibility
     scm: git
   
   - src: git@github.com:classyllama/ansible-role-web-info.git

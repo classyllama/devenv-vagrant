@@ -112,44 +112,44 @@
 
 - name: Build array of package names to install with yum for PHP 7.X for CentOS 7
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php{{ php_package_name_extra }}-{{ item }}' ]"
-  with_items: "{{ php_modules }}"
+    php_yum_packages: "{{ php_yum_packages|default([]) | union(['php'+php_package_name_extra+'-'+item]) }}"
+  loop: "{{ php_modules }}"
   when:
     - php_version < 75
     - ansible_distribution_major_version < '8'
 
 - name: Build array of package names to install with yum for PHP 7.X for CentOS 8 / RockyLinux
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-{{ item }}' ]"
-  with_items: "{{ php_modules }}"
+    php_yum_packages: "{{ php_yum_packages|default([]) | union(['php-'+item]) }}"
+  loop: "{{ php_modules }}"
   when:
     - php_version < 75
     - ansible_distribution_major_version >= '8'
 
 - name: Build array of package names to install with yum for PHP 8.X
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-{{ item }}' ]"
-  with_items: "{{ php_modules }}"
+    php_yum_packages: "{{ php_yum_packages|default([]) | union(['php-'+item]) }}"
+  loop: "{{ php_modules }}"
   when:
     - php_version > 74
 
 - name: Add zip package # name prefix is fixed, regardless of whether or not package name extra has "u"
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php{{ php_version }}-pecl-zip' ]"
+    php_yum_packages: "{{ php_yum_packages|default([]) + [ 'php{{ php_version }}-pecl-zip' ] }}"
   when:
     - php_version == 74
     - ansible_distribution_major_version < '8'
 
 - name: Add zip package # name prefix is fixed, regardless of whether or not package name extra has "u"
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-zip' ]"
+    php_yum_packages: "{{ php_yum_packages|default([]) + [ 'php-zip' ] }}"
   when:
     - php_version >= 73
     - ansible_distribution_major_version >= '8'
 
 - name: Add pear package
   set_fact:
-    php_yum_packages: "{{ php_yum_packages|default([]) }} + [ 'php-pear' ]"
+    php_yum_packages: "{{ php_yum_packages|default([]) + [ 'php-pear' ] }}"
 
 - debug:
     var: php_yum_packages

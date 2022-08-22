@@ -48,7 +48,7 @@
 # append the actual service name to list which the "restart redis" handler iterates
 # this is neccessary because handlers cannot use variables in the same way tasks can
 - name: register redis-{{ redis_instance.name }} restart
-  set_fact: redis_service_restart="{{ redis_service_restart|default([]) }} + [ 'redis-{{ redis_instance.name }}' ]"
+  set_fact: redis_service_restart="{{ redis_service_restart|default([]) + [ 'redis-{{ redis_instance.name }}' ] }}"
   when: (redis_config_changed is changed) or (redis_base_config_changed)
 
 - name: starting redis-{{ redis_instance.name }} service
