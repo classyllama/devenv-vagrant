@@ -80,6 +80,7 @@ php_default_modules:
   - pear # Requirement for PECL
 php_additional_modules:
   - xdebug
+  # - pecl-xdebug3
   # - pecl-imagick
 
 use_classyllama_repo_python_appstream: true

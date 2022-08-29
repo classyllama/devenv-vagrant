@@ -90,6 +90,9 @@ php_extension_xdebug_ini:
   xdebug.profiler_enable: 0
   xdebug.profiler_output_dir: "/tmp"
   xdebug.profiler_output_name: cachegrind.out.%s.%t
+  # X-Debug3
+  xdebug.mode: debug
+  xdebug.client_host: 172.28.128.1
 php_xdebug_ini_path: "/etc/php.d/15-xdebug.ini"
 
 php_mailhog_ini_path: "/etc/php.d/20-mailhog.ini"
