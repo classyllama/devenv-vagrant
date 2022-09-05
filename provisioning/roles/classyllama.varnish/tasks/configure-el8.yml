@@ -14,11 +14,11 @@
     modification_time: preserve
     access_time: preserve
   register: varnish_secret
-  when: varnish_version == 64
+  when: varnish_version >= 64
 
 - name: Populate random value in Varnish secret file
   command: dd if=/dev/random of=/etc/varnish/secret count=1
-  when: varnish_version == 64 and varnish_secret.changed
+  when: varnish_version >= 64 and varnish_secret.changed
 
 - name: "configure varnish-{{ varnish_instance.name }} service"
   template: 

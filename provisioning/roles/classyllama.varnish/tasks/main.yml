@@ -16,7 +16,7 @@
 # this is neccessary because handlers cannot use variables in the same way tasks can
 - name: Register varnish-{{ varnish_instance.name }} restart
   set_fact:
-    varnish_service_restart: "{{ varnish_service_restart|default([]) }} + [ 'varnish-{{ varnish_instance.name }}' ]"
+    varnish_service_restart: "{{ varnish_service_restart|default([]) + [ 'varnish-{{ varnish_instance.name }}' ] }}"
   when: varnish_config.changed
 
 - name: Start varnish-{{ varnish_instance.name }} service
