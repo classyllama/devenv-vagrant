@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.16 - 2022-09
+- Compability with Ansible 2.13.X
+- OpenSearch 1.2 support
+- Integration with Molecule testing framework
+- Composer versions added (2.1.14, 2.3.5)
+- PHP-FPM role updated (autoconfig, no needs to specify a repository, prefix etc)
+- Added screen to default installation
+
 ## 0.2.15 - 2022-03
 - RabbitMQ support (https://github.com/classyllama/ansible-role-rabbitmq)
 - ElasticDump support (https://github.com/classyllama/ansible-role-elasticdump) to have the ability to dump the ElasticSearch database and restore it locally
