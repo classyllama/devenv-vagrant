@@ -1,3 +1,6 @@
+# ⛔️ DEPRECATED
+## This repository is no longer supported, please consider using [Den](https://github.com/swiftotter/den) instead.
+
 # Summary
 
 This repo provides the necesary pieces needed for setting up a Development Environment for Magento development.
